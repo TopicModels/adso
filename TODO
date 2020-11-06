@@ -1,0 +1,3 @@
+[ ] Add parallelization
+[ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
+[ ] Allow more type for Dataset construction
