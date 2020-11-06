@@ -63,7 +63,15 @@ def xdoctest(session):
 def cov(session):
     session.run("poetry", "install", "--no-dev", external=True)
     install_with_constraints(session, "coverage[toml]", "pytest", "pytest-cov")
-    session.run("pytest", "--cov", "adso")
+    session.run(
+        "pytest",
+        "--cov-report",
+        "html:coverage",
+        "--cov-report",
+        "term",
+        "--cov",
+        "adso",
+    )
 
 
 @nox.session(python=["3.9", "3.8", "3.7"])
