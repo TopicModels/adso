@@ -50,6 +50,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+coverage/
 
 # Translations
 *.mo
@@ -139,3 +140,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+#editor
+.vscode
