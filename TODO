@@ -1,3 +1,4 @@
 [ ] Add parallelization
 [ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
 [ ] Allow more type for Dataset construction
+[ ] Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
