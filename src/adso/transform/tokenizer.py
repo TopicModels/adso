@@ -1,6 +1,7 @@
 """Vectorizer class."""
 
 from __future__ import annotations
+
 from typing import Union
 
 import nltk
@@ -18,6 +19,7 @@ class Tokenizer:
         self: Tokenizer,
         tokenizer: callable = nltk.tokenize.word_tokenize,
         stemmer: Union[None, callable] = _lowercase,
+        stopwords: Union[None, list(str)] = None,
     ) -> None:
 
         if tokenizer == nltk.tokenize.word_tokenize:
@@ -26,7 +28,20 @@ class Tokenizer:
 
         self.stemmer = stemmer
 
-        if self.stemmer:
+        self.stopwords = stopwords
+
+        if self.stemmer and self.stopwords:
+            self.transformer = lambda s: list(
+                filter(
+                    lambda tkn: tkn not in self.stopwords,
+                    map(self.stemmer, self.tokenizer(s)),
+                )
+            )
+        elif self.stopwords:
+            self.transformer = lambda s: list(
+                filter(lambda tkn: tkn not in self.stopwords, self.tokenizer(s))
+            )
+        elif self.stemmer:
             self.transformer = lambda s: list(map(self.stemmer, self.tokenizer(s)))
         else:
             self.transformer = self.tokenizer
