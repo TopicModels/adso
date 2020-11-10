@@ -7,9 +7,8 @@ from functools import reduce
 from itertools import chain, starmap
 from typing import Union
 
-import torch
-
-from ..data import Dataset
+import scipy as sp
+import numpy as np
 
 
 class Vocab:  # Inspiraed from torchtext.vocab.Vocab
@@ -76,7 +75,7 @@ class Vectorizer:
 
     def transform(
         self: Vectorizer, data: list(list(str)), mode: str = "matrix"
-    ) -> torch.Tensor:
+    ) -> Union[np.array, sp.sparse.spmatrix]:
         if not self.vocab:
             NameError("It is necessary to fit before transform")
 
@@ -100,12 +99,12 @@ class Vectorizer:
                     ).items()
                 )
 
-            tensor = torch.tensor(
+            coo_sparse = np.array(
                 list(
                     chain.from_iterable(
                         starmap(
                             lambda row, doc: list(
-                                starmap(lambda col, val: (row, col, val), doc)
+                                starmap(lambda col, val: (val, row, col), doc)
                             ),
                             enumerate(map(document_to_count, data)),
                         )
@@ -113,10 +112,10 @@ class Vectorizer:
                 )
             )
 
-            return torch.sparse.LongTensor(
-                tensor[:, [0, 1]].t(),
-                tensor[:, 2],
-                torch.Size([len(data), len(self.vocab)]),
+            return sp.sparse.csr_matrix(
+                (coo_sparse[:, 0], (coo_sparse[:, 1], coo_sparse[:, 2])),
+                shape=(len(data), len(self.vocab)),
+                dtype=int,
             )
 
         elif mode == "list":
@@ -132,13 +131,13 @@ class Vectorizer:
             data = list(map(document_to_list, data))
             length = min(max(map(len, data)), self.max_length)
 
-            def pad(data, length):
+            def pad(data: list, length: int):
                 if len(data) > length:
                     return data[:length]
                 else:
-                    return data + [-1] * (length - len(data))
+                    return data + [np.nan] * (length - len(data))
 
-            return torch.LongTensor(list(map(lambda row: pad(row, length), data)))
+            return np.array(list(map(lambda row: pad(row, length), data)))
 
         else:
             ValueError("mode not defined (choose matrix or list)")
@@ -151,7 +150,7 @@ class Vectorizer:
         max_freq: float = 1,
         mode: str = "matrix",
         max_length: int = 100,
-    ) -> torch.Tensor:
+    ) -> Union[np.array, sp.sparse.spmatrix]:
         self.fit(data, max_size, min_freq, max_freq, max_length)
         return self.transform(data, mode)
 
@@ -166,9 +165,9 @@ class FreqVectorizer(Vectorizer):
     ) -> None:
         super().fit(data, max_size, min_freq, max_freq)
 
-    def transform(self: FreqVectorizer, data: list(list(str))) -> torch.Tensor:
-        tensor = super().transform(data, mode="matrix").to_dense()
-        return tensor / torch.sum(tensor, 1, keepdim=True)
+    def transform(self: FreqVectorizer, data: list(list(str))) -> sp.sparse.spmatrix:
+        matrix = super().transform(data, mode="matrix")
+        return sp.sparse.diags(1 / matrix.sum(axis=1).A1) @ matrix
 
     def fit_transform(
         self: FreqVectorizer,
@@ -177,8 +176,8 @@ class FreqVectorizer(Vectorizer):
         min_freq: float = 0,
         max_freq: float = 1,
         max_length: int = 100,
-    ) -> torch.Tensor:
-        self.fit(data, max_size, min_freq, max_freq, max_length)
+    ) -> sp.sparse.spmatrix:
+        self.fit(data, max_size, min_freq, max_freq)
         return self.transform(data)
 
 
@@ -190,21 +189,25 @@ class TFIDFVectorizer(Vectorizer):
         min_freq: float = 0,
         max_freq: float = 1,
         smooth: bool = False,
+        log_df: bool = False,
     ) -> None:
         super().fit(data, max_size, min_freq, max_freq)
         self.smooth = smooth
+        self.log_df = log_df
 
-    def transform(self: TFIDFVectorizer, data: list(list(str))) -> torch.Tensor:
-        tensor = super().transform(data, mode="matrix").to_dense()
-        if self.smooth:  # avoid inf
-            return (tensor / torch.sum(tensor, 1, keepdim=True)) * torch.log(
-                (tensor.size()[0] + 1)
-                / ((tensor / torch.sum(tensor, 0, keepdim=True) + 1))
+    def transform(
+        self: TFIDFVectorizer, data: list(list(str))
+    ) -> sp.sparse.spmatrix:
+        matrix = super().transform(data, mode="matrix")
+        tf = sp.sparse.diags(1 / matrix.sum(axis=1).A1) @ matrix
+        delta = 1 if self.smooth else 0
+        if self.log_df:
+            idf = np.log(matrix.shape[0] + delta) - np.log(
+                (matrix > 0).astype(int).sum(axis=0).A1 + delta
             )
-        else:
-            return (tensor / torch.sum(tensor, 1, keepdim=True)) * torch.log(
-                tensor.size()[0] / (tensor / torch.sum(tensor, 0, keepdim=True))
-            )
+        else:  # linear tfidf
+            idf = (matrix.shape[0] + delta) / (matrix > 0).astype(int).sum(axis=0).A1
+        return tf @ sp.sparse.diags(idf)
 
     def fit_transform(
         self: TFIDFVectorizer,
@@ -213,6 +216,7 @@ class TFIDFVectorizer(Vectorizer):
         min_freq: float = 0,
         max_freq: float = 1,
         smooth: bool = False,
-    ) -> torch.Tensor:
-        self.fit(data, max_size, min_freq, max_freq, smooth)
+        log_df: bool = False,
+    ) -> sp.sparse.spmatrix:
+        self.fit(data, max_size, min_freq, max_freq, smooth, log_df)
         return self.transform(data)
