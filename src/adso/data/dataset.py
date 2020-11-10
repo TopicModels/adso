@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import torch.utils.data
 
-
-class Dataset(torch.utils.data.Dataset):
+class Dataset:
     def __init__(self: Dataset, data: list[str]) -> None:
         self.data: list(str) = data
 

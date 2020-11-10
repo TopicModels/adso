@@ -2,7 +2,6 @@ from pathlib import Path
 import random
 
 import numpy as np
-import torch
 
 ADSODIR = Path.home() / ".adso"
 
@@ -15,4 +14,4 @@ def set_seed(seed: int) -> None:
     """
     random.seed(seed)
     np.random.seed(seed)
-    torch.manual_seed(seed)
+    # torch.manual_seed(seed)
