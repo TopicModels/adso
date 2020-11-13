@@ -54,27 +54,35 @@ class Vocab:  # Inspiraed from torchtext.vocab.Vocab
 
 
 class Vectorizer:
-    def __init__(self: Vectorizer) -> None:
-        self.vocab: Vocab
-
-    def fit(
+    def __init__(
         self: Vectorizer,
-        data: list(list(str)),
         max_size: Union[None, int] = None,
         min_freq: float = 0,
         max_freq: float = 1,
+        mode: str = "matrix",
         max_length: int = 100,
     ) -> None:
         if not ((0 <= min_freq <= 1) and (0 <= max_freq <= 1)):
             raise ValueError("min_freq and max_freq must be in the [0,1] interval")
+        if mode not in ["matrix", "list"]:
+            ValueError("mode not defined (choose matrix or list)")
 
+        self.vocab: Vocab
+        self.max_size = max_size
+        self.min_freq = min_freq
+        self.max_freq = max_freq
         self.max_length = max_length
+        self.mode = mode
 
+    def fit(
+        self: Vectorizer,
+        data: list(list(str)),
+    ) -> None:
         count = reduce(lambda x, y: x + y, map(Counter, data))
-        self.vocab = Vocab(count, max_size, min_freq, max_freq)
+        self.vocab = Vocab(count, self.max_size, self.min_freq, self.max_freq)
 
     def transform(
-        self: Vectorizer, data: list(list(str)), mode: str = "matrix"
+        self: Vectorizer, data: list(list(str))
     ) -> Union[np.array, sp.sparse.spmatrix]:
         if not self.vocab:
             NameError("It is necessary to fit before transform")
@@ -85,7 +93,7 @@ class Vectorizer:
             except KeyError:
                 return None
 
-        if mode == "matrix":
+        if self.mode == "matrix":
 
             def document_to_count(document: list(str)):
                 return list(
@@ -118,7 +126,7 @@ class Vectorizer:
                 dtype=int,
             )
 
-        elif mode == "list":
+        elif self.mode == "list":
 
             def document_to_list(document: list(str)):
                 return list(
@@ -139,66 +147,62 @@ class Vectorizer:
 
             return np.array(list(map(lambda row: pad(row, length), data)))
 
-        else:
-            ValueError("mode not defined (choose matrix or list)")
-
     def fit_transform(
         self: Vectorizer,
         data: list(list(str)),
-        max_size: Union[None, int] = None,
-        min_freq: float = 0,
-        max_freq: float = 1,
-        mode: str = "matrix",
-        max_length: int = 100,
     ) -> Union[np.array, sp.sparse.spmatrix]:
-        self.fit(data, max_size, min_freq, max_freq, max_length)
-        return self.transform(data, mode)
+        self.fit(data)
+        return self.transform(data)
 
 
 class FreqVectorizer(Vectorizer):
-    def fit(
+    def __init__(
         self: FreqVectorizer,
-        data: list(list(str)),
         max_size: Union[None, int] = None,
         min_freq: float = 0,
         max_freq: float = 1,
     ) -> None:
-        super().fit(data, max_size, min_freq, max_freq)
+        super().__init__(max_size=max_size, min_freq=min_freq, max_freq=max_freq)
+
+    def fit(
+        self: FreqVectorizer,
+        data: list(list(str)),
+    ) -> None:
+        super().fit(data)
 
     def transform(self: FreqVectorizer, data: list(list(str))) -> sp.sparse.spmatrix:
-        matrix = super().transform(data, mode="matrix")
+        matrix = super().transform(data)
         return sp.sparse.diags(1 / matrix.sum(axis=1).A1) @ matrix
 
     def fit_transform(
         self: FreqVectorizer,
         data: list(list(str)),
-        max_size: Union[None, int] = None,
-        min_freq: float = 0,
-        max_freq: float = 1,
-        max_length: int = 100,
     ) -> sp.sparse.spmatrix:
-        self.fit(data, max_size, min_freq, max_freq)
+        self.fit(data)
         return self.transform(data)
 
 
 class TFIDFVectorizer(Vectorizer):
-    def fit(
+    def __init__(
         self: TFIDFVectorizer,
-        data: list(list(str)),
         max_size: Union[None, int] = None,
         min_freq: float = 0,
         max_freq: float = 1,
         smooth: bool = False,
         log_df: bool = False,
     ) -> None:
-        super().fit(data, max_size, min_freq, max_freq)
+        super().__init__(max_size=max_size, min_freq=min_freq, max_freq=max_freq)
         self.smooth = smooth
-        self.log_df = log_df
+        self.lod_df = log_df
 
-    def transform(
-        self: TFIDFVectorizer, data: list(list(str))
-    ) -> sp.sparse.spmatrix:
-        matrix = super().transform(data, mode="matrix")
+    def fit(
+        self: TFIDFVectorizer,
+        data: list(list(str)),
+    ) -> None:
+        super().fit(data)
+
+    def transform(self: TFIDFVectorizer, data: list(list(str))) -> sp.sparse.spmatrix:
+        matrix = super().transform(data)
         tf = sp.sparse.diags(1 / matrix.sum(axis=1).A1) @ matrix
         delta = 1 if self.smooth else 0
         if self.log_df:
@@ -210,13 +214,7 @@ class TFIDFVectorizer(Vectorizer):
         return tf @ sp.sparse.diags(idf)
 
     def fit_transform(
-        self: TFIDFVectorizer,
-        data: list(list(str)),
-        max_size: Union[None, int] = None,
-        min_freq: float = 0,
-        max_freq: float = 1,
-        smooth: bool = False,
-        log_df: bool = False,
+        self: TFIDFVectorizer, data: list(list(str))
     ) -> sp.sparse.spmatrix:
-        self.fit(data, max_size, min_freq, max_freq, smooth, log_df)
+        self.fit(data)
         return self.transform(data)
