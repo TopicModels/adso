@@ -9,7 +9,10 @@ DATADIR = ADSODIR / "data"
 
 
 def load_txt(
-    path: Union[str, bytes, os.PathLike], lines: bool = False, label: bool = False, extension: str = "txt"
+    path: Union[str, bytes, os.PathLike],
+    lines: bool = False,
+    label: bool = False,
+    extension: str = "txt",
 ) -> Dataset:
     path = Path(path)
     if label:
