@@ -1,3 +1,5 @@
+import os
+
 from pathlib import Path
 from itertools import chain
 from typing import Union
