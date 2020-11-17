@@ -7,8 +7,8 @@ from functools import reduce
 from itertools import chain, starmap
 from typing import Union
 
-import scipy as sp
 import numpy as np
+import scipy as sp
 
 
 class Vocab:  # Inspiraed from torchtext.vocab.Vocab
@@ -76,13 +76,13 @@ class Vectorizer:
 
     def fit(
         self: Vectorizer,
-        data: list(list(str)),
+        data: List[List[str]],
     ) -> None:
         count = reduce(lambda x, y: x + y, map(Counter, data))
         self.vocab = Vocab(count, self.max_size, self.min_freq, self.max_freq)
 
     def transform(
-        self: Vectorizer, data: list(list(str))
+        self: Vectorizer, data: List[List[str]]
     ) -> Union[np.array, sp.sparse.spmatrix]:
         if not self.vocab:
             NameError("It is necessary to fit before transform")
@@ -95,7 +95,7 @@ class Vectorizer:
 
         if self.mode == "matrix":
 
-            def document_to_count(document: list(str)):
+            def document_to_count(document: List[str]):
                 return list(
                     Counter(
                         list(
@@ -149,7 +149,7 @@ class Vectorizer:
 
     def fit_transform(
         self: Vectorizer,
-        data: list(list(str)),
+        data: List[List[str]],
     ) -> Union[np.array, sp.sparse.spmatrix]:
         self.fit(data)
         return self.transform(data)
@@ -166,17 +166,17 @@ class FreqVectorizer(Vectorizer):
 
     def fit(
         self: FreqVectorizer,
-        data: list(list(str)),
+        data: List[List[str]],
     ) -> None:
         super().fit(data)
 
-    def transform(self: FreqVectorizer, data: list(list(str))) -> sp.sparse.spmatrix:
+    def transform(self: FreqVectorizer, data: List[List[str]]) -> sp.sparse.spmatrix:
         matrix = super().transform(data)
         return sp.sparse.diags(1 / matrix.sum(axis=1).A1) @ matrix
 
     def fit_transform(
         self: FreqVectorizer,
-        data: list(list(str)),
+        data: List[List[str]],
     ) -> sp.sparse.spmatrix:
         self.fit(data)
         return self.transform(data)
@@ -197,11 +197,11 @@ class TFIDFVectorizer(Vectorizer):
 
     def fit(
         self: TFIDFVectorizer,
-        data: list(list(str)),
+        data: List[List[str]],
     ) -> None:
         super().fit(data)
 
-    def transform(self: TFIDFVectorizer, data: list(list(str))) -> sp.sparse.spmatrix:
+    def transform(self: TFIDFVectorizer, data: List[List[str]]) -> sp.sparse.spmatrix:
         matrix = super().transform(data)
         tf = sp.sparse.diags(1 / matrix.sum(axis=1).A1) @ matrix
         delta = 1 if self.smooth else 0
@@ -214,7 +214,7 @@ class TFIDFVectorizer(Vectorizer):
         return tf @ sp.sparse.diags(idf)
 
     def fit_transform(
-        self: TFIDFVectorizer, data: list(list(str))
+        self: TFIDFVectorizer, data: List[List[str]]
     ) -> sp.sparse.spmatrix:
         self.fit(data)
         return self.transform(data)

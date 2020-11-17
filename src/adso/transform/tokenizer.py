@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import List, Union
 
 import nltk
 
@@ -19,7 +19,7 @@ class Tokenizer:
         self: Tokenizer,
         tokenizer: callable = nltk.tokenize.word_tokenize,
         stemmer: Union[None, callable] = _lowercase,
-        stopwords: Union[None, list(str)] = None,
+        stopwords: Union[None, List[str]] = None,
     ) -> None:
 
         if tokenizer == nltk.tokenize.word_tokenize:
