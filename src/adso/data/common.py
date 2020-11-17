@@ -1,5 +1,6 @@
 from pathlib import Path
 from itertools import chain
+from typing import Union
 
 from .dataset import Dataset, LabelledDataset
 from ..common import ADSODIR
@@ -8,7 +9,7 @@ DATADIR = ADSODIR / "data"
 
 
 def load_txt(
-    path: str, lines: bool = False, label: bool = False, extension: str = "txt"
+    path: Union[str, bytes, os.PathLike], lines: bool = False, label: bool = False, extension: str = "txt"
 ) -> Dataset:
     path = Path(path)
     if label:
