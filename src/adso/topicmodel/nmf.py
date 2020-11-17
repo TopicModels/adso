@@ -22,7 +22,7 @@ class NMF:
         alphaH: float = 0.5,
         tolerance: Union[float, None] = None,
         method: str = "ACLS",
-    ):
+    ) -> None:
         if n_topic > 0:
             self.n_topic = n_topic
         else:
@@ -72,7 +72,7 @@ class NMF:
         n_topic = self.n_topic
         tolerance = self.tolerance
 
-        if method == "AHCLS":
+        if self.method == "AHCLS":
             betaH = ((1 - self.alphaH) * (n_topic ** 0.5) + self.alphaH) ** 2
             betaW = ((1 - self.alphaW) * (n_topic ** 0.5) + self.alphaW) ** 2
 
@@ -100,9 +100,9 @@ class NMF:
                     + (H.transpose() @ (WtW @ H)).diagonal().sum()
                 )
 
-        if method == "AHCLS":
+        if self.method == "AHCLS":
 
-            def updateH(WtW):
+            def updateH(WtW: sp.sparse.matrix) -> sp.sparse.matrix:
                 return sp.sparse.linalg.spsolve(
                     WtW.todense()
                     + self.lambdaH * betaH * sp.sparse.eye(n_topic)
@@ -110,7 +110,7 @@ class NMF:
                     WtA,
                 )
 
-            def updateW(H):
+            def updateW(H: sp.sparse.matrix) -> sp.sparse.matrix:
                 return sp.sparse.linalg.spsolve(
                     (H @ H.transpose()).todense()
                     + self.lambdaW * betaW * sp.sparse.eye(n_topic)
@@ -118,29 +118,29 @@ class NMF:
                     H @ A.transpose(),
                 ).transpose()
 
-        elif method == "ACLS":
+        elif self.method == "ACLS":
 
-            def updateH(WtW):
+            def updateH(WtW: sp.sparse.matrix) -> sp.sparse.matrix:
                 return sp.sparse.linalg.spsolve(
                     WtW - self.lambdaH * sp.sparse.eye(n_topic),
                     WtA,
                 )
 
-            def updateW(H):
+            def updateW(H: sp.sparse.matrix) -> sp.sparse.matrix:
                 return sp.sparse.linalg.spsolve(
                     H @ H.transpose() - self.lambdaW * sp.sparse.eye(n_topic),
                     H @ A.transpose(),
                 ).transpose()
 
-        elif method == "ALS":
+        elif self.method == "ALS":
 
-            def updateH(WtW):
+            def updateH(WtW: sp.sparse.matrix) -> sp.sparse.matrix:
                 return sp.sparse.linalg.spsolve(
                     WtW,
                     WtA,
                 )
 
-            def updateW(H):
+            def updateW(H: sp.sparse.matrix) -> sp.sparse.matrix:
                 return sp.sparse.linalg.spsolve(
                     H @ H.transpose(),
                     H @ A.transpose(),
