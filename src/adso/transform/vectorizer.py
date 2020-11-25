@@ -5,26 +5,28 @@ from __future__ import annotations
 from collections import Counter
 from functools import reduce
 from itertools import chain, starmap
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 import scipy as sp
 
 
-class Vocab:  # Inspiraed from torchtext.vocab.Vocab
+class Vocab:  # Inspiraed by torchtext.vocab.Vocab
     def __init__(
         self: Vocab,
         count: Counter,
         max_size: Union[None, int] = None,
         min_freq: float = 0,
         max_freq: float = 1,
+        min_count: int = 1,
     ) -> None:
 
         self.min_freq = min_freq
         self.max_freq = max_freq
+        self.min_count = min_count
 
         total_count = sum(count.values())
-        min_freq = self.min_freq * total_count
+        min_freq = max(self.min_freq * total_count, self.min_count)
         max_freq = self.min_freq * total_count
 
         words = dict(
@@ -59,6 +61,7 @@ class Vectorizer:
         max_size: Union[None, int] = None,
         min_freq: float = 0,
         max_freq: float = 1,
+        min_count: int = 1,
         mode: str = "matrix",
         max_length: int = 100,
     ) -> None:
@@ -71,6 +74,7 @@ class Vectorizer:
         self.max_size = max_size
         self.min_freq = min_freq
         self.max_freq = max_freq
+        self.min_count = min_count
         self.max_length = max_length
         self.mode = mode
 
@@ -79,7 +83,9 @@ class Vectorizer:
         data: List[List[str]],
     ) -> None:
         count = reduce(lambda x, y: x + y, map(Counter, data))
-        self.vocab = Vocab(count, self.max_size, self.min_freq, self.max_freq)
+        self.vocab = Vocab(
+            count, self.max_size, self.min_freq, self.max_freq, self.min_count
+        )
 
     def transform(
         self: Vectorizer, data: List[List[str]]
