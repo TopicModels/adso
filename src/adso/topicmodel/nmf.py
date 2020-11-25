@@ -16,11 +16,11 @@ class NMF:
         self: NMF,
         n_topic: int = 10,
         max_iter: int = 200,
+        tolerance: Union[float, None] = None,
         lambdaW: float = 0.5,
         lambdaH: float = 0.5,
         alphaW: float = 0.5,
         alphaH: float = 0.5,
-        tolerance: Union[float, None] = None,
         method: str = "ACLS",
     ) -> None:
         if n_topic > 0:
@@ -81,12 +81,17 @@ class NMF:
         else:
             p = int(n_term / n_topic + 1)
 
-        W = sp.sparse.csr_matrix((n_doc, n_topic))
-        # It is very likely that a better implemetation without a loop is possible
-        for i in range(n_topic):
-            W[:, i] = data[:, np.random.choice(n_term, size=p, replace=False)].mean(
-                axis=1
+        W = sp.sparse.csr_matrix(
+            np.mean(
+                np.resize(
+                    data[
+                        :, np.random.choice(n_term, size=p * n_topic, replace=False)
+                    ].todense(),
+                    (n_doc, n_topic, p),
+                ),
+                axis=2,
             )
+        )
 
         if tolerance is not None:
             trAtA = (A.transpose() @ A).diagonal().sum()
