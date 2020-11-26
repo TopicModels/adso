@@ -5,3 +5,5 @@
 [ ] (?) Use nunmpy for Tokenizer
 [x] (?) Rewrite Vectorizer to use scipy sparse
 [ ] Add save methods to transformer and modeller
+[ ] Investigate LDA sparsity
+[ ] Implement metrics (p.e. perplexity Blei03a) and plot
