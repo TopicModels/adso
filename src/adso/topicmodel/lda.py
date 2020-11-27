@@ -11,8 +11,10 @@ import numpy as np
 import scipy as sp
 import sparse
 
+from .common import TopicModel
 
-class LDA:
+
+class LDA(TopicModel):
     def __init__(
         self: LDA,
         n_topic: int = 10,

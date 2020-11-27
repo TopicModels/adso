@@ -10,8 +10,10 @@ from typing import Union
 import numpy as np
 import scipy as sp
 
+from .common import TopicModel
 
-class NMF:
+
+class NMF(TopicModel):
     def __init__(
         self: NMF,
         n_topic: int = 10,
