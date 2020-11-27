@@ -79,7 +79,7 @@ class NMF:
         if n_term / n_topic > 20:
             p = 20
         else:
-            p = int(n_term / n_topic + 1)
+            p = max(int(n_term / n_topic), 1)
 
         W = sp.sparse.csr_matrix(
             np.mean(
