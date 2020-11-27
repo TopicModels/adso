@@ -1,8 +1,0 @@
-{
-    "code-runner.runInTerminal": true,
-    "python.pythonPath": "/home/tnto/.cache/pypoetry/virtualenvs/adso-taNhySbI-py3.8/bin/python",
-    "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.linting.mypyEnabled": false,
-    "python.linting.enabled": true
-}
