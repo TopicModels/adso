@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import abc
 from collections import Counter
 from functools import reduce
 from itertools import chain, starmap
@@ -9,6 +10,8 @@ from typing import Union, List
 
 import numpy as np
 import scipy as sp
+
+from .common import Transformer
 
 
 class Vocab:  # Inspiraed by torchtext.vocab.Vocab
@@ -55,9 +58,23 @@ class Vocab:  # Inspiraed by torchtext.vocab.Vocab
         return len(self.stoi)
 
 
-class Vectorizer:
+class Vectorizer(abc.ABC, Transformer):
+    @abc.abstractmethod
+    def fit(data: List[List[str]]) -> None:
+        pass
+
+    @abc.abstractmethod
+    def transform(data: List[List[str]]) -> Union[np.array, sp.sparse.spmatrix]:
+        pass
+
+    @abc.abstractmethod
+    def fit_transform(data: List[List[str]]) -> Union[np.array, sp.sparse.spmatrix]:
+        pass
+
+
+class CountVectorizer(Vectorizer):
     def __init__(
-        self: Vectorizer,
+        self: CountVectorizer,
         max_size: Union[None, int] = None,
         min_freq: float = 0,
         max_freq: float = 1,
@@ -79,7 +96,7 @@ class Vectorizer:
         self.mode = mode
 
     def fit(
-        self: Vectorizer,
+        self: CountVectorizer,
         data: List[List[str]],
     ) -> None:
         count = reduce(lambda x, y: x + y, map(Counter, data))
@@ -88,7 +105,7 @@ class Vectorizer:
         )
 
     def transform(
-        self: Vectorizer, data: List[List[str]]
+        self: CountVectorizer, data: List[List[str]]
     ) -> Union[np.array, sp.sparse.spmatrix]:
         if not self.vocab:
             NameError("It is necessary to fit before transform")
@@ -154,14 +171,14 @@ class Vectorizer:
             return np.array(list(map(lambda row: pad(row, length), data)))
 
     def fit_transform(
-        self: Vectorizer,
+        self: CountVectorizer,
         data: List[List[str]],
     ) -> Union[np.array, sp.sparse.spmatrix]:
         self.fit(data)
         return self.transform(data)
 
 
-class FreqVectorizer(Vectorizer):
+class FreqVectorizer(CountVectorizer):
     def __init__(
         self: FreqVectorizer,
         max_size: Union[None, int] = None,
@@ -188,7 +205,7 @@ class FreqVectorizer(Vectorizer):
         return self.transform(data)
 
 
-class TFIDFVectorizer(Vectorizer):
+class TFIDFVectorizer(CountVectorizer):
     def __init__(
         self: TFIDFVectorizer,
         max_size: Union[None, int] = None,

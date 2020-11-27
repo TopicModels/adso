@@ -8,13 +8,14 @@ import nltk
 
 from ..data import Dataset
 from . import nltk_download
+from .common import Transformer
 
 
 def _lowercase(s: str) -> str:
     return s.lower()
 
 
-class Tokenizer:
+class Tokenizer(Transformer):
     def __init__(
         self: Tokenizer,
         tokenizer: callable = nltk.tokenize.word_tokenize,
