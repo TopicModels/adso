@@ -58,7 +58,7 @@ class Vocab:  # Inspiraed by torchtext.vocab.Vocab
         return len(self.stoi)
 
 
-class Vectorizer(abc.ABC, Transformer):
+class Vectorizer(Transformer):
     @abc.abstractmethod
     def fit(data: List[List[str]]) -> None:
         pass
