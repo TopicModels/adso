@@ -23,3 +23,8 @@ def test_load():
     assert len(load_labelled_test_dataset().get_data()) == 4
     assert len(load_labelled_test_dataset().get_labels()) == 4
     assert set(load_labelled_test_dataset().get_labels()) == set("maths", "animals")
+
+
+if __name__ == "__main__":
+    test_write_dir()
+    test_load()

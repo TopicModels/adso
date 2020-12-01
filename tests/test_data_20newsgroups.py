@@ -7,4 +7,5 @@ def test_20newsgroups():
     assert len(set(data.get_labels())) == 20
 
 
-test_20newsgroups()
+if __name__ == "__main__":
+    test_20newsgroups()
