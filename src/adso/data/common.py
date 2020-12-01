@@ -15,12 +15,19 @@ def load_txt(
     lines: bool = False,
     label: bool = False,
     extension: Union[str, None] = "txt",
+    encoding: str = "utf-8",
+    ignore_error: bool = True,
 ) -> Dataset:
     path = Path(path)
     if extension is None:
         extension = ""
     else:
         extension = "." + extension
+
+    if ignore_error:
+        errors = "ignore"
+    else:
+        errors = None
 
     if label:
         if lines:
@@ -30,7 +37,9 @@ def load_txt(
                         map(
                             lambda f: map(
                                 lambda line: (line, f.stem),
-                                f.read_bytes().splitlines(),
+                                f.read_text(
+                                    encoding=encoding, errors=errors
+                                ).splitlines(),
                             ),
                             filter(
                                 lambda f: f.is_file(), path.glob("**/*" + extension)
@@ -43,7 +52,10 @@ def load_txt(
             return LabelledDataset(
                 list(
                     map(
-                        lambda f: (f.read_bytes(), f.parent.name),
+                        lambda f: (
+                            f.read_text(encoding=encoding, errors=errors),
+                            f.parent.name,
+                        ),
                         filter(lambda f: f.is_file(), path.glob("**/*" + extension)),
                     )
                 )
@@ -54,7 +66,9 @@ def load_txt(
                 list(
                     chain.from_iterable(
                         map(
-                            lambda f: f.read_bytes().splitlines(),
+                            lambda f: f.read_text(
+                                encoding=encoding, errors=errors
+                            ).splitlines(),
                             filter(
                                 lambda f: f.is_file(), path.glob("**/*" + extension)
                             ),
@@ -66,7 +80,7 @@ def load_txt(
             return Dataset(
                 list(
                     map(
-                        lambda f: f.read_bytes(),
+                        lambda f: f.read_text(encoding=encoding, errors=errors),
                         filter(lambda f: f.is_file(), path.glob("**/*" + extension)),
                     )
                 )
