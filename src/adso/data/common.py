@@ -14,9 +14,14 @@ def load_txt(
     path: Union[str, bytes, os.PathLike],
     lines: bool = False,
     label: bool = False,
-    extension: str = "txt",
+    extension: Union[str, None] = "txt",
 ) -> Dataset:
     path = Path(path)
+    if extension is None:
+        extension = ""
+    else:
+        extension = "." + extension
+
     if label:
         if lines:
             return LabelledDataset(
@@ -25,9 +30,11 @@ def load_txt(
                         map(
                             lambda f: map(
                                 lambda line: (line, f.stem),
-                                f.read_text().splitlines(),
+                                f.read_bytes().splitlines(),
                             ),
-                            path.glob("**/*." + extension),
+                            filter(
+                                lambda f: f.is_file(), path.glob("**/*" + extension)
+                            ),
                         )
                     )
                 )
@@ -36,8 +43,8 @@ def load_txt(
             return LabelledDataset(
                 list(
                     map(
-                        lambda f: (f.read_text(), f.parent.name),
-                        path.glob("**/*." + extension),
+                        lambda f: (f.read_bytes(), f.parent.name),
+                        filter(lambda f: f.is_file(), path.glob("**/*" + extension)),
                     )
                 )
             )
@@ -47,13 +54,20 @@ def load_txt(
                 list(
                     chain.from_iterable(
                         map(
-                            lambda f: f.read_text().splitlines(),
-                            path.glob("**/*." + extension),
+                            lambda f: f.read_bytes().splitlines(),
+                            filter(
+                                lambda f: f.is_file(), path.glob("**/*" + extension)
+                            ),
                         )
                     )
                 )
             )
         else:  # not label and not lines
             return Dataset(
-                list(map(lambda f: f.read_text(), path.glob("**/*." + extension)))
+                list(
+                    map(
+                        lambda f: f.read_bytes(),
+                        filter(lambda f: f.is_file(), path.glob("**/*" + extension)),
+                    )
+                )
             )
