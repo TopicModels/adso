@@ -1,9 +1,8 @@
 """Test load_txt function from data module."""
 
 import nltk
-
 from adso.data.test import load_test_dataset
-from adso.transform import Tokenizer
+from adso.transform import Tokenizer, nltk_download
 
 nltk.stem.wordnet.WordNetLemmatizer().lemmatize
 
@@ -319,3 +318,7 @@ def test_tokenizer():
             ".",
         ],
     ]
+
+
+#    nltk_download("stopwords")
+#    nltk.corpus.stopwords.words("english")
