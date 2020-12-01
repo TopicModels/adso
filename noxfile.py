@@ -63,6 +63,7 @@ def xdoctest(session):
 def cov(session):
     session.run("poetry", "install", "--no-dev", external=True)
     install_with_constraints(session, "coverage[toml]", "pytest", "pytest-cov")
+    session.run("rm", "-rf", ".test", external=True)
     session.run(
         "pytest",
         "--cov-report",
@@ -71,6 +72,7 @@ def cov(session):
         "term",
         "--cov",
         "adso",
+        env={"HOME": ".test"},
     )
 
 
@@ -78,7 +80,7 @@ def cov(session):
 def test(session):
     session.run("poetry", "install", "--no-dev", external=True)
     install_with_constraints(session, "pytest")
-    session.run("pytest")
+    session.run("pytest", env={"HOME": ".test"})
 
 
 @nox.session()
