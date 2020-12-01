@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from . import DATADIR, Dataset, LabelledDataset, load_txt
+from .common import DATADIR, load_txt
+from .dataset import Dataset, LabelledDataset
 
 
 def load_test_dataset(lines: bool = False) -> Dataset:
