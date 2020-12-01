@@ -1,9 +1,31 @@
+# Future features
+
+### General speed or memory usage improvement
 [ ] Add parallelization
+[ ] Allow online processing
+[ ] (?) Move external file into the git repo
+[ ] add sha ckeck for external ( (?) not NLTK) files
+
+### Additional Topic Modellind algorithms
+[ ] Smoothed LDA (Blei03a)
+[ ] Symmetric LDA (Blei03a and Blei & Lafferty)
+[ ] HDP (Teh, Jordan, Beal & Blei)
+[ ] Gibb's sample LDA (Griffiths & Steyvers)
+[ ] DTM Blei & Lafferty
+[ ] hSBM (Gerlach, Peixoto & Altman)
+[ ] TopicMapping (Lancichinetti, Amaral et al) (with InfoMap, Louvain and Leiden clustering algorithms)
+
+### Additional feature
 [ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
 [ ] Allow more type for Dataset construction
-[ ] (?) Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
-[ ] (?) Use nunmpy for Tokenizer
-[x] (?) Rewrite Vectorizer to use scipy sparse
-[ ] Add save methods to transformer and modeller
-[x] Investigate LDA sparsity
+[ ] Add save methods to transformer and topicmodel
 [ ] Implement metrics (p.e. perplexity Blei03a) and plot
+
+### Improve compatibility
+[ ] (?) Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
+[ ] (?) Use numpy for Tokenizer
+[ ] Move NLTK and requests as optional dependency
+
+### Algorithm-specific improvement
+[x] Investigate LDA sparsity
+[x] (?) Rewrite Vectorizer to use scipy sparse
