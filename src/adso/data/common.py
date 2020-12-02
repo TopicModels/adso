@@ -16,7 +16,7 @@ def load_txt(
     label: bool = False,
     extension: Union[str, None] = "txt",
     encoding: str = "utf-8",
-    ignore_error: bool = True,
+    ignore_errors: bool = True,
 ) -> Dataset:
     path = Path(path)
     if extension is None:
@@ -24,7 +24,7 @@ def load_txt(
     else:
         extension = "." + extension
 
-    if ignore_error:
+    if ignore_errors:
         errors = "ignore"
     else:
         errors = None
