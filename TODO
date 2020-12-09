@@ -1,10 +1,14 @@
 # Future features
 
-### General speed or memory usage improvement
+### General improvements
 [ ] Add parallelization
 [ ] Allow online processing
 [ ] (?) Move external file into the git repo
-[ ] add sha ckeck for external ( (?) not NLTK) files
+[ ] Add sha ckeck for external ( (?) not NLTK) files
+[ ] Write documentation with example, citation and guide
+[ ] Add progress print (like in NMF)
+[ ] (?) NamedTuple as return type
+[ ] Correct Labelled in Labeled
 
 ### Additional Topic Modellind algorithms
 [ ] Smoothed LDA (Blei03a)
@@ -20,12 +24,29 @@
 [ ] Allow more type for Dataset construction
 [ ] Add save methods to transformer and topicmodel
 [ ] Implement metrics (p.e. perplexity Blei03a) and plot
+[ ] (?) Create class for returned object (i.e. TermDocumentMatrix, TokenDataset, ...)
+[ ] Syntetic corpora generative algorithms
+
+### Additional datasets
+[ ] [Web->Kb](http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/)
 
 ### Improve compatibility
 [ ] (?) Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
 [ ] (?) Use numpy for Tokenizer
 [ ] Move NLTK and requests as optional dependency
+[ ] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
 
 ### Algorithm-specific improvement
 [x] Investigate LDA sparsity
 [x] (?) Rewrite Vectorizer to use scipy sparse
+[x] Catch LDA RuntimeWarning
+[ ] Allow to specify initial alpha for LDA
+[ ] (?) Add type check in Dataset constructor
+[ ] Enable list indexing for Dataset
+[ ] Allow to fit Vectorizer with a given Vocabulary
+[ ] Add a function to transform CountVectorizer output to {Freq,TFIDF}Vectorizer output
+[ ] Remove sparsity for NMF AHCLS algorithm
+[ ] Get labels as list of list
+[ ] Add get_label method to vocab
+[ ] Move new code for LDA in a new class
+[ ] LDA separate max_iter and max_iter_alpha
