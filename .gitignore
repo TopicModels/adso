@@ -147,3 +147,9 @@ cython_debug/
 
 #test folder
 .test
+.adso_test
+
+docs/_sources
+docs/_latex
+docs/.doctrees
+docs/_source/_examples
