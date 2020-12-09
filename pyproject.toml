@@ -4,17 +4,18 @@ version = "0.0.1"
 description = "A topic-modelling library"
 authors = ["Michele 'TnTo' Ciruzzi <tnto@hotmail.it>"]
 license = "MIT"
-readme = "README.md"
+readme = "README.rst"
 repository = "https://github.com/TnTo/adso"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "~3.7 || ~3.8"
 pathlib = "^1.0.1"
 nltk = "^3.5"
 scipy = "^1.5.4"
 sparse = "^0.11.2"
 llvmlite = "^0.34.0"
 requests = "^2.25.0"
+matplotlib = "^3.3.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -34,6 +35,7 @@ darglint = "^1.5.5"
 xdoctest = "^0.15.0"
 sphinx-autodoc-typehints = "^1.11.0"
 ipykernel = "^5.3.4"
+sphinx-gallery = "^0.8.1"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

@@ -6,6 +6,21 @@ locations = "src/", "tests/", "noxfile.py", "docs/_source/conf.py"
 
 nox.options.sessions = "black", "lint", "mypy"
 
+ADSODIR = ".adso_test"
+
+
+def install_this(session):
+    with tempfile.NamedTemporaryFile() as requirements:
+        session.run(
+            "poetry",
+            "export",
+            "--format=requirements.txt",
+            f"--output={requirements.name}",
+            external=True,
+        )
+        session.install("-r", requirements.name)
+        session.install(".")
+
 
 def install_with_constraints(session, *args, **kwargs):
     with tempfile.NamedTemporaryFile() as requirements:
@@ -54,16 +69,16 @@ def mypy(session):
 @nox.session(python=["3.9", "3.8", "3.7"])
 def xdoctest(session):
     args = session.posargs or ["all"]
-    session.run("poetry", "install", "--no-dev", external=True)
+    install_this(session)
     install_with_constraints(session, "xdoctest")
     session.run("python", "-m", "xdoctest", "adso", *args)
 
 
-@nox.session()
+@nox.session(python="3.8")
 def cov(session):
-    session.run("poetry", "install", "--no-dev", external=True)
+    install_this(session)
     install_with_constraints(session, "coverage[toml]", "pytest", "pytest-cov")
-    session.run("rm", "-rf", ".test", external=True)
+    session.run("rm", "-rf", ADSODIR, external=True)
     session.run(
         "pytest",
         "--cov-report",
@@ -72,18 +87,24 @@ def cov(session):
         "term",
         "--cov",
         "adso",
-        env={"HOME": ".test"},
+        env={"ADSODIR": ADSODIR},
     )
 
 
-@nox.session(python=["3.9", "3.8", "3.7"])
+@nox.session(python=["3.9", "3.8", "3.7", "3.6"])
 def test(session):
-    session.run("poetry", "install", "--no-dev", external=True)
+    install_this(session)
     install_with_constraints(session, "pytest")
-    session.run("pytest", env={"HOME": ".test"})
+    session.run("rm", "-rf", ADSODIR, external=True)
+    session.run("pytest", env={"ADSODIR": ADSODIR, "PYTHONWARNINGS": "default"})
 
 
-@nox.session()
+@nox.session(python="3.8")
 def docs(session):
-    install_with_constraints(session, "sphinx", "sphinx-autodoc-typehints")
-    session.run("sphinx-build", "docs/_source", "docs")
+    install_this(session)
+    install_with_constraints(
+        session, "sphinx", "sphinx-autodoc-typehints", "sphinx-gallery"
+    )
+    session.run("sphinx-build", "-b", "html", "docs/_source", "docs")
+    session.run("sphinx-build", "-M", "latexpdf", "docs/_source", "docs/_latex")
+    session.run("cp", "docs/_latex/latex/adso.pdf", "docs", external=True)
