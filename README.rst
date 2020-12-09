@@ -3,8 +3,8 @@ adso
 
 **A topic modelling library built on top of scipy/numpy and nltk.**
 
-To install
-::
+To install::
+
     pip install adso
 
 adso need to write some files to disk.
