@@ -19,7 +19,7 @@ As default adso uses the ``~/.adso`` folder, but it can be change setting the en
 documentation
 ^^^^^^^^^^^^^
 
-Documentation with examples is hosted on [GitHub Pages](https://tnto.github.io/adso/index.html)
+Documentation with examples is hosted on `GitHub Pages <https://tnto.github.io/adso/index.html>`_
 
 Some examples on how to use adso are also available in ``tests`` and ``examples`` folders.
 
