@@ -1,0 +1,15 @@
+[flake8]
+select = ANN,B,B9,BLK,C,D,DAR,E,F,I,W
+ignore = E501
+max-line-length = 80
+application-import-names = example,tests
+import-order-style = cryptography
+docstring-convention = google
+per-file-ignores =
+    tests/*:S101,ANN
+    noxfile.py:ANN,D
+    docs/source/conf.py:ANN,D
+    src/adso/topicmodel/*:W503
+    src/adso/data/dataset.py:W503
+    src/adso/__init__.py: F401
+    src/adso/*/__init__.py:F401

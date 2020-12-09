@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analyze the 20newsgroups dataset with LDA &#8212; adso 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Analyze the 20newsgroups dataset with NMF" href="NMF_20newsgroups.html" />
+    <link rel="prev" title="Analyze a very simple dataset with LDA" href="LDA_test.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="NMF_20newsgroups.html" title="Analyze the 20newsgroups dataset with NMF"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LDA_test.html" title="Analyze a very simple dataset with LDA"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">adso 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Analyze the 20newsgroups dataset with LDA</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-lda-20newsgroups-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="analyze-the-20newsgroups-dataset-with-lda">
+<span id="sphx-glr-examples-lda-20newsgroups-py"></span><h1>Analyze the 20newsgroups dataset with LDA<a class="headerlink" href="#analyze-the-20newsgroups-dataset-with-lda" title="Permalink to this headline">¶</a></h1>
+<p>import</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">adso</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+<p>set seed</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adso</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Download the dataset and select 1000 random elements</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">adso</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load_20newsgroups</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+
+<span class="n">new_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)),</span> <span class="n">k</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">new_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">adso</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">LabelledDataset</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of documents: &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Number of documents:  1000
+</pre></div>
+</div>
+<p>Tokenize the dataset using a stemmer and a stopwords list, removing punctation</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adso</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">nltk_download</span><span class="p">(</span><span class="s2">&quot;stopwords&quot;</span><span class="p">)</span>
+
+<span class="n">snowball</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">snowball</span><span class="o">.</span><span class="n">SnowballStemmer</span><span class="p">(</span><span class="s2">&quot;english&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">stemmer</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">snowball</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ret</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">adso</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">Tokenizer</span><span class="p">(</span>
+    <span class="n">stemmer</span><span class="o">=</span><span class="n">stemmer</span><span class="p">,</span>
+    <span class="n">stopwords</span><span class="o">=</span><span class="n">nltk</span><span class="o">.</span><span class="n">corpus</span><span class="o">.</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s2">&quot;english&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First ten tokens of the first document:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">10</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[nltk_data] Downloading package stopwords to /home/tnto/.adso/NLTK...
+[nltk_data]   Package stopwords is already up-to-date!
+[nltk_data] Downloading package punkt to /home/tnto/.adso/NLTK...
+[nltk_data]   Package punkt is already up-to-date!
+First ten tokens of the first document:
+[&#39;rtaraz&#39;, &#39;ramin&#39;, &#39;taraz&#39;, &#39;subject&#39;, &#39;wing&#39;, &#39;ding&#39;, &#39;organ&#39;, &#39;worcest&#39;, &#39;polytechn&#39;, &#39;institut&#39;]
+</pre></div>
+</div>
+<p>Transform the list of tokens in a list of numbers.
+We will use the absolute frequency.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">adso</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">CountVectorizer</span><span class="p">(</span><span class="n">max_freq</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">min_freq</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generate the vocabulary.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+<span class="n">vocab</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">vocab</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of words in vocabulary: &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vocab</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;index of word &#39;god&#39;: &quot;</span><span class="p">,</span> <span class="n">vocab</span><span class="p">[</span><span class="s2">&quot;god&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;word at index 52: &quot;</span><span class="p">,</span> <span class="n">vocab</span><span class="p">[</span><span class="mi">52</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Number of words in vocabulary:  1000
+index of word &#39;god&#39;:  52
+word at index 52:  god
+</pre></div>
+</div>
+<p>Create the count matrices from tokens.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">count_matrix</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>LDA</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LDA</span> <span class="o">=</span> <span class="n">adso</span><span class="o">.</span><span class="n">topicmodel</span><span class="o">.</span><span class="n">LDA</span><span class="p">(</span><span class="n">n_topic</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">ret</span> <span class="o">=</span> <span class="n">LDA</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">count_matrix</span><span class="p">)</span>
+<span class="n">estimation</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LDA ended after&quot;</span><span class="p">,</span> <span class="n">ret</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="s2">&quot;iterations, achiving a loglikelihood of&quot;</span><span class="p">,</span> <span class="n">ret</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Iteration 1 Log-Likelihood -2165701.2114364556
+Iteration 2 Log-Likelihood -2160482.3346176264
+Iteration 3 Log-Likelihood -2163212.9631883884
+Iteration 4 Log-Likelihood -2168112.996969577
+Iteration 5 Log-Likelihood -2173911.817309296
+Iteration 6 Log-Likelihood -2180224.827983113
+Iteration 7 Log-Likelihood -2186886.8326180084
+Iteration 8 Log-Likelihood -2193803.660600017
+Iteration 9 Log-Likelihood -2200911.3998690704
+Iteration 10 Log-Likelihood -2208162.4613385475
+Iteration 11 Log-Likelihood -2215519.673691593
+Iteration 12 Log-Likelihood -2222953.241613101
+Iteration 13 Log-Likelihood -2230438.912128744
+Iteration 14 Log-Likelihood -2237956.734111518
+Iteration 15 Log-Likelihood -2245490.1476548053
+Iteration 16 Log-Likelihood -2253025.2760382164
+Iteration 17 Log-Likelihood -2260550.353173516
+Iteration 18 Log-Likelihood -2268055.249179338
+Iteration 19 Log-Likelihood -2275531.072524249
+Iteration 20 Log-Likelihood -2282969.8357664314
+Iteration 21 Log-Likelihood -2290364.1765527423
+Iteration 22 Log-Likelihood -2297707.127931875
+Iteration 23 Log-Likelihood -2304991.933236058
+Iteration 24 Log-Likelihood -2312211.901354372
+Iteration 25 Log-Likelihood -2319360.2985252636
+Iteration 26 Log-Likelihood -2326430.272993087
+Iteration 27 Log-Likelihood -2333414.8090984584
+Iteration 28 Log-Likelihood -2340306.7076238645
+Iteration 29 Log-Likelihood -2347098.589511253
+Iteration 30 Log-Likelihood -2353782.9203738156
+Iteration 31 Log-Likelihood -2360352.0535009955
+Iteration 32 Log-Likelihood -2366798.2892966587
+Iteration 33 Log-Likelihood -2373113.9492324963
+Iteration 34 Log-Likelihood -2379291.4624240845
+Iteration 35 Log-Likelihood -2385323.4628397017
+Iteration 36 Log-Likelihood -2391202.8949087705
+Iteration 37 Log-Likelihood -2396923.124929807
+Iteration 38 Log-Likelihood -2402478.0552294045
+Iteration 39 Log-Likelihood -2407862.237542648
+Iteration 40 Log-Likelihood -2413070.981643885
+Iteration 41 Log-Likelihood -2418100.4549575425
+Iteration 42 Log-Likelihood -2422947.7687891275
+Iteration 43 Log-Likelihood -2427611.047023004
+Iteration 44 Log-Likelihood -2432089.4736624938
+Iteration 45 Log-Likelihood -2436383.316426467
+Iteration 46 Log-Likelihood -2440493.9247364057
+Iteration 47 Log-Likelihood -2444423.7016874366
+Iteration 48 Log-Likelihood -2448176.0509292097
+Iteration 49 Log-Likelihood -2451755.3006263403
+Iteration 50 Log-Likelihood -2455166.607739106
+Iteration 51 Log-Likelihood -2458415.8466764167
+Iteration 52 Log-Likelihood -2461509.486902886
+Iteration 53 Log-Likelihood -2464454.464287028
+Iteration 54 Log-Likelihood -2467258.050912735
+Iteration 55 Log-Likelihood -2469927.7277550315
+Iteration 56 Log-Likelihood -2472471.064093511
+Iteration 57 Log-Likelihood -2474895.606878144
+LDA ended after 57 iterations, achiving a loglikelihood of -2474895.606878144
+</pre></div>
+</div>
+<p>Check the 10 most characteristic words for each topic</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;10 most characteristic words of topic&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">map</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">j</span><span class="p">:</span> <span class="n">vocab</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">toarray</span><span class="p">()))[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>10 most characteristic words of topic 0
+[&#39;becaus&#39;, &#39;thing&#39;, &#39;problem&#39;, &#39;look&#39;, &#39;better&#39;, &#39;think&#39;, &#39;best&#39;, &#39;ever&#39;, &#39;name&#39;, &#39;real&#39;]
+10 most characteristic words of topic 1
+[&#39;use&#39;, &#39;write&#39;, &#39;may&#39;, &#39;first&#39;, &#39;come&#39;, &#39;chang&#39;, &#39;least&#39;, &#39;w&#39;, &#39;wrote&#39;, &#39;mark&#39;]
+10 most characteristic words of topic 2
+[&#39;one&#39;, &#39;game&#39;, &#39;even&#39;, &#39;post&#39;, &#39;said&#39;, &#39;usa&#39;, &#39;god&#39;, &#39;ask&#39;, &#39;might&#39;, &#39;opinion&#39;]
+10 most characteristic words of topic 3
+[&#39;mean&#39;, &#39;b&#39;, &#39;long&#39;, &#39;nation&#39;, &#39;h&#39;, &#39;anyth&#39;, &#39;littl&#39;, &#39;stand&#39;, &#39;insid&#39;, &#39;goe&#39;]
+10 most characteristic words of topic 4
+[&#39;articl&#39;, &#39;ani&#39;, &#39;line&#39;, &#39;could&#39;, &#39;subject&#39;, &#39;way&#39;, &#39;organ&#39;, &#39;state&#39;, &#39;back&#39;, &#39;help&#39;]
+10 most characteristic words of topic 5
+[&#39;also&#39;, &#39;new&#39;, &#39;inform&#39;, &#39;thank&#39;, &#39;f&#39;, &#39;noth&#39;, &#39;idea&#39;, &#39;man&#39;, &#39;object&#39;, &#39;exist&#39;]
+10 most characteristic words of topic 6
+[&#39;would&#39;, &#39;whi&#39;, &#39;imag&#39;, &#39;live&#39;, &#39;tell&#39;, &#39;day&#39;, &#39;distribut&#39;, &#39;think&#39;, &#39;still&#39;, &#39;version&#39;]
+10 most characteristic words of topic 7
+[&#39;interest&#39;, &#39;etc&#39;, &#39;mean&#39;, &#39;littl&#39;, &#39;start&#39;, &#39;reason&#39;, &#39;human&#39;, &#39;term&#39;, &#39;comput&#39;, &#39;third&#39;]
+10 most characteristic words of topic 8
+[&#39;q&#39;, &#39;must&#39;, &#39;becom&#39;, &#39;na&#39;, &#39;comput&#39;, &#39;across&#39;, &#39;yes&#39;, &#39;happen&#39;, &#39;anyon&#39;, &#39;ca&#39;]
+10 most characteristic words of topic 9
+[&#39;well&#39;, &#39;reason&#39;, &#39;someth&#39;, &#39;follow&#39;, &#39;question&#39;, &#39;find&#39;, &#39;start&#39;, &#39;happen&#39;, &#39;stephanopoulo&#39;, &#39;true&#39;]
+10 most characteristic words of topic 10
+[&#39;would&#39;, &#39;onli&#39;, &#39;doe&#39;, &#39;support&#39;, &#39;group&#39;, &#39;cours&#39;, &#39;like&#39;, &#39;kill&#39;, &#39;work&#39;, &#39;applic&#39;]
+10 most characteristic words of topic 11
+[&#39;like&#39;, &#39;time&#39;, &#39;good&#39;, &#39;would&#39;, &#39;work&#39;, &#39;believ&#39;, &#39;mani&#39;, &#39;anoth&#39;, &#39;us&#39;, &#39;world&#39;]
+10 most characteristic words of topic 12
+[&#39;say&#39;, &#39;set&#39;, &#39;window&#39;, &#39;c&#39;, &#39;person&#39;, &#39;fire&#39;, &#39;respons&#39;, &#39;public&#39;, &#39;law&#39;, &#39;abov&#39;]
+10 most characteristic words of topic 13
+[&#39;anyon&#39;, &#39;comput&#39;, &#39;veri&#39;, &#39;someon&#39;, &#39;question&#39;, &#39;say&#39;, &#39;complet&#39;, &#39;yes&#39;, &#39;russian&#39;, &#39;chip&#39;]
+10 most characteristic words of topic 14
+[&#39;subject&#39;, &#39;organ&#39;, &#39;line&#39;, &#39;know&#39;, &#39;go&#39;, &#39;right&#39;, &#39;peopl&#39;, &#39;see&#39;, &#39;take&#39;, &#39;year&#39;]
+10 most characteristic words of topic 15
+[&#39;get&#39;, &#39;univers&#39;, &#39;write&#39;, &#39;system&#39;, &#39;two&#39;, &#39;much&#39;, &#39;x&#39;, &#39;call&#39;, &#39;program&#39;, &#39;govern&#39;]
+10 most characteristic words of topic 16
+[&#39;need&#39;, &#39;make&#39;, &#39;want&#39;, &#39;sinc&#39;, &#39;one&#39;, &#39;talk&#39;, &#39;possibl&#39;, &#39;tri&#39;, &#39;keep&#39;, &#39;enough&#39;]
+10 most characteristic words of topic 17
+[&#39;never&#39;, &#39;drive&#39;, &#39;bit&#39;, &#39;human&#39;, &#39;veri&#39;, &#39;involv&#39;, &#39;shall&#39;, &#39;someon&#39;, &#39;nt&#39;, &#39;person&#39;]
+10 most characteristic words of topic 18
+[&#39;one&#39;, &#39;make&#39;, &#39;john&#39;, &#39;origin&#39;, &#39;look&#39;, &#39;u&#39;, &#39;befor&#39;, &#39;discuss&#39;, &#39;doe&#39;, &#39;law&#39;]
+10 most characteristic words of topic 19
+[&#39;put&#39;, &#39;correct&#39;, &#39;price&#39;, &#39;littl&#39;, &#39;nation&#39;, &#39;detail&#39;, &#39;tank&#39;, &#39;mean&#39;, &#39;h&#39;, &#39;anyth&#39;]
+</pre></div>
+</div>
+<p>Print the confusion matrix (not diagonalized)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">predicted_topic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">estimation</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">listvectorizer</span> <span class="o">=</span> <span class="n">adso</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">ListVectorizer</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="p">[</span><span class="n">l</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">get_labels</span><span class="p">()))</span>
+
+<span class="n">label_topic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">listvectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+
+<span class="n">confusion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">label_topic</span><span class="p">,</span> <span class="n">predicted_topic</span><span class="p">):</span>
+    <span class="n">confusion</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">confusion</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">listvectorizer</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">stoi</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</pre></div>
+</div>
+<img alt="LDA 20newsgroups" class="sphx-glr-single-img" src="../_images/sphx_glr_LDA_20newsgroups_001.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[Text(0, 0, &#39;comp.windows.x&#39;), Text(0, 1, &#39;rec.motorcycles&#39;), Text(0, 2, &#39;comp.sys.ibm.pc.hardware&#39;), Text(0, 3, &#39;talk.politics.mideast&#39;), Text(0, 4, &#39;comp.graphics&#39;), Text(0, 5, &#39;comp.sys.mac.hardware&#39;), Text(0, 6, &#39;sci.crypt&#39;), Text(0, 7, &#39;sci.med&#39;), Text(0, 8, &#39;sci.electronics&#39;), Text(0, 9, &#39;rec.sport.baseball&#39;), Text(0, 10, &#39;soc.religion.christian&#39;), Text(0, 11, &#39;rec.autos&#39;), Text(0, 12, &#39;rec.sport.hockey&#39;), Text(0, 13, &#39;talk.politics.guns&#39;), Text(0, 14, &#39;comp.os.ms-windows.misc&#39;), Text(0, 15, &#39;alt.atheism&#39;), Text(0, 16, &#39;misc.forsale&#39;), Text(0, 17, &#39;talk.politics.misc&#39;), Text(0, 18, &#39;sci.space&#39;), Text(0, 19, &#39;talk.religion.misc&#39;)]
+</pre></div>
+</div>
+<p>Print the confusion matrix skipping the first topic</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">confusion</span> <span class="o">=</span> <span class="n">confusion</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">confusion</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">19</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">listvectorizer</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">stoi</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</pre></div>
+</div>
+<img alt="LDA 20newsgroups" class="sphx-glr-single-img" src="../_images/sphx_glr_LDA_20newsgroups_002.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[Text(0, 0, &#39;comp.windows.x&#39;), Text(0, 1, &#39;rec.motorcycles&#39;), Text(0, 2, &#39;comp.sys.ibm.pc.hardware&#39;), Text(0, 3, &#39;talk.politics.mideast&#39;), Text(0, 4, &#39;comp.graphics&#39;), Text(0, 5, &#39;comp.sys.mac.hardware&#39;), Text(0, 6, &#39;sci.crypt&#39;), Text(0, 7, &#39;sci.med&#39;), Text(0, 8, &#39;sci.electronics&#39;), Text(0, 9, &#39;rec.sport.baseball&#39;), Text(0, 10, &#39;soc.religion.christian&#39;), Text(0, 11, &#39;rec.autos&#39;), Text(0, 12, &#39;rec.sport.hockey&#39;), Text(0, 13, &#39;talk.politics.guns&#39;), Text(0, 14, &#39;comp.os.ms-windows.misc&#39;), Text(0, 15, &#39;alt.atheism&#39;), Text(0, 16, &#39;misc.forsale&#39;), Text(0, 17, &#39;talk.politics.misc&#39;), Text(0, 18, &#39;sci.space&#39;), Text(0, 19, &#39;talk.religion.misc&#39;)]
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 12 minutes  30.616 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-lda-20newsgroups-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/9dcab02dc24021b969b7bc74565d56b1/LDA_20newsgroups.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">LDA_20newsgroups.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/1932cd9049642619841d026f0a2462a6/LDA_20newsgroups.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">LDA_20newsgroups.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LDA_test.html"
+                        title="previous chapter">Analyze a very simple dataset with LDA</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="NMF_20newsgroups.html"
+                        title="next chapter">Analyze the 20newsgroups dataset with NMF</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_examples/LDA_20newsgroups.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="NMF_20newsgroups.html" title="Analyze the 20newsgroups dataset with NMF"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LDA_test.html" title="Analyze a very simple dataset with LDA"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">adso 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Analyze the 20newsgroups dataset with LDA</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Michele Ciruzzi.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+    </div>
+  </body>
+</html>
