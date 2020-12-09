@@ -1,22 +1,14 @@
-.. example documentation master file, created by
-   sphinx-quickstart on Mon Oct  5 15:50:01 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to example's documentation!
-===================================
+.. include:: ../../README.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
    
+   documentation
+   _examples/index.rst
    license
 
-
-
-Indices and tables
-==================
+Indices
+=======
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
