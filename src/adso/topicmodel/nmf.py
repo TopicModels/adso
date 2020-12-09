@@ -162,11 +162,11 @@ class NMF(TopicModel):
             def error(
                 H: sp.sparse.spmatrix, WtA: sp.sparse.spmatrix, WtW: sp.sparse.spmatrix
             ) -> float:
-                return np.asscalar(
+                return (
                     trAtA
                     - 2 * (H.transpose() @ WtA).diagonal().sum()
                     + (H.transpose() @ (WtW @ H)).diagonal().sum()
-                )
+                ).item()
 
             err: float = n_doc * n_term
 
