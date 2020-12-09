@@ -151,5 +151,3 @@ cython_debug/
 
 docs/_sources
 docs/_latex
-docs/.doctrees
-docs/_source/_examples
