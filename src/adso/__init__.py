@@ -1,6 +1,6 @@
-"""Adso is a topic-modelling library based on pytorch and nltk."""
+"""Adso is a topic-modelling library based on numpy and nltk."""
 
-from . import data, transform, topicmodel
+from . import data, topicmodel, transform
 from .common import ADSODIR, set_seed
 
 # Create adso folder
