@@ -37,9 +37,8 @@
 [ ] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
 
 ### Algorithm-specific improvement
-[x] Investigate LDA sparsity
-[x] (?) Rewrite Vectorizer to use scipy sparse
-[x] Catch LDA RuntimeWarning
+[ ] Investigate LDA sparsity
+[ ] Use sparse for NMF
 [ ] Allow to specify initial alpha for LDA
 [ ] (?) Add type check in Dataset constructor
 [ ] Enable list indexing for Dataset
