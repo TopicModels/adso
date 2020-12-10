@@ -1,11 +1,12 @@
 [tool.poetry]
 name = "adso"
-version = "0.0.1-2"
+version = "0.0.2"
 description = "A topic-modelling library"
 authors = ["Michele 'TnTo' Ciruzzi <tnto@hotmail.it>"]
 license = "MIT"
 readme = "README.rst"
 repository = "https://github.com/TnTo/adso"
+documentation = "https://tnto.github.io/adso/" 
 
 [tool.poetry.dependencies]
 python = "~3.7 || ~3.8"
@@ -16,6 +17,7 @@ sparse = "^0.11.2"
 requests = "^2.25.0"
 matplotlib = "^3.3.3"
 numba = "^0.51"
+dask = "^2.30.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
