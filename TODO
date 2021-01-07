@@ -2,13 +2,14 @@
 
 ### General improvements
 [ ] Add parallelization
-[ ] Allow online processing
+[ ] [0.0.2] Allow online processing
 [ ] (?) Move external file into the git repo
-[ ] Add sha ckeck for external ( (?) not NLTK) files
+[ ] [0.0.2] Add sha ckeck for external ( (?) not NLTK) files
 [ ] Write documentation with example, citation and guide
-[ ] Add progress print (like in NMF)
+[ ] [0.0.2] Add progress print (like in NMF)
 [ ] (?) NamedTuple as return type
-[ ] Correct Labelled in Labeled
+[ ] [0.0.2] Correct Labelled in Labeled
+[ ] [0.0.2] Consider logaritmic transformation
 
 ### Additional Topic Modellind algorithms
 [ ] Smoothed LDA (Blei03a)
@@ -23,29 +24,29 @@
 [ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
 [ ] Allow more type for Dataset construction
 [ ] Add save methods to transformer and topicmodel
-[ ] Implement metrics (p.e. perplexity Blei03a) and plot
+[ ] [0.0.2] Implement metrics (p.e. perplexity Blei03a) and plot
 [ ] (?) Create class for returned object (i.e. TermDocumentMatrix, TokenDataset, ...)
 [ ] Syntetic corpora generative algorithms
 
 ### Additional datasets
-[ ] [Web->Kb](http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/)
+[ ] [0.0.2] [Web->Kb](http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/)
 
 ### Improve compatibility
 [ ] (?) Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
 [ ] (?) Use numpy for Tokenizer
 [ ] Move NLTK and requests as optional dependency
-[ ] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
+[ ] [0.0.2] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
 
 ### Algorithm-specific improvement
 [ ] Investigate LDA sparsity
-[ ] Use sparse for NMF
-[ ] Allow to specify initial alpha for LDA
+[ ] [0.0.2] Use sparse for NMF
+[ ] [0.0.2] Allow to specify initial alpha for LDA
 [ ] (?) Add type check in Dataset constructor
 [ ] Enable list indexing for Dataset
-[ ] Allow to fit Vectorizer with a given Vocabulary
-[ ] Add a function to transform CountVectorizer output to {Freq,TFIDF}Vectorizer output
-[ ] Remove sparsity for NMF AHCLS algorithm
-[ ] Get labels as list of list
-[ ] Add get_label method to vocab
-[ ] Move new code for LDA in a new class
-[ ] LDA separate max_iter and max_iter_alpha
+[ ] [0.0.2] Allow to fit Vectorizer with a given Vocabulary
+[ ] [0.0.2] Add a function to transform CountVectorizer output to {Freq,TFIDF}Vectorizer output
+[x] Remove sparsity for NMF AHCLS algorithm -- Use sparse instead --
+[ ] [0.0.2] Get labels as list of list
+[ ] [0.0.2] Add get_label method to vocab
+[ ] [0.0.2] Move new code for LDA in a new class
+[ ] [0.0.2] LDA separate max_iter and max_iter_alpha
