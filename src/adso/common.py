@@ -6,11 +6,14 @@ from pathlib import Path
 
 import numpy as np
 
-ADSODIR = os.getenv("ADSODIR")
-if ADSODIR is not None:
-    ADSODIR = Path(ADSODIR)
+ENV_ADSODIR = os.getenv("ADSODIR")
+if ENV_ADSODIR is not None:
+    ADSODIR = Path(ENV_ADSODIR)
 else:
     ADSODIR = Path.home() / ".adso"
+del ENV_ADSODIR
+
+PROJDIR = ADSODIR / "default"
 
 
 def set_seed(seed: int) -> None:
@@ -23,4 +26,15 @@ def set_seed(seed: int) -> None:
     """
     random.seed(seed)
     np.random.seed(seed)
-    # torch.manual_seed(seed)
+
+
+def set_adso_dir(name: str) -> None:
+    global ADSODIR
+    ADSODIR = Path(name)
+    ADSODIR.mkdir(exist_ok=True, parents=True)
+
+
+def set_project_name(name: str) -> None:
+    global PROJDIR
+    PROJDIR = ADSODIR / name
+    PROJDIR.mkdir(exist_ok=True, parents=True)
