@@ -1,0 +1,47 @@
+package:
+  name: adso
+  version: 0.1.0
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: "poetry build"
+  script_env:
+    - CONDA_PREFIX
+
+requirements:
+  build:
+    - python {{ python }}
+    - poetry
+
+  run:
+    - python
+    - dask
+    - dask-ml
+    - gensim
+    - igraph
+    - infomap
+    - graph-tool
+    - matplotlib
+    - nltk
+    - numba
+    - numpy
+    - pathlib
+    - scikit-learn
+    - scipy
+    - sparse
+
+about:
+  home: "https://github.com/TnTo/adso"
+  license: GPL-3.0+
+  license_family: GPL
+  license_file: LICENSE
+  summary: "A topic-modelling library"
+  doc_url: "https://tnto.github.io/adso"
+  dev_url: "https://github.com/TnTo/adso"
+
+extra:
+  recipe-maintainers:
+    - TnTo

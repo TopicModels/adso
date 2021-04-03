@@ -1,0 +1,20 @@
+name: adso
+channels:
+  - conda-forge
+dependencies:
+  - python 3.8
+  - poetry
+  - dask
+  - dask-ml
+  - gensim
+  - igraph
+  - infomap
+  - graph-tool
+  - matplotlib
+  - nltk
+  - numba
+  - numpy
+  - pathlib
+  - scikit-learn
+  - scipy
+  - sparse
