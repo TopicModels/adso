@@ -2,8 +2,17 @@ name: adso
 channels:
   - conda-forge
 dependencies:
+# python
   - python>=3.6
+# dev dependencies
+  - poetry
+  - nox
+  - black
+  - mypy
+  - flake8
+# project dependencies
   - pathlib
+  - numpy
   # - dask
   # - dask-ml
   # - gensim
@@ -13,8 +22,6 @@ dependencies:
   # - matplotlib
   # - nltk
   # - numba
-  # - numpy
-  # - pathlib
   # - scikit-learn
   # - scipy
   # - sparse

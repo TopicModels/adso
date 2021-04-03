@@ -10,16 +10,8 @@ documentation = "https://tnto.github.io/adso/"
 
 [tool.poetry.dependencies]
 python = "^3.6"
-dask = "^2.30.0"
-matplotlib = "^3.3.3"
-nltk = "^3.5"
-numba = "^0.51"
-pathlib = "^1.0.1"
-requests = "^2.25.0"
-scipy = "^1.5.4"
-sparse = "^0.11.2"
-
-[tool.poetry.dev-dependencies]
+pathlib = "^1.0.0"
+numpy = "^1.19"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
