@@ -1,8 +1,11 @@
 # Future features
 
 ### General improvements
+[ ] Update README to conda
 
 ### Additional Topic Modellind algorithms
+[ ] NMF
+[ ] LDA (Blei03a)
 [ ] Smoothed LDA (Blei03a)
 [ ] Symmetric LDA (Blei03a and Blei & Lafferty)
 [ ] HDP (Teh, Jordan, Beal & Blei)
@@ -13,15 +16,17 @@
 
 ### Additional feature
 [ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
-[ ] [0.0.2] Implement metrics (p.e. perplexity Blei03a) and plot
+[ ] Implement metrics (p.e. perplexity Blei03a) and plot
 [ ] (?) Create class for returned object (i.e. TermDocumentMatrix, TokenDataset, ...)
 [ ] Syntetic corpora generative algorithms
 
 ### Additional datasets
-[ ] [0.0.2] [Web->Kb](http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/)
+[ ] [Web->Kb](http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/)
 
 ### Improve compatibility
 [ ] (?) Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
-[ ] [0.0.2] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
+[ ] [0.1.0] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
 
-### Algorithm-specific improvements
+### CI
+[ ] Switch CI to conda [LINK](https://github.com/marketplace/actions/setup-miniconda)
+[ ] Add docs autobuild [LINK](https://github.com/marketplace/actions/sphinx-build)
