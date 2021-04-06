@@ -3,128 +3,81 @@
 Define data-container for other classes.
 """
 
-from __future__ import annotations
+from abc import ABC
+from typing import Any, Optional, Union
 
-from typing import List, Tuple
+import json
+import os
+
+from pathlib import Path
+
+from ..common import PROJDIR
+
+
+class Corpus (ABC):
+
+    def __init__(self: 'Corpus') -> None:
+        self.filename: str
+
+    def get(self: 'Corpus') -> Any:
+        pass
+
+    def to_json(self: 'Corpus') -> dict:
+        pass
+
+
+class Raw(Corpus):
+    pass
 
 
 class Dataset:
     """Dataset class."""
 
-    def __init__(self: Dataset, data: List[str]) -> None:
-        """Constructor for Dataset class.
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.path = PROJDIR / self.name
+        # maybe add existence check?
+        self.path.mkdir(exist_ok=True, parents=True)
 
-        Args:
-            data (List[str]): A list of string, each will be considered as one document.
-        """
-        self.data: List[str] = data
+        self.raw: Optional[Raw] = None
 
-    def get_data(self: Dataset) -> List[str]:
-        """Access data stored into the dataset.
+    def to_json(self) -> dict:
+        save = {'name': self.name, 'path': self.path}
+        if self.raw is not None:
+            save['raw'] = self.raw.to_json()
+        return save
 
-        Returns:
-            List[str]: Return a list of string, each one is a document
-        """
-        return self.data
+    def save(self) -> None:
+        with (self.path / (self.name + '.json')).open(mode='w') as f:
+            json.dump(self.to_json(), f)
 
-    def __len__(self: Dataset) -> int:
-        """Return the number of the document in the dataset.
-
-        Returns:
-            int: number of document in the dataset
-        """
-        return len(self.data)
-
-    def __getitem__(self: Dataset, index: int) -> str:
-        """Enable the data[i] syntax to retrieve the data.
-
-        Args:
-            index (int): index of the required document
-
-        Returns:
-            str: the required document as string
-        """
-        return self.data[index]
-
-    def __add__(self: Dataset, other: Dataset) -> Dataset:
-        """Overload + operator to concatenate dataset.
-
-        Args:
-            other (Dataset): the second dataset to be concatenated
-
-        Returns:
-            Dataset: a dataset with the documents of both summed datasets
-        """
-        return Dataset(self.get_data() + other.get_data())
-
-
-class LabelledDataset(Dataset):
-    """Labbelled Dataset class.
-
-    A subclass of :class:`Dataset` wich store also labels for documents.
-    Documents and labels are stored in two different lists where each pair share
-    the index.
-    """
-
-    def __init__(self: LabelledDataset, data: List[Tuple[str, str]]) -> None:
-        """Contructor for LabelledDataset class.
-
-        Args:
-            data (List[Tuple[str, str]]): list of (document, label) tuples of strings.
-        """
-        self.data, self.labels = zip(*data)
-
-    def get_data(self: LabelledDataset) -> List[str]:
-        """Access data stored into the dataset.
-
-        Returns:
-            List[str]: Return a list of string, each one is a document
-        """
-        return self.data
-
-    def get_labels(self: LabelledDataset) -> List[str]:
-        """Access labels stored into the dataset.
-
-        Returns:
-            List[str]: Return a list of string, each one is a label
-        """
-        return self.labels
-
-    def toDataset(self: LabelledDataset) -> Dataset:
-        """Convert a labelledDataset to Dataset.
-
-        Returns:
-            Dataset: a Dataset with the same documents list but without labels.
-        """
-        return Dataset(self.get_data())
-
-    def __getitem__(self: LabelledDataset, index: int) -> Tuple[str, str]:
-        """Enable the data[i] syntax to retrieve the data.
-
-        Args:
-            index (int): index of the required document
-
-        Returns:
-            Tuple[str, str]: the required document and its label, as tuple
-        """
-        return self.data[index], self.labels[index]
-
-    def __add__(self: LabelledDataset, other: Dataset) -> Dataset:
-        """Overload + operator to concatenate dataset.
-
-        Args:
-            other (Dataset): the second dataset to be concatenated
-                (must be a Dataset subclass)
-
-        Returns:
-            Dataset: a dataset with the documents of both summed dataset.
-                If both Dataset are Labelled, instead, return a LabelledDataset
-                with also the labels.
-        """
-        if isinstance(other, LabelledDataset):
-            return LabelledDataset(
-                list(zip(self.get_data(), self.get_labels()))
-                + list(zip(other.get_data(), other.get_labels()))
-            )
+    @classmethod
+    def load(cls, path: Union[str, os.PathLike]) -> 'Dataset':
+        path = Path(path)
+        if path.is_dir():
+            with (path / (path.name + '.json')).open(mode='r') as f:
+                data = json.load(f)
         else:
-            return Dataset(self.get_data() + other.get_data())
+            with path.open(mode='r') as f:
+                data = json.load(f)
+            path = path.parent
+
+        dataset = cls(data['name'])
+        dataset.path = path
+
+        dataset.save()
+        return dataset
+
+
+class LabeledDataset(Dataset):
+
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
+
+        self.raw_label: Optional[Raw] = None
+
+    def to_json(self) -> dict:
+        save = super().to_json()
+        if self.raw_label is not None:
+            save['raw_label'] = self.raw_label.to_json()
+        return save
