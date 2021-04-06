@@ -6,7 +6,7 @@ jobs:
     name: Base tests
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: '3.8'
         architecture: x64
@@ -21,7 +21,7 @@ jobs:
     name: Python ${{ matrix.python-version }} - Testing with conda
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
@@ -36,7 +36,7 @@ jobs:
     name: Python ${{ matrix.python-version }} - Testing with poetry
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-miniconda@v2
+    - uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: '3.8'
         architecture: x64
