@@ -6,7 +6,7 @@ nox.options.sessions = "black", "lint", "mypy"
 
 ADSODIR = ".adso_test"
 
-py_version = ["3.8", "3.9", "3.7", "3.6"]
+py_version = ["3.8", "3.9", "3.7", "3.6", "pypy3.7", "pypy3.6"]
 
 
 def install_this(session):
