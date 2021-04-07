@@ -11,25 +11,30 @@ import os
 
 from pathlib import Path
 
+from .common import hash
 from ..common import PROJDIR
 
 
 class Corpus (ABC):
 
-    def __init__(self: 'Corpus', path: Path) -> None:
-        self.path = Path
-        self.hash: str
-        self.format: str = 'raw'
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.hash: str = hash(self.path)
+        self.format: str
 
-    def get(self: 'Corpus') -> Any:
+    def get(self) -> Any:
         pass
 
-    def to_json(self: 'Corpus') -> dict:
+    def to_json(self) -> dict:
         return {
             'format': self.format,
             'path': self.path,
             'hash': self.hash
         }
+
+    @classmethod
+    def load(cls, path: Path, hash: str) -> 'Corpus':
+        pass
 
 
 class Raw(Corpus):
