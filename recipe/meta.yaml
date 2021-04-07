@@ -10,6 +10,7 @@ build:
   script: "poetry build"
   script_env:
     - CONDA_PREFIX
+  skip: True  # [win or osx]
 
 requirements:
   build:

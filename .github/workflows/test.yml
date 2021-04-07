@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        os: ['ubuntu-latest']
         python-version: ['3.6', '3.7', '3.8', '3.9']
     name: Python ${{ matrix.python-version }} - Testing with conda
     steps:
@@ -31,7 +31,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        os: ['ubuntu-latest']
         python-version: ['3.6', '3.7', '3.8', '3.9']
     name: Python ${{ matrix.python-version }} - Testing with poetry
     steps:
