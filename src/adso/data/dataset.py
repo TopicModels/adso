@@ -16,14 +16,20 @@ from ..common import PROJDIR
 
 class Corpus (ABC):
 
-    def __init__(self: 'Corpus') -> None:
-        self.filename: str
+    def __init__(self: 'Corpus', path: Path) -> None:
+        self.path = Path
+        self.hash: str
+        self.format: str = 'raw'
 
     def get(self: 'Corpus') -> Any:
         pass
 
     def to_json(self: 'Corpus') -> dict:
-        pass
+        return {
+            'format': self.format,
+            'path': self.path,
+            'hash': self.hash
+        }
 
 
 class Raw(Corpus):
