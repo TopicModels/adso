@@ -37,10 +37,11 @@ def lint(session):
     session.run("flake8", *args)
 
 
-@nox.session()
+@nox.session(python=py_version[0], venv_backend="conda")
 def mypy(session):
     args = session.posargs or locations
-    session.install(mypy)
+    install_this(session)
+    session.conda_install("mypy")
     session.run("mypy", *args)
 
 
