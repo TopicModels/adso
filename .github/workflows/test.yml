@@ -10,6 +10,7 @@ jobs:
       with:
         python-version: '3.8'
         architecture: x64
+    - run: conda config --add channels conda-forge
     - run: conda install nox
     - run: nox
   conda_tests:
@@ -25,6 +26,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
+    - run: conda config --add channels conda-forge
     - run: conda install nox
     - run: nox -s test -p ${{ matrix.python-version }}
   poetry_tests:
@@ -52,6 +54,7 @@ jobs:
         python-version: '3.8'
         architecture: x64
         activate-environment: adso
+    - run: conda config --add channels conda-forge
     - run: conda install nox
     - run: nox -s cov
       env:
