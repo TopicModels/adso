@@ -4,17 +4,7 @@ channels:
 dependencies:
   - python>=3.6
   - pathlib
-  # - dask
-  # - dask-ml
-  # - gensim
-  # - igraph
-  # - infomap
-  # - graph-tool
-  # - matplotlib
-  # - nltk
-  # - numba
-  # - numpy
-  # - pathlib
-  # - scikit-learn
-  # - scipy
-  # - sparse
+  - numpy
+  - dask
+  - dask-ml
+  - h5py

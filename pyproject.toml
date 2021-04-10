@@ -12,6 +12,9 @@ documentation = "https://tnto.github.io/adso/"
 python = "^3.6"
 pathlib = "^1.0.0"
 numpy = "^1.19"
+dask = "2021.03.0"
+dask-ml = "^1.8.0"
+h5py = "^3.1.0"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

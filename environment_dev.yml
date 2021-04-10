@@ -13,15 +13,6 @@ dependencies:
 # project dependencies
   - pathlib
   - numpy
-  # - dask
-  # - dask-ml
-  # - gensim
-  # - igraph
-  # - infomap
-  # - graph-tool
-  # - matplotlib
-  # - nltk
-  # - numba
-  # - scikit-learn
-  # - scipy
-  # - sparse
+  - dask
+  - dask-ml
+  - h5py
