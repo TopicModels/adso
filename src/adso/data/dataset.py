@@ -3,42 +3,13 @@
 Define data-container for other classes.
 """
 
-from abc import ABC
-from typing import Any, Optional, Union
-
 import json
 import os
-
 from pathlib import Path
+from typing import Iterable, Union
 
-from .common import hash
 from ..common import PROJDIR
-
-
-class Corpus (ABC):
-
-    def __init__(self, path: Path) -> None:
-        self.path = path
-        self.hash: str = hash(self.path)
-        self.format: str
-
-    def get(self) -> Any:
-        pass
-
-    def to_json(self) -> dict:
-        return {
-            'format': self.format,
-            'path': self.path,
-            'hash': self.hash
-        }
-
-    @classmethod
-    def load(cls, path: Path, hash: str) -> 'Corpus':
-        pass
-
-
-class Raw(Corpus):
-    pass
+from .corpus import Corpus  # , Raw
 
 
 class Dataset:
@@ -50,45 +21,45 @@ class Dataset:
         # maybe add existence check?
         self.path.mkdir(exist_ok=True, parents=True)
 
-        self.raw: Optional[Raw] = None
+        self.data: dict[str, Corpus] = {}
 
-    def to_json(self) -> dict:
-        save = {'name': self.name, 'path': self.path}
-        if self.raw is not None:
-            save['raw'] = self.raw.to_json()
+    def serialize(self) -> dict:
+        save = {"name": self.name, "path": self.path}
+        save["data"] = {key: self.data[key].serialize() for key in self.data}
         return save
 
     def save(self) -> None:
-        with (self.path / (self.name + '.json')).open(mode='w') as f:
-            json.dump(self.to_json(), f)
+        with (self.path / (self.name + ".json")).open(mode="w") as f:
+            json.dump(self.serialize(), f)
 
     @classmethod
-    def load(cls, path: Union[str, os.PathLike]) -> 'Dataset':
+    def load(cls, path: Union[str, os.PathLike]) -> "Dataset":
         path = Path(path)
         if path.is_dir():
-            with (path / (path.name + '.json')).open(mode='r') as f:
-                data = json.load(f)
+            with (path / (path.name + ".json")).open(mode="r") as f:
+                loaded = json.load(f)
         else:
-            with path.open(mode='r') as f:
-                data = json.load(f)
+            with path.open(mode="r") as f:
+                loaded = json.load(f)
             path = path.parent
 
-        dataset = cls(data['name'])
+        dataset = cls(loaded["name"])
         dataset.path = path
+
+        dataset.data = {
+            key: globals()[loaded["data"][key]["format"]](
+                Path(loaded["data"][key]["path"]), loaded["data"][key]["hash"]
+            )
+            for key in loaded["data"]
+        }
 
         dataset.save()
         return dataset
 
+    @classmethod
+    def from_iterator(cls, iterator: Iterable[str]) -> "Dataset":
+        pass
+
 
 class LabeledDataset(Dataset):
-
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
-
-        self.raw_label: Optional[Raw] = None
-
-    def to_json(self) -> dict:
-        save = super().to_json()
-        if self.raw_label is not None:
-            save['raw_label'] = self.raw_label.to_json()
-        return save
+    pass
