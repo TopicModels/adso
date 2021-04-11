@@ -2,7 +2,12 @@
 
 from abc import ABC
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
+
+import dask.array as da
+import h5py
+import numpy as np
+from more_itertools import chuncked
 
 from .common import hash
 
@@ -31,4 +36,23 @@ class Corpus(ABC):
 
 
 class Raw(Corpus):
-    pass
+    def get(self) -> da.array:
+        if self.hash == hash(self.path):
+            return da.from_array(h5py.File(self.path, "r")["/"], chuncks="auto")
+        else:
+            raise RuntimeError
+
+    @classmethod
+    def from_iterator(
+        cls, path: Path, iterator: Iterable[Any], batch_size: int = 64
+    ) -> "Raw":
+        if path.is_file():
+            raise RuntimeError
+        else:
+            da.concatenate(
+                [
+                    da.from_array(np.array(chunk))
+                    for chunk in chuncked(iterator, batch_size)
+                ]
+            ).to_hdf5(path, "/", shuffle=False)
+        return Raw(path)
