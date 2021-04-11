@@ -8,3 +8,4 @@ dependencies:
   - dask
   - dask-ml
   - h5py
+  - more-itertools
