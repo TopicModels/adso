@@ -4,58 +4,70 @@ jobs:
   base_tests:
     runs-on: ubuntu-latest
     name: Base tests
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
-    - uses: actions/checkout@v2
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: '3.8'
-        architecture: x64
-    - run: conda config --add channels conda-forge
-    - run: conda install nox
-    - run: nox
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: adso-test
+          python-version: "3.8"
+          architecture: x64
+          channels: conda-forge, defaults
+      - run: conda install nox
+      - run: nox
   conda_tests:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest']
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        os: ["ubuntu-latest"]
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
     name: Python ${{ matrix.python-version }} - Testing with conda
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
-    - uses: actions/checkout@v2
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        architecture: x64
-    - run: conda config --add channels conda-forge
-    - run: conda install nox
-    - run: nox -s test -p ${{ matrix.python-version }}
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: adso-test
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+          channels: conda-forge, defaults
+      - run: conda install nox
+      - run: nox -s test -p ${{ matrix.python-version }}
   poetry_tests:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest']
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        os: ["ubuntu-latest"]
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
     name: Python ${{ matrix.python-version }} - Testing with poetry
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-        architecture: x64
-    - run: pip install nox
-    - run: pip install poetry
-    - run: nox -s poetry_test -p ${{ matrix.python-version }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - run: pip install nox
+      - run: pip install poetry
+      - run: nox -s poetry_test -p ${{ matrix.python-version }}
   coverage:
     runs-on: ubuntu-latest
+    name: Coverage
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
-    - uses: actions/checkout@v2
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: '3.8'
-        architecture: x64
-        activate-environment: adso
-    - run: conda config --add channels conda-forge
-    - run: conda install nox
-    - run: nox -s cov
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: adso-test
+          python-version: "3.8"
+          architecture: x64
+          channels: conda-forge, defaults
+      - run: conda install nox
+      - run: nox -s cov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
