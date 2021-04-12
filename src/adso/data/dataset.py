@@ -10,7 +10,7 @@ from typing import Iterable, Tuple, Union
 
 import dask.array as da
 import numpy as np
-from more_itertools import chuncked
+from more_itertools import chunked
 
 from ..common import PROJDIR
 from .corpus import Corpus, Raw
@@ -66,7 +66,18 @@ class Dataset:
     ) -> "Dataset":
         dataset = cls(name)
         path = PROJDIR / name / (name + ".raw.hdf5")
-        dataset.data["raw"] = Raw.from_iterator(path, iterator, batch_size)
+
+        if path.is_file():
+            raise RuntimeError
+        else:
+            da.concatenate(
+                [
+                    da.from_array(np.array(chunk))
+                    for chunk in chunked(iterator, batch_size)
+                ]
+            ).to_hdf5(path, "/", shuffle=False)
+
+        dataset.data["raw"] = Raw(path)
         return dataset
 
 
@@ -107,16 +118,30 @@ class LabeledDataset(Dataset):
 
     @classmethod
     def from_iterator(cls, name: str, iterator: Iterable[Tuple[str, str]], batch_size: int = 64) -> "LabeledDataset":  # type: ignore[override]
+        #
+        # An alternative implementation can use itertool.tee + threading/async
+        # https://stackoverflow.com/questions/50039223/how-to-execute-two-aggregate-functions-like-sum-concurrently-feeding-them-f
+        # https://github.com/omnilib/aioitertools
+        #
+        # (Label, Doc)
+
         dataset = cls(name)
-        raw_path = PROJDIR / name / (name + ".raw.hdf5")
+        data_path = PROJDIR / name / (name + ".raw.hdf5")
         label_path = PROJDIR / name / (name + ".label.raw.hdf5")
         data = da.concatenate(
-            [da.from_array(np.array(chunk)) for chunk in chuncked(iterator, batch_size)]
+            [da.from_array(np.array(chunk)) for chunk in chunked(iterator, batch_size)]
         )
-        dataset.data["raw"] = Raw.from_iterator(
-            raw_path, data[:, 1].squeeze(), batch_size
-        )
-        dataset.label["raw"] = Raw.from_iterator(
-            label_path, data[:, 0].squeeze(), batch_size
-        )
+
+        if data_path.is_file():
+            raise RuntimeError
+        else:
+            data[:, 1].squeeze().to_hdf5(data_path, "/", shuffle=False)
+            dataset.data["raw"] = Raw(data_path)
+
+        if label_path.is_file():
+            raise RuntimeError
+        else:
+            data[:, 0].squeeze().to_hdf5(label_path, "/", shuffle=False)
+            dataset.label["raw"] = Raw(label_path)
+
         return dataset
