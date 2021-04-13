@@ -5,12 +5,18 @@ dependencies:
   # python
   - python>=3.6
   # dev dependencies
+  - mamba
   - poetry
   - nox
   - black
   - mypy
   - flake8
-  - mamba
+  - flake8-annotations
+  - flake8-black
+  - flake8-bugbear
+  - flake8-docstrings
+  - flake8-import-order
+  - darglint
   # project dependencies
   - pathlib
   - numpy
@@ -18,3 +24,8 @@ dependencies:
   - dask-ml
   - h5py
   - more-itertools
+  # pip
+  - pip
+  - pip:
+      # dev
+      - flake8-bandit

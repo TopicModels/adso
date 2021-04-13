@@ -6,7 +6,7 @@ Define data-container for other classes.
 import json
 import os
 from pathlib import Path
-from typing import Iterable, Tuple, Union
+from typing import Dict, Iterable, Tuple, Union
 
 import dask.array as da
 import numpy as np
@@ -25,7 +25,7 @@ class Dataset:
         # maybe add existence check?
         self.path.mkdir(exist_ok=True, parents=True)
 
-        self.data: dict[str, Corpus] = {}
+        self.data: Dict[str, Corpus] = {}
 
     def serialize(self) -> dict:
         save = {"name": self.name, "path": self.path}
@@ -84,7 +84,7 @@ class Dataset:
 class LabeledDataset(Dataset):
     def __init__(self, name: str) -> None:
         super().__init__(name)
-        self.label: dict[str, Corpus] = {}
+        self.label: Dict[str, Corpus] = {}
 
     def serialize(self) -> dict:
         save = super().serialize()

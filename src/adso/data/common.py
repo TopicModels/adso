@@ -1,7 +1,6 @@
 """Common variable and function for data submodule."""
 
 import hashlib
-
 from pathlib import Path
 
 from ..common import ADSODIR
