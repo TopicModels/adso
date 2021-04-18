@@ -3,9 +3,10 @@
 import hashlib
 from pathlib import Path
 
-from ..common import ADSODIR
+from .. import common as adso_common
 
-DATADIR = ADSODIR / "data"
+DATADIR = adso_common.ADSODIR / "data"
+DATADIR.mkdir(exist_ok=True, parents=True)
 
 
 def hash(path: Path) -> str:

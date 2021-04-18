@@ -6,4 +6,3 @@ from .common import DATADIR
 from .dataset import Dataset, LabeledDataset
 
 # Create data folder if it not exists
-DATADIR.mkdir(exist_ok=True, parents=True)
