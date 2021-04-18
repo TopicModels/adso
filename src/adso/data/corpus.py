@@ -1,8 +1,8 @@
 "Corpus Class and subclasses"
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
 
 import dask.array as da
 import h5py
@@ -16,11 +16,16 @@ class Corpus(ABC):
         self.path = path
         self.hash: str = hash(self.path)
 
+    @abstractmethod
     def get(self) -> Any:
-        pass
+        raise NotImplementedError
 
-    def serialize(self) -> dict:
-        return {"format": type(self).__name__, "path": self.path, "hash": self.hash}
+    def serialize(self) -> Dict[str, str]:
+        return {
+            "format": type(self).__name__,
+            "path": str(self.path),
+            "hash": self.hash,
+        }
 
     @classmethod
     def load(cls, path: Path, hash: str) -> "Corpus":
@@ -37,6 +42,6 @@ class Corpus(ABC):
 class Raw(Corpus):
     def get(self) -> da.array:
         if self.hash == hash(self.path):
-            return da.from_array(h5py.File(self.path, "r")["/"], chuncks="auto")
+            return da.from_array(h5py.File(self.path, "r")["/raw"])
         else:
             raise RuntimeError
