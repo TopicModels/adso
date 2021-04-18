@@ -56,8 +56,9 @@ def xdoctest(session):
 @nox.session(python=py_version[0], venv_backend="conda")
 def cov(session):
     install_this(session)
-    session.conda_install("coverage[toml]", "pytest", "pytest-cov")
+    session.conda_install("coverage", "pytest", "pytest-cov")
     session.run("rm", "-rf", ADSODIR, external=True)
+    session.run("rm", "-rf", ".test", external=True)
     session.run(
         "pytest",
         "--cov-report",
@@ -66,6 +67,7 @@ def cov(session):
         "term",
         "--cov",
         "adso",
+        "-v",
         env={"ADSODIR": ADSODIR},
     )
 
@@ -75,6 +77,7 @@ def test(session):
     install_this(session)
     session.conda_install("pytest")
     session.run("rm", "-rf", ADSODIR, external=True)
+    session.run("rm", "-rf", ".test", external=True)
     session.run("pytest", env={"ADSODIR": ADSODIR, "PYTHONWARNINGS": "default"})
 
 
@@ -85,6 +88,7 @@ def poetry_test(session):
     session.run("poetry", "install")
     session.install(".")
     session.run("rm", "-rf", ADSODIR, external=True)
+    session.run("rm", "-rf", ".test", external=True)
     session.run("pytest", env={"ADSODIR": ADSODIR, "PYTHONWARNINGS": "default"})
 
 
