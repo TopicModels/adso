@@ -4,9 +4,9 @@ import os
 import random
 from pathlib import Path
 
-from .data import common as data_common
-
 import numpy as np
+
+from .data import common as data_common
 
 ENV_ADSODIR = os.getenv("ADSODIR")
 if ENV_ADSODIR is not None:
@@ -45,3 +45,7 @@ def set_project_name(name: str) -> None:
     global PROJDIR
     PROJDIR = ADSODIR / name
     PROJDIR.mkdir(exist_ok=True, parents=True)
+
+
+def setup_dask_client() -> None:
+    pass
