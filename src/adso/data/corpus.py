@@ -45,3 +45,11 @@ class Raw(Corpus):
             return da.from_array(h5py.File(self.path, "r")["/raw"])
         else:
             raise RuntimeError
+
+    @classmethod
+    def from_dask_array(cls, path: Path, array: da.array) -> "Raw":
+        if path.is_file():
+            raise RuntimeError
+        else:
+            array.to_hdf5(path, "/raw", shuffle=False)
+        return Raw(path)
