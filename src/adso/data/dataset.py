@@ -5,15 +5,19 @@ Define data-container for other classes.
 
 import json
 import os
+import pickle
 from pathlib import Path
-from typing import Any, Dict, Iterable, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
 
 import dask.array as da
+import dask_ml
 import numpy as np
 from more_itertools import chunked
 
 from .. import common as adso_common
+from .common import get_nltk_stopwords, tokenize_and_stem
 from .corpus import Corpus, Raw
+from .vectorizer import Vectorizer
 
 
 class Dataset:
@@ -25,10 +29,16 @@ class Dataset:
         # maybe add existence check?
         self.path.mkdir(exist_ok=True, parents=True)
 
+        self.vectorizer: Optional[Vectorizer] = None
         self.data: Dict[str, Corpus] = {}
 
     def serialize(self) -> dict:
-        save: Dict[str, Any] = {"name": self.name, "path": str(self.path)}
+        save: Dict[str, Any] = {
+            "name": self.name,
+            "path": str(self.path),
+        }
+        if self.vectorizer is not None:
+            save["vectorizer"] = self.vectorizer.serialize()
         save["data"] = {key: self.data[key].serialize() for key in self.data}
         return save
 
@@ -50,6 +60,13 @@ class Dataset:
         dataset = cls(loaded["name"])
         dataset.path = path
 
+        if "vectorizer" in loaded:
+            dataset.vectorizer = Vectorizer.load(
+                loaded["vectorizer"]["path"], loaded["vectorizer"]["hash"]
+            )  # type: ignore[assignment]
+        else:
+            dataset.vectorizer = None
+
         dataset.data = {
             key: globals()[loaded["data"][key]["format"]].load(
                 Path(loaded["data"][key]["path"]), loaded["data"][key]["hash"]
@@ -65,24 +82,62 @@ class Dataset:
         cls, name: str, iterator: Iterable[str], batch_size: int = 64
     ) -> "Dataset":
         dataset = cls(name)
-        path = adso_common.PROJDIR / name / (name + ".raw.hdf5")
 
-        if path.is_file():
-            raise RuntimeError
-        else:
+        dataset.data["raw"] = Raw.from_dask_array(
+            adso_common.PROJDIR / name / (name + ".raw.hdf5"),
             da.concatenate(
                 [
                     da.from_array(np.array(chunk, dtype=np.dtype(bytes)))
                     for chunk in chunked(iterator, batch_size)
                 ]
-            ).to_hdf5(path, "/raw", shuffle=False)
-
-        dataset.data["raw"] = Raw(path)
+            ),
+        )
         dataset.save()
         return dataset
 
     def get_corpus(self) -> da.array:
         return self.data["raw"].get()
+
+    def set_vectorizer_params(
+        self,
+        tokenizer: Optional[Callable] = tokenize_and_stem,
+        stop_words: Optional[Iterable[str]] = get_nltk_stopwords(),
+        strip_accents: Optional[str] = "unicode",
+        **kwargs
+    ) -> None:
+        path = self.path / (self.name + ".vectorizer.pickle")
+        pickle.dump(
+            dask_ml.feature_extraction.text.CountVectorizer(
+                tokenizer=tokenizer, stop_words=stop_words, strip_accents="unicode"
+            ),
+            path.open("xb"),
+        )
+        self.vectorizer = Vectorizer(path)
+
+    def _compute_count_matrix(self) -> None:
+        if self.vectorizer is None:
+            self.set_vectorizer_params()
+        vectorizer = self.vectorizer.get()  # type: ignore[union-attr]
+        corpus = self.data["raw"].get()
+
+        self.data["count_matrix"] = Raw.from_dask_array(
+            self.path / (self.name + "count_matrix.hdf5"),
+            vectorizer.fit_transform(corpus),
+        )
+
+        self.data["vocab"] = Raw.from_dask_array(
+            self.path / (self.name + "vocab.hdf5"), vectorizer.get_feature_names()
+        )
+
+    def get_count_matrix(self) -> da.array:
+        if "count_matrix" not in self.data:
+            self._compute_count_matrix()
+        return self.data["count_matrix"].get()
+
+    def get_vocab(self) -> da.array:
+        if "vocab" not in self.data:
+            self._compute_count_matrix()
+        return self.data["vocab"].get()
 
 
 class LabeledDataset(Dataset):
