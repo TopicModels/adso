@@ -24,6 +24,8 @@ dependencies:
   - dask-ml
   - h5py
   - more-itertools
+  - scikit-learn
+  - nltk
   # pip
   - pip
   - pip:
