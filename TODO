@@ -2,6 +2,7 @@
 
 ### General improvements
 [ ] Update README to conda
+[ ] implement adso.common.setup_dask_client()
 
 ### Additional Topic Modellind algorithms
 [ ] NMF
@@ -25,8 +26,8 @@
 
 ### Improve compatibility
 [ ] (?) Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
-[ ] [0.1.0] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
+[x] [0.1.0] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
 
 ### CI
-[ ] Switch CI to conda [LINK](https://github.com/marketplace/actions/setup-miniconda)
+[x] Switch CI to conda [LINK](https://github.com/marketplace/actions/setup-miniconda)
 [ ] Add docs autobuild [LINK](https://github.com/marketplace/actions/sphinx-build)
