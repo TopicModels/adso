@@ -10,7 +10,8 @@ py_version = ["3.8", "3.9", "3.7", "3.6", "pypy3.7", "pypy3.6"]
 
 
 def install_this(session):
-    session.run("conda", "env", "update", "--file", "environment.yml")
+    session.conda_install("mamba")
+    session.run("mamba", "env", "update", "--file", "environment.yml")
     session.install(".")
 
 
