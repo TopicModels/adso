@@ -80,7 +80,11 @@ class Dataset:
 
     @classmethod
     def from_iterator(
-        cls, name: str, iterator: Iterable[str], batch_size: int = 64
+        cls,
+        name: str,
+        iterator: Iterable[str],
+        batch_size: int = 64,
+        overwrite: bool = False,
     ) -> "Dataset":
         dataset = cls(name)
 
@@ -92,6 +96,7 @@ class Dataset:
                     for chunk in chunked(iterator, batch_size)
                 ]
             ),
+            overwrite=overwrite,
         )
         dataset.save()
         return dataset
