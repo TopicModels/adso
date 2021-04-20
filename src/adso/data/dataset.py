@@ -10,12 +10,13 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
 
 import dask.array as da
+import dask.bag as db
 import dask_ml
 import numpy as np
 from more_itertools import chunked
 
 from .. import common as adso_common
-from .common import get_nltk_stopwords, tokenize_and_stem
+from .common import tokenize_and_stem
 from .corpus import Corpus, Raw
 from .vectorizer import Vectorizer
 
@@ -101,7 +102,7 @@ class Dataset:
     def set_vectorizer_params(
         self,
         tokenizer: Optional[Callable] = tokenize_and_stem,
-        stop_words: Optional[Iterable[str]] = get_nltk_stopwords(),
+        stop_words: Optional[Iterable[str]] = None,
         strip_accents: Optional[str] = "unicode",
         **kwargs
     ) -> None:
@@ -113,6 +114,7 @@ class Dataset:
             path.open("xb"),
         )
         self.vectorizer = Vectorizer(path)
+        self.save()
 
     def _compute_count_matrix(self) -> None:
         if self.vectorizer is None:
@@ -122,12 +124,20 @@ class Dataset:
 
         self.data["count_matrix"] = Raw.from_dask_array(
             self.path / (self.name + "count_matrix.hdf5"),
-            vectorizer.fit_transform(corpus),
+            vectorizer.fit_transform(db.from_sequence(corpus)),
         )
 
         self.data["vocab"] = Raw.from_dask_array(
             self.path / (self.name + "vocab.hdf5"), vectorizer.get_feature_names()
         )
+
+        pickle.dump(
+            vectorizer,
+            self.vectorizer.path.open("wb"),  # type: ignore[union-attr]
+        )
+        self.vectorizer.update_hash()  # type: ignore[union-attr]
+
+        self.save()
 
     def get_count_matrix(self) -> da.array:
         if "count_matrix" not in self.data:
@@ -202,13 +212,13 @@ class LabeledDataset(Dataset):
         )
 
         if data_path.is_file():
-            raise RuntimeError
+            raise RuntimeError("File already exists")
         else:
             data[:, 1].squeeze().to_hdf5(data_path, "/raw", shuffle=False)
             dataset.data["raw"] = Raw(data_path)
 
         if label_path.is_file():
-            raise RuntimeError
+            raise RuntimeError("File already exists")
         else:
             data[:, 0].squeeze().to_hdf5(label_path, "/raw", shuffle=False)
             dataset.labels["raw"] = Raw(label_path)
