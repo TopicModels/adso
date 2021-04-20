@@ -1,11 +1,11 @@
 import adso
 import adso.data as data
 
-adso.set_adso_dir(".test")
-adso.set_project_name("test")
-
 
 def test_from_iterator():
+
+    adso.set_adso_dir(".test")
+    adso.set_project_name("test")
 
     labels = ["Animals", "Animals", "Maths", "Maths"]
 
