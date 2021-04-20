@@ -4,6 +4,7 @@
 [ ] Update README to conda
 [ ] implement adso.common.setup_dask_client()
 [x] migrate from poetry to setup.py for build and upload
+[ ] test pypy
 
 ### Additional Topic Modellind algorithms
 [ ] NMF
