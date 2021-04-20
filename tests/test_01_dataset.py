@@ -1,11 +1,11 @@
 import adso
 import adso.data as data
 
+adso.set_adso_dir(".test")
+adso.set_project_name("test")
+
 
 def test_from_iterator():
-
-    adso.set_adso_dir(".test")
-    adso.set_project_name("test")
 
     labels = ["Animals", "Animals", "Maths", "Maths"]
 
@@ -47,3 +47,7 @@ def test_from_iterator():
             .compute()
         )
     ] == labels
+
+
+if __name__ == "__main__":
+    test_from_iterator()
