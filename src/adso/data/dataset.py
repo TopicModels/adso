@@ -193,7 +193,7 @@ class LabeledDataset(Dataset):
         return dataset
 
     @classmethod
-    def from_iterator(cls, name: str, iterator: Iterable[Tuple[str, str]], batch_size: int = 64) -> "LabeledDataset":  # type: ignore[override]
+    def from_iterator(cls, name: str, iterator: Iterable[Tuple[str, str]], batch_size: int = 64, overwrite: bool = False) -> "LabeledDataset":  # type: ignore[override]
         #
         # An alternative implementation can use itertool.tee + threading/async
         # https://stackoverflow.com/questions/50039223/how-to-execute-two-aggregate-functions-like-sum-concurrently-feeding-them-f
@@ -211,13 +211,13 @@ class LabeledDataset(Dataset):
             ]
         )
 
-        if data_path.is_file():
+        if data_path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
             data[:, 1].squeeze().to_hdf5(data_path, "/raw", shuffle=False)
             dataset.data["raw"] = Raw(data_path)
 
-        if label_path.is_file():
+        if label_path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
             data[:, 0].squeeze().to_hdf5(label_path, "/raw", shuffle=False)
