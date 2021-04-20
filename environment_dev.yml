@@ -6,7 +6,6 @@ dependencies:
   - python>=3.6
   # dev dependencies
   - mamba
-  - poetry
   - nox
   - black
   - mypy
@@ -17,6 +16,7 @@ dependencies:
   - flake8-docstrings
   - flake8-import-order
   - darglint
+  - setuptools
   # project dependencies
   - pathlib
   - numpy

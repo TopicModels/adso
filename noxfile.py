@@ -62,6 +62,8 @@ def cov(session):
     session.run("rm", "-rf", ".test", external=True)
     session.run(
         "pytest",
+        "--cov-config",
+        ".coveragerc",
         "--cov-report",
         "html:coverage",
         "--cov-report",
@@ -79,18 +81,16 @@ def test(session):
     session.conda_install("pytest")
     session.run("rm", "-rf", ADSODIR, external=True)
     session.run("rm", "-rf", ".test", external=True)
-    session.run("pytest", env={"ADSODIR": ADSODIR, "PYTHONWARNINGS": "default"})
+    session.run("pytest", env={"ADSODIR": ADSODIR})
 
 
 @nox.session(python=py_version)
-def poetry_test(session):
-    session.install("poetry", "pytest")
-    session.run("rm", "-rf", "poetry.lock", external=True)
-    session.run("poetry", "install")
+def pip_test(session):
+    session.install("pytest")
     session.install(".")
     session.run("rm", "-rf", ADSODIR, external=True)
     session.run("rm", "-rf", ".test", external=True)
-    session.run("pytest", env={"ADSODIR": ADSODIR, "PYTHONWARNINGS": "default"})
+    session.run("pytest", env={"ADSODIR": ADSODIR})
 
 
 @nox.session(python=py_version[0], venv_backend="conda")

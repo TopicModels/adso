@@ -1,0 +1,15 @@
+[paths]
+source = 
+    src
+    */site-packages
+
+[run]
+branch = true
+
+[report]
+show_missing = true
+fail_under = 80
+exclude_lines = 
+    raise ValueError
+    raise RuntimeError
+    raise NotImplementedError

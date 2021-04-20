@@ -43,7 +43,7 @@ jobs:
       matrix:
         os: ["ubuntu-latest"]
         python-version: ["3.6", "3.7", "3.8", "3.9"]
-    name: Python ${{ matrix.python-version }} - Testing with poetry
+    name: Python ${{ matrix.python-version }} - Testing with pip
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
@@ -51,8 +51,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
       - run: pip install nox
-      - run: pip install poetry
-      - run: nox -s poetry_test -p ${{ matrix.python-version }}
+      - run: nox -s pip_test -p ${{ matrix.python-version }}
   coverage:
     runs-on: ubuntu-latest
     name: Coverage

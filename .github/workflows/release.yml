@@ -6,12 +6,15 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.8'
-        architecture: x64
-    - run: pip install nox
-    - run: pip install poetry
-    - run: poetry build
-    - run: poetry publish --username=${{ secrets.PYPI_USER }} --password=${{ secrets.PYPI_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.8"
+          architecture: x64
+      - run: pip install setuptools build twine
+      - run: python setup.py sdist bdist_wheel
+      - run: twine check dist/*
+      - run: twine upload dist/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
