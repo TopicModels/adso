@@ -6,19 +6,19 @@ from pathlib import Path
 
 import numpy as np
 
-from .data import common as data_common
-
-ENV_ADSODIR = os.getenv("ADSODIR")
-if ENV_ADSODIR is not None:
-    ADSODIR = Path(ENV_ADSODIR)
-else:
-    ADSODIR = Path.home() / ".adso"
-del ENV_ADSODIR
+ADSODIR = (
+    (Path.home() / ".adso")
+    if (os.getenv("ADSODIR") is None)
+    else Path(os.getenv("ADSODIR"))  # type: ignore[arg-type]
+)
 
 PROJDIR = ADSODIR / "default"
 
 ADSODIR.mkdir(exist_ok=True, parents=True)
 PROJDIR.mkdir(exist_ok=True, parents=True)
+
+DATADIR = ADSODIR / "data"
+DATADIR.mkdir(exist_ok=True, parents=True)
 
 
 def set_seed(seed: int) -> None:
@@ -35,10 +35,11 @@ def set_seed(seed: int) -> None:
 
 def set_adso_dir(path: str) -> None:
     global ADSODIR
+    global DATADIR
     ADSODIR = Path(path)
     ADSODIR.mkdir(exist_ok=True, parents=True)
-    data_common.DATADIR = ADSODIR / "data"
-    data_common.DATADIR.mkdir(exist_ok=True, parents=True)
+    DATADIR = ADSODIR / "data"
+    DATADIR.mkdir(exist_ok=True, parents=True)
 
 
 def set_project_name(name: str) -> None:

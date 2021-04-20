@@ -6,13 +6,10 @@ from typing import Iterable
 
 import nltk
 
-from .. import common as adso_common
-
-DATADIR = adso_common.ADSODIR / "data"
-DATADIR.mkdir(exist_ok=True, parents=True)
+from .. import common
 
 
-def hash(path: Path) -> str:
+def compute_hash(path: Path) -> str:
     # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
 
     BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
@@ -36,7 +33,7 @@ def nltk_download(id: str) -> None:
         id (str): id of the required downloadable data. Cfr
             <http://www.nltk.org/nltk_data/>
     """
-    NLTKDIR = DATADIR / "nltk"
+    NLTKDIR = common.DATADIR / "nltk"
     NLTKDIR.mkdir(exist_ok=True, parents=True)
     if NLTKDIR not in nltk.data.path:
         nltk.data.path.append(NLTKDIR)
