@@ -13,10 +13,11 @@ import dask.array as da
 import dask.bag as db
 import dask_ml
 import numpy as np
+from itertools import chain
 from more_itertools import chunked
 
 from .. import common as adso_common
-from .common import tokenize_and_stem
+from .common import tokenize_and_stem, nltk_download
 from .corpus import Corpus, Raw
 from .vectorizer import Vectorizer
 
@@ -109,14 +110,24 @@ class Dataset:
         tokenizer: Optional[Callable] = tokenize_and_stem,
         stop_words: Optional[Iterable[str]] = None,
         strip_accents: Optional[str] = "unicode",
+        overwrite: bool = False,
         **kwargs
     ) -> None:
+        if tokenizer == tokenize_and_stem:
+            nltk_download("punkt")
+
+        # could be necessary to tokenize the stopwords
+        if (stop_words is not None) and (tokenizer is not None):
+            stop_words = set(chain.from_iterable([tokenizer(sw) for sw in stop_words]))
+
+        mode = "wb" if overwrite else "xb"
+
         path = self.path / (self.name + ".vectorizer.pickle")
         pickle.dump(
             dask_ml.feature_extraction.text.CountVectorizer(
                 tokenizer=tokenizer, stop_words=stop_words, strip_accents="unicode"
             ),
-            path.open("xb"),
+            path.open(mode),
         )
         self.vectorizer = Vectorizer(path)
         self.save()
@@ -127,10 +138,16 @@ class Dataset:
         vectorizer = self.vectorizer.get()  # type: ignore[union-attr]
         corpus = self.data["raw"].get()
 
+        bag = db.from_sequence(corpus)  # ERROR
+        vect = vectorizer.fit_transform(bag)
         self.data["count_matrix"] = Raw.from_dask_array(
             self.path / (self.name + "count_matrix.hdf5"),
-            vectorizer.fit_transform(db.from_sequence(corpus)),
+            vect,
         )
+        # self.data["count_matrix"] = Raw.from_dask_array(
+        #     self.path / (self.name + "count_matrix.hdf5"),
+        #     vectorizer.fit_transform(db.from_sequence(corpus)),
+        # )
 
         self.data["vocab"] = Raw.from_dask_array(
             self.path / (self.name + "vocab.hdf5"), vectorizer.get_feature_names()
