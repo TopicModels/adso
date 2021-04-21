@@ -41,7 +41,6 @@ def nltk_download(id: str) -> None:
 
 
 def tokenize_and_stem(doc: str) -> Iterable[str]:
-    nltk_download("punkt")
     tokenizer = nltk.tokenize.word_tokenize
     stemmer = nltk.stem.SnowballStemmer("english")
     return map(stemmer.stem, tokenizer(doc))
