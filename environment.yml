@@ -11,3 +11,4 @@ dependencies:
   - more-itertools
   - scikit-learn
   - nltk
+  - sparse

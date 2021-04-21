@@ -38,5 +38,6 @@ setup(
         "numpy>=1.19.0",
         "pathlib>=1.0.0",
         "scikit-learn>=0.24.1",
+        "sparse>=0.12.0",
     ],
 )
