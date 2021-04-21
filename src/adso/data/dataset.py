@@ -6,6 +6,7 @@ Define data-container for other classes.
 import json
 import os
 import pickle
+from itertools import chain
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
 
@@ -13,12 +14,12 @@ import dask.array as da
 import dask.bag as db
 import dask_ml
 import numpy as np
-from itertools import chain
+import sparse
 from more_itertools import chunked
 
 from .. import common as adso_common
-from .common import tokenize_and_stem, nltk_download
-from .corpus import Corpus, Raw
+from .common import nltk_download, tokenize_and_stem
+from .corpus import Corpus, CountMatrix, Raw
 from .vectorizer import Vectorizer
 
 
@@ -135,22 +136,23 @@ class Dataset:
     def _compute_count_matrix(self) -> None:
         if self.vectorizer is None:
             self.set_vectorizer_params()
+
         vectorizer = self.vectorizer.get()  # type: ignore[union-attr]
         corpus = self.data["raw"].get()
+        bag = db.from_sequence([doc.compute().item() for doc in corpus])
 
-        bag = db.from_sequence(corpus)  # ERROR
-        vect = vectorizer.fit_transform(bag)
-        self.data["count_matrix"] = Raw.from_dask_array(
-            self.path / (self.name + "count_matrix.hdf5"),
-            vect,
+        count_matrix = (
+            vectorizer.fit_transform(bag)
+            .map_blocks(lambda x: sparse.COO(x).todense())
+            .compute_chunk_sizes()
         )
-        # self.data["count_matrix"] = Raw.from_dask_array(
-        #     self.path / (self.name + "count_matrix.hdf5"),
-        #     vectorizer.fit_transform(db.from_sequence(corpus)),
-        # )
 
-        self.data["vocab"] = Raw.from_dask_array(
-            self.path / (self.name + "vocab.hdf5"), vectorizer.get_feature_names()
+        vocab = da.from_array(
+            np.array(vectorizer.get_feature_names(), dtype=np.dtype(bytes))
+        )
+
+        self.data["count_matrix"] = CountMatrix.from_dask_array(
+            self.path / (self.name + ".count_matrix"), count_matrix, vocab
         )
 
         pickle.dump(
@@ -167,9 +169,9 @@ class Dataset:
         return self.data["count_matrix"].get()
 
     def get_vocab(self) -> da.array:
-        if "vocab" not in self.data:
+        if "count_matrix" not in self.data:
             self._compute_count_matrix()
-        return self.data["vocab"].get()
+        return self.data["count_matrix"].get_vocab()  # type: ignore[attr-defined]
 
 
 class LabeledDataset(Dataset):
