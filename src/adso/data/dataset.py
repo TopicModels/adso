@@ -5,20 +5,16 @@ Define data-container for other classes.
 
 import json
 import os
-import pickle
-from itertools import chain
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Optional, Tuple, Union
 
 import dask.array as da
 import dask.bag as db
-import dask_ml
 import numpy as np
 import sparse
 from more_itertools import chunked
 
 from .. import common as adso_common
-from .common import nltk_download, tokenize_and_stem
 from .corpus import Corpus, CountMatrix, Raw
 from ..algorithm.vectorizer import Vectorizer
 
@@ -108,29 +104,12 @@ class Dataset:
 
     def set_vectorizer_params(
         self,
-        tokenizer: Optional[Callable] = tokenize_and_stem,
-        stop_words: Optional[Iterable[str]] = None,
-        strip_accents: Optional[str] = "unicode",
-        overwrite: bool = False,
+        # tokenizer: Optional[Callable] = tokenize_and_stem,
+        # stop_words: Optional[Iterable[str]] = None,
+        # strip_accents: Optional[str] = "unicode",
         **kwargs
     ) -> None:
-        if tokenizer == tokenize_and_stem:
-            nltk_download("punkt")
-
-        # could be necessary to tokenize the stopwords
-        if (stop_words is not None) and (tokenizer is not None):
-            stop_words = set(chain.from_iterable([tokenizer(sw) for sw in stop_words]))
-
-        mode = "wb" if overwrite else "xb"
-
-        path = self.path / (self.name + ".vectorizer.pickle")
-        pickle.dump(
-            dask_ml.feature_extraction.text.CountVectorizer(
-                tokenizer=tokenizer, stop_words=stop_words, strip_accents="unicode"
-            ),
-            path.open(mode),
-        )
-        self.vectorizer = Vectorizer(path)
+        self.vectorizer = Vectorizer(self.path / (self.name + ".vectorizer.pickle"))
         self.save()
 
     def _compute_count_matrix(self) -> None:
@@ -155,11 +134,7 @@ class Dataset:
             self.path / (self.name + ".count_matrix"), count_matrix, vocab
         )
 
-        pickle.dump(
-            vectorizer,
-            self.vectorizer.path.open("wb"),  # type: ignore[union-attr]
-        )
-        self.vectorizer.update_hash()  # type: ignore[union-attr]
+        self.vectorizer.save()  # type: ignore[union-attr]
 
         self.save()
 
