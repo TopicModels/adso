@@ -109,7 +109,9 @@ class Dataset:
         # strip_accents: Optional[str] = "unicode",
         **kwargs
     ) -> None:
-        self.vectorizer = Vectorizer(self.path / (self.name + ".vectorizer.pickle"))
+        self.vectorizer = Vectorizer(
+            self.path / (self.name + ".vectorizer.pickle"), **kwargs
+        )
         self.save()
 
     def _compute_count_matrix(self) -> None:
@@ -134,7 +136,7 @@ class Dataset:
             self.path / (self.name + ".count_matrix"), count_matrix, vocab
         )
 
-        self.vectorizer.save()  # type: ignore[union-attr]
+        self.vectorizer.save(vectorizer)  # type: ignore[union-attr]
 
         self.save()
 

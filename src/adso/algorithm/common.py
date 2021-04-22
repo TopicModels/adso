@@ -1,6 +1,6 @@
-from abc import ABC, abstractclassmethod, abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Tuple
 
 import dask.array as da
 import h5py
@@ -8,30 +8,16 @@ import h5py
 from ..common import Data, compute_hash
 
 
-class Algorithm(ABC):
-    def __init__(self, path: Path) -> None:
-        raise NotImplementedError
-
+class Algorithm(Data, ABC):
     @abstractmethod
     def save(self) -> None:
         raise NotImplementedError
 
-    @abstractclassmethod
-    def load(self) -> "Algorithm":
-        raise NotImplementedError
-
-    @abstractmethod
-    def get(self) -> "Algorithm":
-        raise NotImplementedError
-
 
 class TMAlgorithm(Algorithm, ABC):
-    def __init__(self) -> None:
-        self.n: Optional[int]
-
-    @abstractmethod
-    def get_model(self) -> "TopicModel":
-        raise NotImplementedError
+    def __init__(self, path: Path, name: str) -> None:
+        super().__init__(path)
+        self.name = name
 
 
 class TopicModel(Data):
