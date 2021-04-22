@@ -9,15 +9,15 @@ from ..common import Data, compute_hash
 
 
 class Algorithm(ABC):
-    def __init__(self, path) -> None:
+    def __init__(self, path: Path) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def save(self, overwrite: bool = False) -> None:
+    def save(self) -> None:
         raise NotImplementedError
 
     @abstractclassmethod
-    def load(cls) -> "Algorithm":
+    def load(self) -> "Algorithm":
         raise NotImplementedError
 
     @abstractmethod
@@ -26,7 +26,7 @@ class Algorithm(ABC):
 
 
 class TMAlgorithm(Algorithm, ABC):
-    def __init__(self):
+    def __init__(self) -> None:
         self.n: Optional[int]
 
     @abstractmethod

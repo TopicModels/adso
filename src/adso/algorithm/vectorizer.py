@@ -33,7 +33,7 @@ class Vectorizer(Data, Algorithm):
         else:
             self.save()
 
-    def save(self) -> None:  # type: ignore[override]
+    def save(self) -> None:
         pickle.dump(
             self.model,
             self.path.open("wb"),

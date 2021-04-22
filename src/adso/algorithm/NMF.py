@@ -17,7 +17,7 @@ class NMF(TMAlgorithm):
         pass
 
     @classmethod
-    def load(self) -> "NMF":
+    def load(cls) -> "NMF":
         pass
 
     def get_model(self) -> "TopicModel":
