@@ -2,11 +2,10 @@ import pickle
 
 from dask_ml.feature_extraction.text import CountVectorizer
 
-from .common import compute_hash
-from .corpus import Corpus
+from ..common import compute_hash, Data
 
 
-class Vectorizer(Corpus):
+class Vectorizer(Data):
     def get(self) -> CountVectorizer:
         if self.hash == compute_hash(self.path):
             return pickle.load(self.path.open("rb"))

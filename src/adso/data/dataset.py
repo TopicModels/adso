@@ -20,7 +20,7 @@ from more_itertools import chunked
 from .. import common as adso_common
 from .common import nltk_download, tokenize_and_stem
 from .corpus import Corpus, CountMatrix, Raw
-from .vectorizer import Vectorizer
+from ..algorithm.vectorizer import Vectorizer
 
 
 class Dataset:
