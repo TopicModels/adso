@@ -2,7 +2,7 @@ from abc import ABC, abstractclassmethod, abstractmethod
 from pathlib import Path
 from typing import Optional, Tuple
 
-import das.array as da
+import dask.array as da
 import h5py
 
 from ..common import Data, compute_hash
