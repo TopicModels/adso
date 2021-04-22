@@ -1,47 +1,18 @@
 "Corpus Class and subclasses"
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Optional
 
 import dask.array as da
 import h5py
 import sparse
 
-from .common import compute_hash
+from ..common import compute_hash, Data
 
 
-class Corpus(ABC):
-    def __init__(self, path: Path) -> None:
-        self.path = path
-        self.hash: Union[str, List[str]]
-        self.update_hash()
-
-    @abstractmethod
-    def get(self) -> Any:
-        raise NotImplementedError
-
-    def update_hash(self) -> None:
-        self.hash = compute_hash(self.path)
-
-    def serialize(self) -> Dict[str, Union[str, List[str]]]:
-        return {
-            "format": type(self).__name__,
-            "path": str(self.path),
-            "hash": self.hash,
-        }
-
-    @classmethod
-    def load(cls, path: Union[Path, str], hash: Optional[str]) -> "Corpus":
-        path = Path(path)
-        if path.is_file():
-            corpus = cls(path)
-            if (corpus.hash == hash) or (hash is None):
-                return corpus
-            else:
-                raise RuntimeError("Different hash")
-        else:
-            raise RuntimeError("File doesn't exists")
+class Corpus(Data, ABC):
+    pass
 
 
 class Raw(Corpus):
