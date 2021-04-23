@@ -8,7 +8,7 @@ import dask.array as da
 import h5py
 import sparse
 
-from ..common import compute_hash, Data
+from ..common import Data, compute_hash
 
 
 class Corpus(Data, ABC):

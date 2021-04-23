@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Tuple
+from typing import TYPE_CHECKING, Any, Tuple
 
 import dask.array as da
 import h5py
 
 from ..common import Data, compute_hash
+
+if TYPE_CHECKING:
+    from ..data import Dataset
 
 
 class Algorithm(Data, ABC):
@@ -13,11 +16,19 @@ class Algorithm(Data, ABC):
     def save(self) -> None:
         raise NotImplementedError
 
+    @abstractmethod
+    def fit_transform(self, dataset: "Dataset") -> Any:
+        raise NotImplementedError
+
 
 class TMAlgorithm(Algorithm, ABC):
     def __init__(self, path: Path, name: str) -> None:
         super().__init__(path)
         self.name = name
+
+    @abstractmethod
+    def fit_transform(self, dataset: "Dataset") -> "TopicModel":
+        raise NotImplementedError
 
 
 class TopicModel(Data):
