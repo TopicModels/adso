@@ -1,13 +1,21 @@
 import pickle
 from itertools import chain
 from pathlib import Path
-from typing import Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Callable, Iterable, Optional
 
+import dask.array as da
+import dask.bag as db
+import numpy as np
+import sparse
 from dask_ml.feature_extraction.text import CountVectorizer
 
 from ..common import compute_hash
 from ..data.common import nltk_download, tokenize_and_stem
+from ..data.corpus import CountMatrix
 from .common import Algorithm
+
+if TYPE_CHECKING:
+    from ..data.dataset import Dataset
 
 
 class Vectorizer(Algorithm):
@@ -45,3 +53,29 @@ class Vectorizer(Algorithm):
             return pickle.load(self.path.open("rb"))
         else:
             raise RuntimeError("Different hash")
+
+    def fit_transform(self, dataset: "Dataset", update: bool = True) -> None:
+
+        bag = db.from_sequence(
+            [doc.compute().item() for doc in dataset.data["raw"].get()]
+        )
+        model = self.get()
+
+        count_matrix = (
+            model.fit_transform(bag)
+            .map_blocks(lambda x: sparse.COO(x).todense())
+            .compute_chunk_sizes()
+        )
+
+        vocab = da.from_array(
+            np.array(model.get_feature_names(), dtype=np.dtype(bytes))
+        )
+
+        dataset.data["count_matrix"] = CountMatrix.from_dask_array(
+            dataset.path / (dataset.name + ".count_matrix"), count_matrix, vocab
+        )
+
+        if update:
+            self.save(model)
+
+        dataset.save()

@@ -9,24 +9,26 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Optional, Tuple, Union
 
 import dask.array as da
-import dask.bag as db
 import numpy as np
-import sparse
 from more_itertools import chunked
 
-from .. import common as adso_common
-from .corpus import Corpus, CountMatrix, Raw
+from .. import common
 from ..algorithm.vectorizer import Vectorizer
+from .corpus import Corpus, Raw
 
 
 class Dataset:
     """Dataset class."""
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, overwrite: bool = False) -> None:
         self.name = name
-        self.path = adso_common.PROJDIR / self.name
-        # maybe add existence check?
-        self.path.mkdir(exist_ok=True, parents=True)
+        self.path = common.PROJDIR / self.name
+        try:
+            self.path.mkdir(exist_ok=overwrite, parents=True)
+        except FileExistsError:
+            raise RuntimeError(
+                "Directory already exist. Allow overwrite or load existing dataset."
+            )
 
         self.vectorizer: Optional[Vectorizer] = None
         self.data: Dict[str, Corpus] = {}
@@ -56,7 +58,7 @@ class Dataset:
                 loaded = json.load(f)
             path = path.parent
 
-        dataset = cls(loaded["name"])
+        dataset = cls(loaded["name"], overwrite=True)
         dataset.path = path
 
         if "vectorizer" in loaded:
@@ -87,7 +89,7 @@ class Dataset:
         dataset = cls(name)
 
         dataset.data["raw"] = Raw.from_dask_array(
-            adso_common.PROJDIR / name / (name + ".raw.hdf5"),
+            common.PROJDIR / name / (name + ".raw.hdf5"),
             da.concatenate(
                 [
                     da.from_array(np.array(chunk, dtype=np.dtype(bytes)))
@@ -118,27 +120,7 @@ class Dataset:
         if self.vectorizer is None:
             self.set_vectorizer_params()
 
-        vectorizer = self.vectorizer.get()  # type: ignore[union-attr]
-        corpus = self.data["raw"].get()
-        bag = db.from_sequence([doc.compute().item() for doc in corpus])
-
-        count_matrix = (
-            vectorizer.fit_transform(bag)
-            .map_blocks(lambda x: sparse.COO(x).todense())
-            .compute_chunk_sizes()
-        )
-
-        vocab = da.from_array(
-            np.array(vectorizer.get_feature_names(), dtype=np.dtype(bytes))
-        )
-
-        self.data["count_matrix"] = CountMatrix.from_dask_array(
-            self.path / (self.name + ".count_matrix"), count_matrix, vocab
-        )
-
-        self.vectorizer.save(vectorizer)  # type: ignore[union-attr]
-
-        self.save()
+        self.vectorizer.fit_transform(self)  # type: ignore[union-attr]
 
     def get_count_matrix(self) -> da.array:
         if "count_matrix" not in self.data:
@@ -152,8 +134,8 @@ class Dataset:
 
 
 class LabeledDataset(Dataset):
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
+    def __init__(self, name: str, overwrite: bool = False) -> None:
+        super().__init__(name, overwrite)
         self.labels: Dict[str, Corpus] = {}
 
     def serialize(self) -> dict:
@@ -173,7 +155,7 @@ class LabeledDataset(Dataset):
                 loaded = json.load(f)
             path = path.parent
 
-        dataset = cls(loaded["name"])
+        dataset = cls(loaded["name"], overwrite=True)
         dataset.path = path
 
         dataset.data = {
@@ -203,8 +185,8 @@ class LabeledDataset(Dataset):
         # (Label, Doc)
 
         dataset = cls(name)
-        data_path = adso_common.PROJDIR / name / (name + ".raw.hdf5")
-        label_path = adso_common.PROJDIR / name / (name + ".label.raw.hdf5")
+        data_path = common.PROJDIR / name / (name + ".raw.hdf5")
+        label_path = common.PROJDIR / name / (name + ".label.raw.hdf5")
         data = da.concatenate(
             [
                 da.from_array(np.array(chunk, dtype=np.dtype(bytes)))
