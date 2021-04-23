@@ -67,9 +67,7 @@ class Vectorizer(Algorithm):
             .compute_chunk_sizes()
         )
 
-        vocab = da.from_array(
-            np.array(model.get_feature_names(), dtype=np.dtype(bytes))
-        )
+        vocab = da.from_array(np.array(model.get_feature_names(), dtype=np.bytes_))
 
         dataset.data["count_matrix"] = CountMatrix.from_dask_array(
             dataset.path / (dataset.name + ".count_matrix"), count_matrix, vocab
