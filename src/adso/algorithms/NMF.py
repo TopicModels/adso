@@ -1,12 +1,14 @@
-from pathlib import Path
 import pickle
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Optional
 
 import dask.array as da
 import sklearn.decomposition
 
-from ..common import PROJDIR, get_seed, compute_hash
-from .common import TMAlgorithm, TopicModel
+from .. import common
+from ..common import compute_hash, get_seed
+from ..data.topicmodel import TopicModel
+from .common import TMAlgorithm
 
 if TYPE_CHECKING:
     from ..data.dataset import Dataset
@@ -14,12 +16,13 @@ if TYPE_CHECKING:
 
 class NMF(TMAlgorithm):
     def __init__(self, name: str, n: int, overwrite: bool = False, **kwargs) -> None:
-        path = PROJDIR / (name + ".pickle")
-        super().__init__(path, name)
+        self.name = name
+        self.path = common.PROJDIR / (self.name + ".NMF.pickle")
+
         model = sklearn.decomposition.NMF(
             n_components=n, random_state=get_seed(), **kwargs
         )
-        if path.is_file() and (not overwrite):
+        if self.path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
             self.save(model)
@@ -37,7 +40,10 @@ class NMF(TMAlgorithm):
         else:
             raise RuntimeError("Different hash")
 
-    def fit_transform(self, dataset: "Dataset", path: Path, update: bool = True) -> TopicModel:  # type: ignore[override]
+    def fit_transform(self, dataset: "Dataset", path: Optional[Path] = None, update: bool = True) -> TopicModel:  # type: ignore[override]
+
+        if path is None:
+            path = common.PROJDIR / (self.name + ".NMF.topicmodel.hdf5")
 
         model = self.get()
 
