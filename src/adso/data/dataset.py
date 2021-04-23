@@ -13,7 +13,7 @@ import numpy as np
 from more_itertools import chunked
 
 from .. import common
-from ..algorithm.vectorizer import Vectorizer
+from ..algorithms.vectorizer import Vectorizer
 from .corpus import Corpus, Raw
 
 
@@ -92,7 +92,7 @@ class Dataset:
             common.PROJDIR / name / (name + ".raw.hdf5"),
             da.concatenate(
                 [
-                    da.from_array(np.array(chunk, dtype=np.dtype(bytes)))
+                    da.from_array(np.array(chunk, dtype=np.bytes_))
                     for chunk in chunked(iterator, batch_size)
                 ]
             ),
@@ -139,7 +139,7 @@ class Dataset:
 
 class LabeledDataset(Dataset):
     def __init__(self, name: str, overwrite: bool = False) -> None:
-        super().__init__(name, overwrite)
+        super().__init__(name, overwrite=overwrite)
         self.labels: Dict[str, Corpus] = {}
 
     def serialize(self) -> dict:
@@ -188,12 +188,13 @@ class LabeledDataset(Dataset):
         #
         # (Label, Doc)
 
-        dataset = cls(name)
+        dataset = cls(name, overwrite=overwrite)
         data_path = common.PROJDIR / name / (name + ".raw.hdf5")
         label_path = common.PROJDIR / name / (name + ".label.raw.hdf5")
+
         data = da.concatenate(
             [
-                da.from_array(np.array(chunk, dtype=np.dtype(bytes)))
+                da.from_array(np.array(chunk, dtype=np.bytes_))
                 for chunk in chunked(iterator, batch_size)
             ]
         )
