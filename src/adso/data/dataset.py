@@ -127,6 +127,10 @@ class Dataset:
             self._compute_count_matrix()
         return self.data["count_matrix"].get()
 
+    def get_frequency_matrix(self) -> da.array:
+        count_matrix = self.get_count_matrix()
+        return count_matrix / count_matrix.sum(axis=1)[:, np.newaxis]
+
     def get_vocab(self) -> da.array:
         if "count_matrix" not in self.data:
             self._compute_count_matrix()

@@ -1,9 +1,15 @@
+from pathlib import Path
 import pickle
+from typing import TYPE_CHECKING
 
+import dask.array as da
 import sklearn.decomposition
 
 from ..common import PROJDIR, get_seed, compute_hash
-from .common import TMAlgorithm
+from .common import TMAlgorithm, TopicModel
+
+if TYPE_CHECKING:
+    from ..data.dataset import Dataset
 
 
 class NMF(TMAlgorithm):
@@ -30,3 +36,21 @@ class NMF(TMAlgorithm):
             return pickle.load(self.path.open("rb"))
         else:
             raise RuntimeError("Different hash")
+
+    def fit_transform(self, dataset: "Dataset", path: Path, update: bool = True) -> TopicModel:  # type: ignore[override]
+
+        model = self.get()
+
+        doc_topic_matrix = da.from_array(
+            model.fit_transform(dataset.get_frequency_matrix())
+        )
+        word_topic_matrix = da.from_array(model.components_).T
+
+        topic_model = TopicModel.from_dask_array(
+            path, word_topic_matrix, doc_topic_matrix
+        )
+
+        if update:
+            self.save(model)
+
+        return topic_model

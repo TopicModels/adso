@@ -27,7 +27,7 @@ class TMAlgorithm(Algorithm, ABC):
         self.name = name
 
     @abstractmethod
-    def fit_transform(self, dataset: "Dataset") -> "TopicModel":
+    def fit_transform(self, dataset: "Dataset", path: Path) -> "TopicModel":  # type: ignore[override]
         raise NotImplementedError
 
 
