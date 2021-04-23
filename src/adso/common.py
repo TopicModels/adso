@@ -62,10 +62,6 @@ def set_project_name(name: str) -> None:
     PROJDIR.mkdir(exist_ok=True, parents=True)
 
 
-def setup_dask_client() -> None:
-    pass
-
-
 def compute_hash(path: Path) -> str:
     # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
 
