@@ -1,6 +1,6 @@
 [flake8]
 select = ANN,B,B9,BLK,C,D,DAR,E,F,I,W
-ignore = E501, ANN003, ANN101, ANN102, B008, B950, D415, W503
+ignore = E501, ANN003, ANN101, ANN102, B008, B950, D415, W503, D
 max-line-length = 80
 application-import-names = adso,example,tests
 import-order-style = pep8
