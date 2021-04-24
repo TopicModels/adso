@@ -20,9 +20,10 @@ def get_20newsgroups(name: str, overwrite: bool = False, **kwargs) -> LabeledDat
         random_state=get_seed(),
         **kwargs
     )
-    labels = np.array([bunch.target_names[label] for label in bunch.target])
+    data = bunch.data
+    labels = [bunch.target_names[label] for label in bunch.target]
     return LabeledDataset.from_iterator(
         name,
-        np.column_stack([labels, bunch.data]),
+        np.column_stack([labels, data]),
         overwrite=overwrite,
     )

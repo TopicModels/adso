@@ -48,7 +48,7 @@ class NMF(TMAlgorithm):
         model = self.get()
 
         doc_topic_matrix = da.from_array(
-            model.fit_transform(dataset.get_frequency_matrix())
+            model.fit_transform(dataset.get_frequency_matrix().compute().tocsr())
         )
         word_topic_matrix = da.from_array(model.components_).T
 

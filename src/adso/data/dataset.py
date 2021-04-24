@@ -112,7 +112,8 @@ class Dataset:
         **kwargs
     ) -> None:
         self.vectorizer = Vectorizer(
-            self.path / (self.name + ".vectorizer.pickle"), **kwargs
+            self.path / (self.name + ".vectorizer.pickle"),
+            **kwargs,
         )
         self.save()
 
@@ -129,7 +130,12 @@ class Dataset:
 
     def get_frequency_matrix(self) -> da.array:
         count_matrix = self.get_count_matrix()
-        return count_matrix / count_matrix.sum(axis=1)[:, np.newaxis]
+        return (
+            count_matrix
+            / (count_matrix.sum(axis=1)).map_blocks(
+                lambda b: b.todense(), dtype=np.int64
+            )[:, np.newaxis]
+        )
 
     def get_vocab(self) -> da.array:
         if "count_matrix" not in self.data:
@@ -193,23 +199,24 @@ class LabeledDataset(Dataset):
         label_path = common.PROJDIR / name / (name + ".label.raw.hdf5")
 
         data = da.concatenate(
-            [
-                da.from_array(np.array(chunk, dtype=np.bytes_))
-                for chunk in chunked(iterator, batch_size)
-            ]
+            [da.from_array(np.array(chunk)) for chunk in chunked(iterator, batch_size)]
         )
 
         if data_path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            data[:, 1].squeeze().to_hdf5(data_path, "/raw", shuffle=False)
-            dataset.data["raw"] = Raw(data_path)
+            raw = data[:, 1].squeeze()
+            dataset.data["raw"] = Raw.from_dask_array(
+                data_path, raw, overwrite=overwrite
+            )
 
         if label_path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            data[:, 0].squeeze().to_hdf5(label_path, "/raw", shuffle=False)
-            dataset.labels["raw"] = Raw(label_path)
+            label = data[:, 0].squeeze()
+            dataset.labels["raw"] = Raw.from_dask_array(
+                label_path, label, overwrite=overwrite
+            )
 
         dataset.save()
         return dataset

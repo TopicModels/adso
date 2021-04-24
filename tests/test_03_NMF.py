@@ -9,13 +9,13 @@ def test_NMF():
     adso.set_project_name("test")
     adso.set_seed(8686)
 
-    dataset = get_20newsgroups(
-        "NMF_20news", overwrite=True, categories=["sci.space", "rec.autos"]
-    )
+    dataset = get_20newsgroups("NMF_20news", categories=["sci.space", "rec.autos"])
 
-    nmf = NMF("test_NMF", 2, overwrite=True)
+    nmf = NMF("test_NMF", 2)
 
     topic_model = nmf.fit_transform(dataset)
+
+    topic_model
 
 
 if __name__ == "__main__":

@@ -56,18 +56,16 @@ class Vectorizer(Algorithm):
 
     def fit_transform(self, dataset: "Dataset", update: bool = True) -> None:
 
-        bag = db.from_sequence(
-            [doc.compute().item() for doc in dataset.data["raw"].get()]
-        )
+        bag = db.from_sequence([doc.compute().item() for doc in dataset.get_corpus()])
         model = self.get()
 
         count_matrix = (
             model.fit_transform(bag)
-            .map_blocks(lambda x: sparse.COO(x).todense())
+            .map_blocks(lambda x: sparse.COO(x, fill_value=0).todense())
             .compute_chunk_sizes()
         )
 
-        vocab = da.from_array(np.array(model.get_feature_names(), dtype=np.bytes_))
+        vocab = da.from_array(np.array(model.get_feature_names()))
 
         dataset.data["count_matrix"] = CountMatrix.from_dask_array(
             dataset.path / (dataset.name + ".count_matrix"), count_matrix, vocab

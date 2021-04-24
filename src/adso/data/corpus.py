@@ -6,6 +6,7 @@ from typing import Optional
 
 import dask.array as da
 import h5py
+import numpy as np
 import sparse
 
 from ..common import Data, compute_hash
@@ -29,7 +30,19 @@ class Raw(Corpus):
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            array.to_hdf5(path, "/raw", shuffle=False)
+            try:
+                array.to_hdf5(path, "/raw", shuffle=False)
+            except TypeError:
+                if array.dtype.kind == "U":
+                    itemsize = np.dtype("U1").itemsize
+                elif array.dtype.kind == "S":
+                    itemsize = np.dtype("S1").itemsize
+                else:
+                    raise TypeError("Numpy dtype not recognized")
+                array.map_blocks(
+                    lambda b: np.char.encode(b, encoding="utf-8"),
+                    dtype=np.dtype(("S", array.itemsize // itemsize)),
+                ).to_hdf5(path, "/raw", shuffle=False)
         return Raw(path)
 
 
@@ -37,7 +50,7 @@ class CountMatrix(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
             return da.from_array(h5py.File(self.path, "r")["/count_matrix"]).map_blocks(
-                sparse.COO
+                lambda x: sparse.COO(x, fill_value=0)
             )
         else:
             raise RuntimeError("Different hash")
@@ -60,11 +73,30 @@ class CountMatrix(Corpus):
             raise RuntimeError("File already exists")
         else:
             if vocab is not None:
-                da.to_hdf5(
-                    path,
-                    {"/count_matrix": count_matrix, "/vocab": vocab},
-                    shuffle=False,
-                )
+                try:
+                    da.to_hdf5(
+                        path,
+                        {"/count_matrix": count_matrix, "/vocab": vocab},
+                        shuffle=False,
+                    )
+                except TypeError:
+                    if vocab.dtype.kind == "U":
+                        itemsize = np.dtype("U1").itemsize
+                    elif vocab.dtype.kind == "S":
+                        itemsize = np.dtype("S1").itemsize
+                    else:
+                        raise TypeError("Numpy dtype not recognized")
+                    da.to_hdf5(
+                        path,
+                        {
+                            "/count_matrix": count_matrix,
+                            "/vocab": vocab.map_blocks(
+                                lambda b: np.char.encode(b, encoding="utf-8"),
+                                dtype=np.dtype(("S", vocab.itemsize // itemsize)),
+                            ),
+                        },
+                        shuffle=False,
+                    )
             else:
                 count_matrix.to_hdf5(path, "/count_matrix", shuffle=False)
         return CountMatrix(path)
