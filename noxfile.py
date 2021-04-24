@@ -75,6 +75,24 @@ def cov(session):
     )
 
 
+@nox.session(python=py_version[0], venv_backend="conda")
+def coverage(session):
+    install_this(session)
+    session.conda_install("coverage", "codecov", "pytest-cov")
+    session.run("rm", "-rf", ADSODIR, external=True)
+    session.run("rm", "-rf", ".test", external=True)
+    session.run(
+        "pytest",
+        "--cov-config",
+        ".coveragerc",
+        "--cov",
+        "adso",
+        env={"ADSODIR": ADSODIR},
+    )
+    session.run("coverage", "xml", "--fail-under=0")
+    session.run("codecov", *session.posargs)
+
+
 @nox.session(python=py_version, venv_backend="conda")
 def test(session):
     install_this(session)

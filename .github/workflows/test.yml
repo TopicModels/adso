@@ -67,6 +67,6 @@ jobs:
           architecture: x64
           channels: conda-forge, defaults
       - run: conda install nox
-      - run: nox -s cov
+      - run: nox -s coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
