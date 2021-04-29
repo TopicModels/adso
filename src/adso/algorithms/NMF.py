@@ -20,11 +20,7 @@ class NMF(TMAlgorithm):
         self.path = common.PROJDIR / (self.name + ".NMF.pickle")
 
         model = sklearn.decomposition.NMF(
-            n_components=n,
-            random_state=get_seed(),
-            solver="mu",
-            beta_loss="kullback-leibler",
-            **kwargs
+            n_components=n, random_state=get_seed(), init="nndsvd", **kwargs
         )
         if self.path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
