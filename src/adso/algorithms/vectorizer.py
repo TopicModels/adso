@@ -9,8 +9,8 @@ import numpy as np
 import sparse
 from dask_ml.feature_extraction.text import CountVectorizer
 
+# from ..data.common import nltk_download, tokenize_and_stem
 from ..common import compute_hash
-from ..data.common import nltk_download, tokenize_and_stem
 from ..data.corpus import CountMatrix
 from .common import Algorithm
 
@@ -23,14 +23,14 @@ class Vectorizer(Algorithm):
         self,
         path: Path,
         overwrite: bool = False,
-        tokenizer: Optional[Callable] = tokenize_and_stem,
+        tokenizer: Optional[Callable] = None,
         stop_words: Optional[Iterable[str]] = None,
         strip_accents: Optional[str] = "unicode",
         **kwargs
     ) -> None:
         self.path = path
-        if tokenizer == tokenize_and_stem:
-            nltk_download("punkt")
+        # if tokenizer == tokenize_and_stem:
+        #    nltk_download("punkt")
         if (stop_words is not None) and (tokenizer is not None):
             stop_words = set(chain.from_iterable([tokenizer(sw) for sw in stop_words]))
         model = CountVectorizer(
