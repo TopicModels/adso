@@ -9,12 +9,13 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Optional, Tuple, Union
 
 import dask.array as da
+from dask_ml.preprocessing import LabelEncoder
 import numpy as np
 from more_itertools import chunked
 
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
-from .corpus import Corpus, Raw
+from .corpus import Corpus, Raw, WithVocab
 
 
 class Dataset:
@@ -223,3 +224,15 @@ class LabeledDataset(Dataset):
 
     def get_labels(self) -> da.array:
         return self.labels["raw"].get()
+
+    def get_labels_vect(self) -> da.array:
+        if "vect" not in self.labels:
+            encoder = LabelEncoder()
+            labels = encoder.fit_transform(self.labels["raw"].get())
+            self.labels["vect"] = WithVocab.from_dask_array(
+                self.path / (self.name + ".label.vect.hdf5"),
+                labels,
+                encoder.classes_.compute_chunk_sizes(),
+            )
+            self.save()
+        return self.labels["vect"].get()
