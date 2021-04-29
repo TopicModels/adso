@@ -1,6 +1,7 @@
 import adso
 from adso.corpora import get_20newsgroups
 from adso.algorithms import NMF
+from adso.metrics.supervised import NMI
 
 
 def test_NMF():
@@ -15,7 +16,7 @@ def test_NMF():
 
     topic_model = nmf.fit_transform(dataset)
 
-    topic_model
+    print(NMI(dataset, topic_model))
 
 
 if __name__ == "__main__":
