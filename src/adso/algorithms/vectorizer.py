@@ -68,7 +68,7 @@ class Vectorizer(Algorithm):
         vocab = da.from_array(np.array(model.get_feature_names()))
 
         dataset.data["count_matrix"] = CountMatrix.from_dask_array(
-            dataset.path / (dataset.name + ".count_matrix"), count_matrix, vocab
+            dataset.path / (dataset.name + ".count_matrix.hdf5"), count_matrix, vocab
         )
 
         if update:
