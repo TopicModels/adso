@@ -46,12 +46,10 @@ class Raw(Corpus):
         return Raw(path)
 
 
-class CountMatrix(Corpus):
+class WithVocab(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
-            return da.from_array(h5py.File(self.path, "r")["/count_matrix"]).map_blocks(
-                lambda x: sparse.COO(x, fill_value=0)
-            )
+            return da.from_array(h5py.File(self.path, "r")["/data"])
         else:
             raise RuntimeError("Different hash")
 
@@ -65,10 +63,10 @@ class CountMatrix(Corpus):
     def from_dask_array(
         cls,
         path: Path,
-        count_matrix: da.array,
+        data: da.array,
         vocab: Optional[da.array],
         overwrite: bool = False,
-    ) -> "CountMatrix":
+    ) -> "WithVocab":
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
@@ -76,7 +74,7 @@ class CountMatrix(Corpus):
                 try:
                     da.to_hdf5(
                         path,
-                        {"/count_matrix": count_matrix, "/vocab": vocab},
+                        {"/data": data, "/vocab": vocab},
                         shuffle=False,
                     )
                 except TypeError:
@@ -89,7 +87,7 @@ class CountMatrix(Corpus):
                     da.to_hdf5(
                         path,
                         {
-                            "/count_matrix": count_matrix,
+                            "/data": data,
                             "/vocab": vocab.map_blocks(
                                 lambda b: np.char.encode(b, encoding="utf-8"),
                                 dtype=np.dtype(("S", vocab.itemsize // itemsize)),
@@ -98,5 +96,10 @@ class CountMatrix(Corpus):
                         shuffle=False,
                     )
             else:
-                count_matrix.to_hdf5(path, "/count_matrix", shuffle=False)
-        return CountMatrix(path)
+                data.to_hdf5(path, "/data", shuffle=False)
+        return cls(path)
+
+
+class CountMatrix(WithVocab):
+    def get(self, skip_hash_check: bool = False) -> da.array:
+        return super().get().map_blocks(lambda x: sparse.COO(x, fill_value=0))
