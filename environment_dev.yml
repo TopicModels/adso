@@ -17,16 +17,6 @@ dependencies:
   - flake8-import-order
   - darglint
   - setuptools
-  # project dependencies
-  - pathlib
-  - numpy
-  - dask
-  - dask-ml
-  - h5py
-  - more-itertools
-  - scikit-learn
-  - nltk
-  - sparse
   # pip
   - pip
   - pip:
