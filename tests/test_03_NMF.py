@@ -1,7 +1,7 @@
 import adso
 from adso.corpora import get_20newsgroups
 from adso.algorithms import NMF
-from adso.metrics.supervised import NMI
+from adso.metrics.supervised import NMI, confusion_matrix
 
 
 def test_NMF():
@@ -18,6 +18,15 @@ def test_NMF():
 
     print(NMI(dataset, topic_model))
 
+    print(confusion_matrix(dataset, topic_model).todense())
+
 
 if __name__ == "__main__":
+    import shutil
+
+    try:
+        shutil.rmtree(".test/test")
+    except FileNotFoundError:
+        pass
+
     test_NMF()

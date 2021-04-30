@@ -13,7 +13,9 @@ def test_vectorizer():
 
     dataset = data.Dataset.from_iterator("test_vectorizer", docs)
 
-    dataset.set_vectorizer_params()
+    dataset.set_vectorizer_params(
+        token_pattern=r"(?u)\b\w+\b",
+    )
 
     count_matrix = dataset.get_count_matrix()
     vocab = dataset.get_vocab()
@@ -26,4 +28,11 @@ def test_vectorizer():
 
 
 if __name__ == "__main__":
+    import shutil
+
+    try:
+        shutil.rmtree(".test/test")
+    except FileNotFoundError:
+        pass
+
     test_vectorizer()

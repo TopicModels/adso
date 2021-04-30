@@ -13,4 +13,11 @@ def test_directories():
 
 
 if __name__ == "__main__":
+    import shutil
+
+    try:
+        shutil.rmtree(".test/test")
+    except FileNotFoundError:
+        pass
+
     test_directories()
