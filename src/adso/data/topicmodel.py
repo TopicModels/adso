@@ -29,7 +29,12 @@ class TopicModel(Data):
     def get_labels(self) -> da.array:
         if self.hash != compute_hash(self.path):
             raise RuntimeError("Different hash")
-        f = h5py.File(self.path, "a")  # work around for concurrent I/O
+        try:
+            f = h5py.File(self.path, "a")  # work around for concurrent I/O
+        except OSError:
+            h5py.File(self.path).close()
+            f = h5py.File(self.path, "a")
+
         if "/labels" in f:
             return da.from_array(f["/labels"])
         else:
@@ -41,8 +46,8 @@ class TopicModel(Data):
                 dtype=labels.dtype,
             )
             da.store(labels, dset)
-            self.update_hash()
             f.close()
+            self.update_hash()
             return da.from_array(h5py.File(self.path, "r")["/labels"])
 
     @classmethod
