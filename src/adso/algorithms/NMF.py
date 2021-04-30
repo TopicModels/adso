@@ -15,12 +15,25 @@ if TYPE_CHECKING:
 
 
 class NMF(TMAlgorithm):
-    def __init__(self, name: str, n: int, overwrite: bool = False, **kwargs) -> None:
+    def __init__(
+        self,
+        name: str,
+        n: int,
+        overwrite: bool = False,
+        random_state: Optional[int] = get_seed(),
+        init: str = "nndsvd",
+        max_iter: int = 1000,
+        **kwargs
+    ) -> None:
         self.name = name
         self.path = common.PROJDIR / (self.name + ".NMF.pickle")
 
         model = sklearn.decomposition.NMF(
-            n_components=n, random_state=get_seed(), init="nndsvd", **kwargs
+            n_components=n,
+            random_state=random_state,
+            init=init,
+            max_iter=max_iter,
+            **kwargs
         )
         if self.path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
