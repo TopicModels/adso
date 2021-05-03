@@ -1,6 +1,7 @@
 import adso
-from adso.corpora import get_20newsgroups
+import numpy as np
 from adso.algorithms import NMF
+from adso.corpora import get_20newsgroups
 from adso.metrics.supervised import NMI, confusion_matrix
 
 
@@ -16,9 +17,11 @@ def test_NMF():
 
     topic_model = nmf.fit_transform(dataset)
 
-    print(NMI(dataset, topic_model))
+    assert NMI(dataset, topic_model) == 0.0011914237458472512
 
-    print(confusion_matrix(dataset, topic_model).todense())
+    assert confusion_matrix(dataset, topic_model).todense() == np.array(
+        [[617, 373], [653, 334]]
+    )
 
 
 if __name__ == "__main__":
