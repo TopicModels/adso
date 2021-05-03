@@ -1,10 +1,10 @@
 import json
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pyLDAvis
 
+from .. import common
 from ..common import Data, compute_hash
 from ..data import Dataset
 from ..data.topicmodel import TopicModel
@@ -43,19 +43,24 @@ class Visualizer(Data):
 
     @classmethod
     def new(
-        cls, path: Path, dataset: Dataset, model: TopicModel, **kwargs
+        cls, name: str, dataset: Dataset, model: TopicModel, **kwargs
     ) -> "Visualizer":
+        path = common.PROJDIR / (name + ".LDAvis.json")
         pyLDAvis.save_json(
             pyLDAvis.prepare(
                 model.get_word_topic_matrix().T.compute(),
                 model.get_doc_topic_matrix().compute(),
                 dataset.get_count_matrix()
                 .sum(axis=1)
-                .map_blocks(lambda b: b.todense(), dtype=np.int64),
+                .map_blocks(lambda b: b.todense(), dtype=np.int64)
+                .squeeze()
+                .compute(),
                 dataset.get_vocab().compute(),
                 dataset.get_count_matrix()
                 .sum(axis=0)
-                .map_blocks(lambda b: b.todense(), dtype=np.int64),
+                .map_blocks(lambda b: b.todense(), dtype=np.int64)
+                .squeeze()
+                .compute(),
                 **kwargs
             ),
             path,
