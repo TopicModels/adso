@@ -14,7 +14,7 @@ def test_vectorizer():
     dataset = data.Dataset.from_iterator("test_vectorizer", docs)
 
     dataset.set_vectorizer_params(
-        token_pattern=r"(?u)\b\w+\b",
+        tokenizer=(lambda s: s.split(" ")),
     )
 
     count_matrix = dataset.get_count_matrix()
