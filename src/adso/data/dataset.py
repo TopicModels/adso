@@ -148,8 +148,8 @@ class Dataset:
 
 class LabeledDataset(Dataset):
     def __init__(self, name: str, overwrite: bool = False) -> None:
-        super().__init__(name, overwrite=overwrite)
         self.labels: Dict[str, Corpus] = {}
+        super().__init__(name, overwrite=overwrite)
 
     def serialize(self) -> dict:
         save = super().serialize()
