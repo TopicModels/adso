@@ -1,69 +1,94 @@
+import json
+import os
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Dict, Union
 
 import dask.array as da
-import h5py
 
-from ..common import Data, compute_hash
+from .. import common
+from ..data.corpus import Corpus, Raw, Sparse
 
 
-class TopicModel(Data):
-    def get_word_topic_matrix(self, skip_hash_check: bool = False) -> da.array:
-        if self.hash == compute_hash(self.path):
-            return da.from_array(h5py.File(self.path, "r")["/word_topic"])
-        else:
-            raise RuntimeError("Different hash")
-
-    def get_doc_topic_matrix(self, skip_hash_check: bool = False) -> da.array:
-        if self.hash == compute_hash(self.path):
-            return da.from_array(h5py.File(self.path, "r")["/doc_topic"])
-        else:
-            raise RuntimeError("Different hash")
-
-    def get(self, skip_hash_check: bool = False) -> Tuple[da.array, da.array]:
-        return (
-            self.get_word_topic_matrix(),
-            self.get_doc_topic_matrix(),
-        )  # could give a concurrency error
-
-    def get_labels(self) -> da.array:
-        if self.hash != compute_hash(self.path):
-            raise RuntimeError("Different hash")
+class TopicModel:
+    def __init__(self, name: str, overwrite: bool = False) -> None:
+        self.name = name
+        self.path = common.PROJDIR / self.name
         try:
-            f = h5py.File(self.path, "a")  # work around for concurrent I/O
-        except OSError:
-            h5py.File(self.path).close()
-            f = h5py.File(self.path, "a")
-
-        if "/labels" in f:
-            return da.from_array(f["/labels"])
-        else:
-            labels = da.argmax(da.from_array(f["/doc_topic"]), axis=1)
-            dset = f.create_dataset(
-                "/labels",
-                shape=labels.shape,
-                chunks=tuple([c[0] for c in labels.chunks]),  # from dask source to_hdf5
-                dtype=labels.dtype,
+            self.path.mkdir(exist_ok=overwrite, parents=True)
+        except FileExistsError:
+            raise RuntimeError(
+                "Directory already exist. Allow overwrite or load existing dataset."
             )
-            da.store(labels, dset)
-            f.close()
-            self.update_hash()
-            return da.from_array(h5py.File(self.path, "r")["/labels"])
+
+        self.data: Dict[str, Corpus] = {}
+
+        self.save()
+
+    def serialize(self) -> dict:
+        save: Dict[str, Any] = {
+            "name": self.name,
+            "path": str(self.path),
+        }
+        save["data"] = {key: self.data[key].serialize() for key in self.data}
+        return save
+
+    def save(self) -> None:
+        with (self.path / (self.name + ".json")).open(mode="w") as f:
+            json.dump(self.serialize(), f, indent=4)
+
+    @classmethod
+    def load(cls, path: Union[str, os.PathLike]) -> "TopicModel":
+        path = Path(path)
+        if path.is_dir():
+            with (path / (path.name + ".json")).open(mode="r") as f:
+                loaded = json.load(f)
+        else:
+            with path.open(mode="r") as f:
+                loaded = json.load(f)
+            path = path.parent
+
+        model = cls(loaded["name"], overwrite=True)
+        model.path = path
+
+        model.data = {
+            key: globals()[loaded["data"][key]["format"]].load(
+                Path(loaded["data"][key]["path"]), loaded["data"][key]["hash"]
+            )
+            for key in loaded["data"]
+        }
+
+        model.save()
+        return model
 
     @classmethod
     def from_dask_array(
         cls,
-        path: Path,
+        name: str,
         word_topic_matrix: da.array,
         doc_topic_matrix: da.array,
         overwrite: bool = False,
     ) -> "TopicModel":
-        if path.is_file() and (not overwrite):
-            raise RuntimeError("File already exists")
-        else:
-            da.to_hdf5(
-                path,
-                {"/word_topic": word_topic_matrix, "/doc_topic": doc_topic_matrix},
-                shuffle=False,
+        model = cls(name)
+        model.data["word_topic"] = Sparse.from_dask_array(
+            model.path / "word_topic.hdf5", word_topic_matrix, overwrite=overwrite
+        )
+        model.data["doc_topic"] = Sparse.from_dask_array(
+            model.path / "doc_topic.hdf5", doc_topic_matrix, overwrite=overwrite
+        )
+        model.save()
+        return model
+
+    def get_word_topic_matrix(self, skip_hash_check: bool = False) -> da.array:
+        return self.data["word_topic"].get()
+
+    def get_doc_topic_matrix(self, skip_hash_check: bool = False) -> da.array:
+        return self.data["doc_topic"].get()
+
+    def get_labels(self) -> da.array:
+        if "labels" not in self.data:
+            self.data["labels"] = Raw.from_dask_array(
+                self.path / "labels.hdf5",
+                da.argmax(self.get_doc_topic_matrix(), axis=1),
             )
-        return TopicModel(path)
+            self.save()
+        return self.data["labels"].get()

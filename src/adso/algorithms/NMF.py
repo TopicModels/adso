@@ -1,5 +1,4 @@
 import pickle
-from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 import dask.array as da
@@ -53,10 +52,10 @@ class NMF(TMAlgorithm):
         else:
             raise RuntimeError("Different hash")
 
-    def fit_transform(self, dataset: "Dataset", path: Optional[Path] = None, update: bool = True) -> TopicModel:  # type: ignore[override]
+    def fit_transform(self, dataset: "Dataset", name: Optional[str] = None, update: bool = True) -> TopicModel:  # type: ignore[override]
 
-        if path is None:
-            path = common.PROJDIR / (self.name + ".NMF.topicmodel.hdf5")
+        if name is None:
+            name = dataset.name + "_" + self.name
 
         model = self.get()
 
@@ -66,7 +65,7 @@ class NMF(TMAlgorithm):
         word_topic_matrix = da.from_array(model.components_).T
 
         topic_model = TopicModel.from_dask_array(
-            path, word_topic_matrix, doc_topic_matrix
+            name, word_topic_matrix, doc_topic_matrix
         )
 
         if update:
