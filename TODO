@@ -6,7 +6,7 @@
 [x] migrate from poetry to setup.py for build and upload
 [ ] test pypy
 [ ] check order preserving for large dataset of actual implementation of vectorizer
-[ ] Allow to save and load TopicModel OR create Experiment envelop
+[x] Allow to save and load TopicModel OR create Experiment envelop
 
 ### Additional Topic Modellind algorithms
 [x] NMF
@@ -24,7 +24,6 @@
 ### Additional feature
 [ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
 [ ] Implement metrics (p.e. perplexity Blei03a) and plot
-[ ] (?) Create class for returned object (i.e. TermDocumentMatrix, TokenDataset, ...)
 [ ] Syntetic corpora generative algorithms
 
 ### Additional datasets
@@ -32,7 +31,6 @@
 [ ] Multilanguage Dataset like [Cross-Language](https://github.com/FerreroJeremy/Cross-Language-Dataset) or [xml-mt](https://github.com/salesforce/localization-xml-mt)
 
 ### Improve compatibility
-[ ] (?) Adopt torchtext compatible Dataset structure [GitHub repo](https://github.com/pytorch/text/tree/master/torchtext/experimental/datasets)
 [x] [0.1.0] Recover 3.6 compatibility by removing type hinting or using pre 3.7 annotations
 
 ### CI
