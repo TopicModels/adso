@@ -34,6 +34,8 @@ class Dataset:
         self.vectorizer: Optional[Vectorizer] = None
         self.data: Dict[str, Corpus] = {}
 
+        self.save()
+
     def serialize(self) -> dict:
         save: Dict[str, Any] = {
             "name": self.name,
