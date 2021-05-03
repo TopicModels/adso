@@ -13,3 +13,5 @@ dependencies:
   - nltk
   - sparse
   - dill
+  - pyldavis
+  - pandas
