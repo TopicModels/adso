@@ -12,3 +12,4 @@ dependencies:
   - scikit-learn >= 0.22
   - nltk
   - sparse
+  - dill

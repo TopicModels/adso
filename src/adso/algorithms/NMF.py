@@ -1,7 +1,7 @@
-import pickle
 from typing import TYPE_CHECKING, Optional
 
 import dask.array as da
+import dill
 import sklearn.decomposition
 
 from .. import common
@@ -40,7 +40,7 @@ class NMF(TMAlgorithm):
             self.save(model)
 
     def save(self, model: sklearn.decomposition.NMF) -> None:  # type: ignore[override]
-        pickle.dump(
+        dill.dump(
             model,
             self.path.open("wb"),
         )
@@ -48,7 +48,7 @@ class NMF(TMAlgorithm):
 
     def get(self) -> sklearn.decomposition.NMF:
         if self.hash == compute_hash(self.path):
-            return pickle.load(self.path.open("rb"))
+            return dill.load(self.path.open("rb"))
         else:
             raise RuntimeError("Different hash")
 

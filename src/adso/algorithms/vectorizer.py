@@ -1,17 +1,17 @@
-import pickle
 from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Iterable, Optional
 
 import dask.array as da
 import dask.bag as db
+import dill
 import numpy as np
 import sparse
 from dask_ml.feature_extraction.text import CountVectorizer
 
 # from ..data.common import nltk_download, tokenize_and_stem
 from ..common import compute_hash
-from ..data.corpus import Sparse
+from ..data.corpus import SparseWithVocab
 from .common import Algorithm
 
 if TYPE_CHECKING:
@@ -42,7 +42,7 @@ class Vectorizer(Algorithm):
             self.save(model)
 
     def save(self, model: CountVectorizer) -> None:  # type: ignore[override]
-        pickle.dump(
+        dill.dump(
             model,
             self.path.open("wb"),
         )
@@ -50,7 +50,7 @@ class Vectorizer(Algorithm):
 
     def get(self) -> CountVectorizer:
         if self.hash == compute_hash(self.path):
-            return pickle.load(self.path.open("rb"))
+            return dill.load(self.path.open("rb"))
         else:
             raise RuntimeError("Different hash")
 
@@ -67,7 +67,7 @@ class Vectorizer(Algorithm):
 
         vocab = da.from_array(np.array(model.get_feature_names()))
 
-        dataset.data["count_matrix"] = Sparse.from_dask_array(
+        dataset.data["count_matrix"] = SparseWithVocab.from_dask_array(
             dataset.path / (dataset.name + ".count_matrix.hdf5"), count_matrix, vocab
         )
 
