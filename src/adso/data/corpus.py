@@ -100,6 +100,11 @@ class WithVocab(Corpus):
         return cls(path)
 
 
-class CountMatrix(WithVocab):
+class SparseWithVocab(WithVocab):
+    def get(self, skip_hash_check: bool = False) -> da.array:
+        return super().get().map_blocks(lambda x: sparse.COO(x, fill_value=0))
+
+
+class Sparse(Raw):
     def get(self, skip_hash_check: bool = False) -> da.array:
         return super().get().map_blocks(lambda x: sparse.COO(x, fill_value=0))

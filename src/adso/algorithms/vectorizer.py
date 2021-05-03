@@ -11,7 +11,7 @@ from dask_ml.feature_extraction.text import CountVectorizer
 
 # from ..data.common import nltk_download, tokenize_and_stem
 from ..common import compute_hash
-from ..data.corpus import CountMatrix
+from ..data.corpus import Sparse
 from .common import Algorithm
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ class Vectorizer(Algorithm):
 
         vocab = da.from_array(np.array(model.get_feature_names()))
 
-        dataset.data["count_matrix"] = CountMatrix.from_dask_array(
+        dataset.data["count_matrix"] = Sparse.from_dask_array(
             dataset.path / (dataset.name + ".count_matrix.hdf5"), count_matrix, vocab
         )
 
