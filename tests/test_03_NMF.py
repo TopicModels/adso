@@ -1,6 +1,7 @@
+import numpy as np
+
 import adso
 import adso.data as data
-import numpy as np
 from adso.algorithms import NMF
 from adso.corpora import get_20newsgroups
 from adso.metrics.supervised import NMI, confusion_matrix
@@ -23,7 +24,7 @@ def test_simple_NMF():
 
     topic_model = nmf.fit_transform(dataset)
 
-    assert NMI(dataset, topic_model) == 0.7336804366512112
+    assert round(NMI(dataset, topic_model), 5) == 0.73368
     assert (
         confusion_matrix(dataset, topic_model).todense()
         == np.array([[1, 0], [1, 0], [0, 1]])
@@ -42,8 +43,7 @@ def test_NMF():
 
     topic_model = nmf.fit_transform(dataset)
 
-    assert NMI(dataset, topic_model) == 0.0011914237458472512
-
+    assert round(NMI(dataset, topic_model), 5) == 0.00119
     assert (
         confusion_matrix(dataset, topic_model).todense()
         == np.array([[617, 373], [653, 334]])
