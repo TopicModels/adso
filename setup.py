@@ -32,7 +32,7 @@ setup(
     install_requires=[
         "dask>=2021.3.0",
         "dask-ml>=1.8.0",
-        "h5py>=3.1.0",
+        "h5py>=3.0.0",
         "more-itertools>=8.7.0",
         "nltk>=3.6.1",
         "numpy>=1.19.0",
