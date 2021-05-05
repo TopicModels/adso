@@ -11,8 +11,9 @@ py_version = ["3.8", "3.9", "3.7", "3.6", "pypy3.7", "pypy3.6"]
 
 def install_this(session):
     session.conda_install("mamba")
-    with open(f"{session.virtualenv.location}/conda-meta/pinned", "w") as f:
-        f.write(f"python={session.python}.*")
+    if session.python:
+        with open(f"{session.virtualenv.location}/conda-meta/pinned", "w") as f:
+            f.write(f"python={session.python}.*")
     session.run(
         "mamba",
         "env",
