@@ -23,7 +23,7 @@ def install_this(session):
         "--prefix",
         f"{session.virtualenv.location}",
     )
-    session.run("python", "setup.py", "install")
+    session.install(".")
 
 
 @nox.session()
