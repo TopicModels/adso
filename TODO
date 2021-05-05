@@ -18,7 +18,7 @@
 [ ] DTM Blei & Lafferty
 [ ] hSBM (Gerlach, Peixoto & Altman)
 [ ] TopicMapping (Lancichinetti, Amaral et al) (with InfoMap, Louvain and Leiden clustering algorithms)
-[ ] Pure PLSA [GitHub](https://github.com/henryre/numba-plsa/blob/cab7f869648c223d8aa3657b0c3044e5bb788de2/numba_plsa/plsa_numba.py)
+[ ] Pure PLSA [GitHub](https://github.com/henryre/numba-plsa/blob/cab7f869648c223d8aa3657b0c3044e5bb788de2/numba_plsa/plsa_numba.py) [ArXiV](https://arxiv.org/pdf/1212.3900)
 [ ] Clustering (also soft clustering)
 
 ### Additional feature
@@ -36,3 +36,4 @@
 ### CI
 [x] Switch CI to conda [LINK](https://github.com/marketplace/actions/setup-miniconda)
 [ ] Add docs autobuild [LINK](https://github.com/marketplace/actions/sphinx-build)
+[x] Check if python version is correct in each CI step
