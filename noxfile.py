@@ -11,8 +11,18 @@ py_version = ["3.8", "3.9", "3.7", "3.6", "pypy3.7", "pypy3.6"]
 
 def install_this(session):
     session.conda_install("mamba")
-    session.run("mamba", "env", "update", "--file", "environment.yml")
-    session.install(".")
+    with open(f"{session.virtualenv.location}/conda-meta/pinned", "w") as f:
+        f.write(f"python={session.python}.*")
+    session.run(
+        "mamba",
+        "env",
+        "update",
+        "--file",
+        "environment.yml",
+        "--prefix",
+        f"{session.virtualenv.location}",
+    )
+    session.install("-vvv", ".")
 
 
 @nox.session()
@@ -38,7 +48,7 @@ def lint(session):
     session.run("flake8", *args)
 
 
-@nox.session(python=py_version[0], venv_backend="conda")
+@nox.session(venv_backend="conda")
 def mypy(session):
     args = session.posargs or locations
     install_this(session)
@@ -54,7 +64,7 @@ def xdoctest(session):
     session.run("python", "-m", "xdoctest", "adso", *args)
 
 
-@nox.session(python=py_version[0], venv_backend="conda")
+@nox.session(venv_backend="conda")
 def cov(session):
     install_this(session)
     session.conda_install("coverage", "pytest", "pytest-cov")
@@ -75,7 +85,7 @@ def cov(session):
     )
 
 
-@nox.session(python=py_version[0], venv_backend="conda")
+@nox.session(venv_backend="conda")
 def coverage(session):
     install_this(session)
     session.conda_install("coverage", "codecov", "pytest-cov")
@@ -111,7 +121,7 @@ def pip_test(session):
     session.run("pytest", env={"ADSODIR": ADSODIR})
 
 
-@nox.session(python=py_version[0], venv_backend="conda")
+@nox.session(venv_backend="conda")
 def docs(session):
     install_this(session)
     session.conda_install("sphinx", "sphinx-autodoc-typehints", "sphinx-gallery")

@@ -19,7 +19,7 @@ jobs:
           architecture: x64
           channels: conda-forge, defaults
       - run: conda install nox
-      - run: nox -s ${{ matrix.nox }}
+      - run: nox -s ${{ matrix.nox }} --verbose
   conda_tests:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -39,7 +39,7 @@ jobs:
           architecture: x64
           channels: conda-forge, defaults
       - run: conda install nox
-      - run: nox -s test -p ${{ matrix.python-version }}
+      - run: nox -s test -p ${{ matrix.python-version }} --verbose
   poetry_tests:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -54,7 +54,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
       - run: pip install nox
-      - run: nox -s pip_test -p ${{ matrix.python-version }}
+      - run: nox -s pip_test -p ${{ matrix.python-version }} --verbose
   coverage:
     runs-on: ubuntu-latest
     name: Coverage
@@ -70,6 +70,6 @@ jobs:
           architecture: x64
           channels: conda-forge, defaults
       - run: conda install nox
-      - run: nox -s coverage
+      - run: nox -s coverage --verbose
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
