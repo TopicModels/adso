@@ -15,3 +15,4 @@ dependencies:
   - dill
   - pyldavis
   - pandas
+  - gensim >= 4.0
