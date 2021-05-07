@@ -82,6 +82,7 @@ def cov(session):
         "--cov",
         "adso",
         "-v",
+        "--durations=0",
         env={"ADSODIR": ADSODIR},
     )
 
