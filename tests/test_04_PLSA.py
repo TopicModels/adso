@@ -6,6 +6,8 @@ from adso.algorithms import PLSA
 from adso.corpora import get_20newsgroups
 from adso.metrics.supervised import NMI, confusion_matrix
 
+# from adso.visualization.LDAvis import Visualizer
+
 
 def test_simple_PLSA():
     adso.set_adso_dir(".test")
@@ -23,11 +25,11 @@ def test_simple_PLSA():
 
     plsa = PLSA(2)
 
-    topic_model, _, _ = plsa.fit_transform(dataset, "test_simple_PLSA")
+    topic_model, n_iter, error = plsa.fit_transform(dataset, "test_simple_PLSA")
 
-    assert round(NMI(dataset, topic_model), 5) == 1
+    assert round(NMI(dataset, topic_model), 5) == 1.0
     assert (
-        confusion_matrix(dataset, topic_model).todense() == np.array([[2, 0], [0, 1]])
+        confusion_matrix(dataset, topic_model).todense() == np.array([[0, 2], [1, 0]])
     ).all()
 
 
@@ -41,13 +43,15 @@ def test_PLSA():
 
     plsa = PLSA(2)
 
-    topic_model, _, _ = plsa.fit_transform(dataset, "test_PLSA")
+    topic_model, n_iter, error = plsa.fit_transform(dataset, "test_PLSA")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.00106
+    assert round(NMI(dataset, topic_model), 5) == 0.00271
     assert (
         confusion_matrix(dataset, topic_model).todense()
-        == np.array([[192, 798], [220, 767]])
+        == np.array([[47, 943], [70, 917]])
     ).all()
+
+    return dataset, topic_model
 
 
 if __name__ == "__main__":
@@ -59,4 +63,6 @@ if __name__ == "__main__":
         pass
 
     test_simple_PLSA()
-    test_PLSA()
+    dataset, model = test_PLSA()
+
+    # Visualizer.new("PLSA", dataset, model).show(local=False)

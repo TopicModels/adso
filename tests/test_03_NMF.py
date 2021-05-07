@@ -22,7 +22,7 @@ def test_simple_NMF():
 
     nmf = NMF(2)
 
-    topic_model, _, _ = nmf.fit_transform(dataset, "test_simple_NMF")
+    topic_model, n_iter, error = nmf.fit_transform(dataset, "test_simple_NMF")
 
     assert round(NMI(dataset, topic_model), 5) == 1
     assert (
@@ -40,7 +40,7 @@ def test_NMF():
 
     nmf = NMF(2)
 
-    topic_model, _, _ = nmf.fit_transform(dataset, "test_NMF")
+    topic_model, n_iter, error = nmf.fit_transform(dataset, "test_NMF")
 
     assert round(NMI(dataset, topic_model), 5) == 0.00119
     assert (

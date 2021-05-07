@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import scipy.special as special
+import dask.array as da
 from dask.array.ufunc import wrap_elemwise
 
 ADSODIR = (
@@ -42,6 +43,7 @@ def set_seed(seed: int) -> None:
     SEED = seed
     random.seed(SEED)
     np.random.seed(SEED)
+    da.random.seed(SEED)
 
 
 def get_seed() -> Optional[int]:

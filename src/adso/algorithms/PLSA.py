@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Tuple
 import dask.array as da
 import numpy as np
 
-from ..common import get_seed, xlogy
+from ..common import xlogy
 from ..data.topicmodel import TopicModel
 from .common import TMAlgorithm
 
@@ -16,7 +16,7 @@ class PLSA(TMAlgorithm):
         self,
         n: int,
         max_iter: int = 50,
-        tol: float = 10e-4,
+        tol: float = 10e-5,
     ) -> None:
         self.n = n
         self.max_iter = max_iter
@@ -29,10 +29,32 @@ class PLSA(TMAlgorithm):
         count = dataset.get_count_matrix(sparse=False)  # d,w
 
         # d, k  -- k -- k, w
-        doc_topic, s, topic_word = da.linalg.svd_compressed(
-            count, self.n, seed=get_seed(), compute=False
-        )
-        del s
+        # doc_topic, s, topic_word = da.linalg.svd_compressed(
+        #     count, self.n, seed=get_seed(), compute=False
+        # )
+        # del s
+
+        if min(count.shape) > max(self.n, 5):
+            doc_topic = da.stack(
+                [
+                    count[:, i].sum(axis=1)
+                    for i in np.array_split(np.arange(count.shape[1]), self.n)
+                ],
+                axis=1,
+            )
+            topic_word = da.stack(
+                [
+                    count[i, :].sum(axis=0)
+                    for i in np.array_split(np.arange(count.shape[0]), self.n)
+                ],
+                axis=0,
+            )
+
+        else:
+            doc_topic = da.random.uniform(size=(count.shape[0], self.n))
+            topic_word = da.random.uniform(size=(self.n, count.shape[1]))
+        doc_topic = doc_topic / doc_topic.sum(axis=1)[:, np.newaxis]
+        topic_word = topic_word / topic_word.sum(axis=1)[:, np.newaxis]
 
         error = 0.0
 

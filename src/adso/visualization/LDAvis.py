@@ -11,6 +11,9 @@ from ..data.topicmodel import TopicModel
 
 
 class Visualizer(Data):
+    def get(self) -> None:
+        print("use show or display methods")
+
     def display(self) -> None:
         pyLDAvis.display(self.get_vis())
 
@@ -55,7 +58,7 @@ class Visualizer(Data):
                 .map_blocks(lambda b: b.todense(), dtype=np.int64)
                 .squeeze()
                 .compute(),
-                dataset.get_vocab().compute(),
+                [word.decode() for word in dataset.get_vocab().compute()],
                 dataset.get_count_matrix()
                 .sum(axis=0)
                 .map_blocks(lambda b: b.todense(), dtype=np.int64)
@@ -63,6 +66,6 @@ class Visualizer(Data):
                 .compute(),
                 **kwargs
             ),
-            path,
+            str(path),
         )
         return cls(path)
