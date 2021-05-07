@@ -126,10 +126,10 @@ class Dataset:
 
         self.vectorizer.fit_transform(self)  # type: ignore[union-attr]
 
-    def get_count_matrix(self) -> da.array:
+    def get_count_matrix(self, sparse: bool = True) -> da.array:
         if "count_matrix" not in self.data:
             self._compute_count_matrix()
-        return self.data["count_matrix"].get()
+        return self.data["count_matrix"].get(sparse=sparse)  # type: ignore[call-arg]
 
     def get_frequency_matrix(self) -> da.array:
         count_matrix = self.get_count_matrix()

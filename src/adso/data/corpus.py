@@ -7,7 +7,7 @@ from typing import Optional
 import dask.array as da
 import h5py
 import numpy as np
-import sparse
+import sparse as sp
 
 from ..common import Data, compute_hash
 
@@ -101,10 +101,16 @@ class WithVocab(Corpus):
 
 
 class SparseWithVocab(WithVocab):
-    def get(self, skip_hash_check: bool = False) -> da.array:
-        return super().get().map_blocks(lambda x: sparse.COO(x, fill_value=0))
+    def get(self, skip_hash_check: bool = False, sparse: bool = True) -> da.array:
+        if sparse:
+            return super().get().map_blocks(lambda x: sp.COO(x, fill_value=0))
+        else:
+            return super().get()
 
 
 class Sparse(Raw):
-    def get(self, skip_hash_check: bool = False) -> da.array:
-        return super().get().map_blocks(lambda x: sparse.COO(x, fill_value=0))
+    def get(self, skip_hash_check: bool = False, sparse: bool = True) -> da.array:
+        if sparse:
+            return super().get().map_blocks(lambda x: sp.COO(x, fill_value=0))
+        else:
+            return super().get()

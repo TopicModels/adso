@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
+import scipy.special as special
+from dask.array.ufunc import wrap_elemwise
 
 ADSODIR = (
     (Path.home() / ".adso")
@@ -24,6 +26,8 @@ DATADIR = ADSODIR / "data"
 DATADIR.mkdir(exist_ok=True, parents=True)
 
 SEED: int = 0
+
+xlogy = wrap_elemwise(special.xlogy, source=special)
 
 
 def set_seed(seed: int) -> None:

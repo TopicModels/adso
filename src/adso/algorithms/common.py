@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Tuple
 
 from ..common import Data
-from ..data.topicmodel import TopicModel
 
 if TYPE_CHECKING:
     from ..data import Dataset
@@ -20,5 +19,5 @@ class Algorithm(Data, ABC):
 
 class TMAlgorithm(ABC):
     @abstractmethod
-    def fit_transform(self, dataset: "Dataset", name: str) -> TopicModel:
+    def fit_transform(self, dataset: "Dataset", name: str) -> Tuple[Any, ...]:
         raise NotImplementedError
