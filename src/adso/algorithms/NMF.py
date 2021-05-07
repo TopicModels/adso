@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Tuple
 
 import dask.array as da
 import sklearn.decomposition
@@ -13,22 +13,19 @@ if TYPE_CHECKING:
 
 class NMF(TMAlgorithm):
     def __init__(
-        self,
-        n: int,
-        random_state: Optional[int] = get_seed(),
-        init: str = "nndsvd",
-        max_iter: int = 1000,
-        **kwargs
+        self, n: int, init: str = "nndsvd", max_iter: int = 1000, **kwargs
     ) -> None:
         self.model = sklearn.decomposition.NMF(
             n_components=n,
-            random_state=random_state,
+            random_state=get_seed(),
             init=init,
             max_iter=max_iter,
             **kwargs
         )
 
-    def fit_transform(self, dataset: "Dataset", name: str) -> TopicModel:
+    def fit_transform(
+        self, dataset: "Dataset", name: str
+    ) -> Tuple[TopicModel, int, float]:
 
         doc_topic_matrix = da.from_array(
             self.model.fit_transform(dataset.get_frequency_matrix().compute().tocsr())
@@ -39,4 +36,4 @@ class NMF(TMAlgorithm):
             name, topic_word_matrix, doc_topic_matrix
         )
 
-        return topic_model
+        return topic_model, self.model.n_iter_, self.model.reconstruction_err_

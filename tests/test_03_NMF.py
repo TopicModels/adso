@@ -14,15 +14,15 @@ def test_simple_NMF():
     docs = ["A A B C D", "B B B A C", "E F E"]
     labels = ["1", "1", "2"]
 
-    dataset = data.LabeledDataset.from_iterator("test_simple_NMF", zip(docs, labels))
+    dataset = data.LabeledDataset.from_iterator("NMF_simple_data", zip(docs, labels))
 
     dataset.set_vectorizer_params(
         tokenizer=(lambda s: s.split(" ")),
     )
 
-    nmf = NMF("test_simple_NMF", 2)
+    nmf = NMF(2)
 
-    topic_model = nmf.fit_transform(dataset)
+    topic_model, _, _ = nmf.fit_transform(dataset, "test_simple_NMF")
 
     assert round(NMI(dataset, topic_model), 5) == 0.73368
     assert (
@@ -39,9 +39,9 @@ def test_NMF():
 
     dataset = get_20newsgroups("NMF_20news", categories=["sci.space", "rec.autos"])
 
-    nmf = NMF("test_NMF", 2)
+    nmf = NMF(2)
 
-    topic_model = nmf.fit_transform(dataset)
+    topic_model, _, _ = nmf.fit_transform(dataset, "test_NMF")
 
     assert round(NMI(dataset, topic_model), 5) == 0.00119
     assert (
