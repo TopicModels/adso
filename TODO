@@ -18,12 +18,12 @@
 [ ] DTM Blei & Lafferty
 [ ] hSBM (Gerlach, Peixoto & Altman)
 [ ] TopicMapping (Lancichinetti, Amaral et al) (with InfoMap, Louvain and Leiden clustering algorithms)
-[ ] Pure PLSA [GitHub](https://github.com/henryre/numba-plsa/blob/cab7f869648c223d8aa3657b0c3044e5bb788de2/numba_plsa/plsa_numba.py) [ArXiV](https://arxiv.org/pdf/1212.3900)
+[x] Pure PLSA [GitHub](https://github.com/henryre/numba-plsa/blob/cab7f869648c223d8aa3657b0c3044e5bb788de2/numba_plsa/plsa_numba.py) [ArXiV](https://arxiv.org/pdf/1212.3900)
 [ ] Clustering (also soft clustering)
 
 ### Additional feature
 [ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
-[ ] Implement metrics (p.e. perplexity Blei03a) and plot
+[x] Implement metrics (p.e. perplexity Blei03a) and plot
 [ ] Syntetic corpora generative algorithms
 
 ### Additional datasets
