@@ -14,7 +14,7 @@ def test_simple_NMF():
     docs = ["A A B C D", "B B B A C", "E F E"]
     labels = ["1", "1", "2"]
 
-    dataset = data.LabeledDataset.from_iterator("NMF_simple_data", zip(docs, labels))
+    dataset = data.LabeledDataset.from_iterator("NMF_simple_data", zip(labels, docs))
 
     dataset.set_vectorizer_params(
         tokenizer=(lambda s: s.split(" ")),
@@ -24,10 +24,9 @@ def test_simple_NMF():
 
     topic_model, _, _ = nmf.fit_transform(dataset, "test_simple_NMF")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.73368
+    assert round(NMI(dataset, topic_model), 5) == 1
     assert (
-        confusion_matrix(dataset, topic_model).todense()
-        == np.array([[1, 0], [1, 0], [0, 1]])
+        confusion_matrix(dataset, topic_model).todense() == np.array([[2, 0], [0, 1]])
     ).all()
 
 
