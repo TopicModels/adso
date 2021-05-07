@@ -64,13 +64,13 @@ class TopicModel:
     def from_dask_array(
         cls,
         name: str,
-        word_topic_matrix: da.array,
+        topic_word_matrix: da.array,
         doc_topic_matrix: da.array,
         overwrite: bool = False,
     ) -> "TopicModel":
         model = cls(name)
-        model.data["word_topic"] = Sparse.from_dask_array(
-            model.path / "word_topic.hdf5", word_topic_matrix, overwrite=overwrite
+        model.data["topic_word"] = Sparse.from_dask_array(
+            model.path / "topic_word.hdf5", topic_word_matrix, overwrite=overwrite
         )
         model.data["doc_topic"] = Sparse.from_dask_array(
             model.path / "doc_topic.hdf5", doc_topic_matrix, overwrite=overwrite
@@ -78,8 +78,8 @@ class TopicModel:
         model.save()
         return model
 
-    def get_word_topic_matrix(self, skip_hash_check: bool = False) -> da.array:
-        return self.data["word_topic"].get()
+    def get_topic_word_matrix(self, skip_hash_check: bool = False) -> da.array:
+        return self.data["topic_word"].get()
 
     def get_doc_topic_matrix(self, skip_hash_check: bool = False) -> da.array:
         return self.data["doc_topic"].get()

@@ -48,7 +48,7 @@ class Visualizer(Data):
         path = common.PROJDIR / (name + ".LDAvis.json")
         pyLDAvis.save_json(
             pyLDAvis.prepare(
-                model.get_word_topic_matrix().T.compute(),
+                model.get_topic_word_matrix().compute(),
                 model.get_doc_topic_matrix().compute(),
                 dataset.get_count_matrix()
                 .sum(axis=1)
