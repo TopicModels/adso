@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ..common import Data
@@ -19,11 +18,7 @@ class Algorithm(Data, ABC):
         raise NotImplementedError
 
 
-class TMAlgorithm(Algorithm, ABC):
-    def __init__(self, path: Path, name: str) -> None:
-        super().__init__(path)
-        self.name = name
-
+class TMAlgorithm(ABC):
     @abstractmethod
-    def fit_transform(self, dataset: "Dataset", path: Path) -> TopicModel:  # type: ignore[override]
+    def fit_transform(self, dataset: "Dataset", name: str) -> TopicModel:
         raise NotImplementedError
