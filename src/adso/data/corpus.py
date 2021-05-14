@@ -46,6 +46,14 @@ class Raw(Corpus):
         return Raw(path)
 
 
+class File(Corpus):
+    def get(self, skip_hash_check: bool = False) -> Path:
+        if self.hash == compute_hash(self.path):
+            return self.path
+        else:
+            raise RuntimeError("Different hash")
+
+
 class WithVocab(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):

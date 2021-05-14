@@ -6,16 +6,17 @@ Define data-container for other classes.
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import dask.array as da
-from dask_ml.preprocessing import LabelEncoder
 import numpy as np
+from dask_ml.preprocessing import LabelEncoder
+from gensim.corpora.malletcorpus import MalletCorpus
 from more_itertools import chunked
 
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
-from .corpus import Corpus, Raw, WithVocab
+from .corpus import Corpus, Raw, WithVocab, File
 
 
 class Dataset:
@@ -144,6 +145,27 @@ class Dataset:
         if "count_matrix" not in self.data:
             self._compute_count_matrix()
         return self.data["count_matrix"].get_vocab()  # type: ignore[attr-defined]
+
+    def get_gensim_corpus(self) -> Iterable[List[Tuple[int, float]]]:
+        count_matrix = self.get_count_matrix()
+        for row in count_matrix:
+            yield [item for item in enumerate(row.compute().tolist()) if (item[1] != 0)]
+
+    def get_gensim_vocab(self) -> Dict[int, str]:
+        return {
+            index[0]: x for (index, x) in np.ndenumerate(self.get_vocab().compute())
+        }
+
+    def get_mallet_corpus(self) -> Path:
+        if "mallet" not in self.data:
+            path = self.path / (self.name + ".mallet")
+            MalletCorpus.save_corpus(
+                path,
+                self.get_gensim_corpus(),
+                id2word=self.get_gensim_vocab(),
+            )
+            self.data["mallet"] = File(path)
+        return self.data["mallet"].get()
 
 
 class LabeledDataset(Dataset):

@@ -16,3 +16,4 @@ dependencies:
   - pyldavis
   - pandas
   - gensim >= 4.0
+  - mallet
