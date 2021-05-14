@@ -1,14 +1,12 @@
-from typing import TYPE_CHECKING, Tuple
+from typing import Tuple
 
 import dask.array as da
 import sklearn.decomposition
 
 from ..common import get_seed
+from ..data.dataset import Dataset
 from ..data.topicmodel import TopicModel
 from .common import TMAlgorithm
-
-if TYPE_CHECKING:
-    from ..data.dataset import Dataset
 
 
 class NMF(TMAlgorithm):
@@ -24,8 +22,8 @@ class NMF(TMAlgorithm):
         )
 
     def fit_transform(
-        self, dataset: "Dataset", name: str
-    ) -> Tuple[TopicModel, int, float]:
+        self, dataset: Dataset, name: str
+    ) -> Tuple[TopicModel, Tuple[int, float]]:
 
         doc_topic_matrix = da.from_array(
             self.model.fit_transform(dataset.get_frequency_matrix().compute().tocsr())
@@ -36,4 +34,4 @@ class NMF(TMAlgorithm):
             name, topic_word_matrix, doc_topic_matrix
         )
 
-        return topic_model, self.model.n_iter_, self.model.reconstruction_err_
+        return topic_model, (self.model.n_iter_, self.model.reconstruction_err_)

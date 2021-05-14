@@ -1,14 +1,12 @@
-from typing import TYPE_CHECKING, Tuple
+from typing import Tuple
 
 import dask.array as da
 import numpy as np
 
 from ..common import xlogy
+from ..data.dataset import Dataset
 from ..data.topicmodel import TopicModel
 from .common import TMAlgorithm
-
-if TYPE_CHECKING:
-    from ..data.dataset import Dataset
 
 
 class PLSA(TMAlgorithm):
@@ -24,7 +22,7 @@ class PLSA(TMAlgorithm):
 
     def fit_transform(
         self, dataset: "Dataset", name: str
-    ) -> Tuple[TopicModel, int, float]:
+    ) -> Tuple[TopicModel, Tuple[int, float]]:
 
         count = dataset.get_count_matrix(sparse=False)  # d,w
 
@@ -77,4 +75,4 @@ class PLSA(TMAlgorithm):
 
         topic_model = TopicModel.from_dask_array(name, topic_word, doc_topic)
 
-        return topic_model, _i, error.compute()  # type: ignore[attr-defined]
+        return topic_model, (_i, error.compute())  # type: ignore[attr-defined]
