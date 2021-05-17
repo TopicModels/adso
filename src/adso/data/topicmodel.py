@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 import dask.array as da
+import numpy as np
 
 from .. import common
 from ..data.corpus import Corpus, Raw, Sparse
@@ -78,17 +79,49 @@ class TopicModel:
         model.save()
         return model
 
-    def get_topic_word_matrix(self, skip_hash_check: bool = False) -> da.array:
-        return self.data["topic_word"].get()
+    def get_topic_word_matrix(
+        self,
+        skip_hash_check: bool = False,
+        sparse: bool = False,
+        normalize: bool = False,
+    ) -> da.array:
+        topic_word = self.data["topic_word"].get(sparse=sparse)  # type: ignore[call-arg]
+        if normalize:
+            if sparse:
+                return (
+                    topic_word
+                    / (topic_word.sum(axis=1)).map_blocks(
+                        lambda b: b.todense(), dtype=np.float64
+                    )[:, np.newaxis]
+                )
+            else:
+                return topic_word / (topic_word.sum(axis=1))[:, np.newaxis]
+        return topic_word
 
-    def get_doc_topic_matrix(self, skip_hash_check: bool = False) -> da.array:
-        return self.data["doc_topic"].get()
+    def get_doc_topic_matrix(
+        self,
+        skip_hash_check: bool = False,
+        sparse: bool = False,
+        normalize: bool = False,
+    ) -> da.array:
+        doc_topic = self.data["doc_topic"].get(sparse=sparse)  # type: ignore[call-arg]
+        if normalize:
+            if sparse:
+                return (
+                    doc_topic
+                    / (doc_topic.sum(axis=1)).map_blocks(
+                        lambda b: b.todense(), dtype=np.float64
+                    )[:, np.newaxis]
+                )
+            else:
+                return doc_topic / (doc_topic.sum(axis=1))[:, np.newaxis]
+        return doc_topic
 
     def get_labels(self) -> da.array:
         if "labels" not in self.data:
             self.data["labels"] = Raw.from_dask_array(
                 self.path / "labels.hdf5",
-                da.argmax(self.get_doc_topic_matrix(), axis=1),
+                da.argmax(self.get_doc_topic_matrix(sparse=False), axis=1),
             )
             self.save()
         return self.data["labels"].get()
