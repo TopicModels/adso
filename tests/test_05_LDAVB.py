@@ -2,12 +2,12 @@ import numpy as np
 
 import adso
 import adso.data as data
-from adso.algorithms import PLSA
+from adso.algorithms import LDAVB
 from adso.corpora import get_20newsgroups
 from adso.metrics.supervised import NMI, confusion_matrix
 
 
-def test_simple_PLSA():
+def test_simple_LDAVB():
     adso.set_adso_dir(".test")
     adso.set_project_name("test")
     adso.set_seed(8686)
@@ -15,38 +15,38 @@ def test_simple_PLSA():
     docs = ["A A B C D", "B B B A C", "E F E"]
     labels = ["1", "1", "2"]
 
-    dataset = data.LabeledDataset.from_iterator("PLSA_simple_data", zip(labels, docs))
+    dataset = data.LabeledDataset.from_iterator("LDAVB_simple_data", zip(labels, docs))
 
     dataset.set_vectorizer_params(
         tokenizer=(lambda s: s.split(" ")),
     )
 
-    plsa = PLSA(2)
+    lda = LDAVB(2)
 
-    topic_model, (n_iter, error) = plsa.fit_transform(dataset, "test_simple_PLSA")
+    topic_model = lda.fit_transform(dataset, "test_simple_LDAVB")
 
     assert round(NMI(dataset, topic_model), 5) == 1.0
     assert (
-        confusion_matrix(dataset, topic_model).todense() == np.array([[0, 2], [1, 0]])
+        confusion_matrix(dataset, topic_model).todense() == np.array([[2, 0], [0, 1]])
     ).all()
 
 
-def test_PLSA():
+def test_LDAVB():
 
     adso.set_adso_dir(".test")
     adso.set_project_name("test")
     adso.set_seed(8686)
 
-    dataset = get_20newsgroups("PLSA_20news", categories=["sci.space", "rec.autos"])
+    dataset = get_20newsgroups("LDAVB_20news", categories=["sci.space", "rec.autos"])
 
-    plsa = PLSA(2)
+    lda = LDAVB(2)
 
-    topic_model, (n_iter, error) = plsa.fit_transform(dataset, "test_PLSA")
+    topic_model = lda.fit_transform(dataset, "test_LDAVB")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.00271
+    assert round(NMI(dataset, topic_model), 5) == 0.00289
     assert (
         confusion_matrix(dataset, topic_model).todense()
-        == np.array([[47, 943], [70, 917]])
+        == np.array([[325, 665], [383, 604]])
     ).all()
 
     return dataset, topic_model
@@ -60,5 +60,5 @@ if __name__ == "__main__":
     except FileNotFoundError:
         pass
 
-    test_simple_PLSA()
-    dataset, model = test_PLSA()
+    test_simple_LDAVB()
+    dataset, model = test_LDAVB()
