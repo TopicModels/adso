@@ -16,7 +16,7 @@ from more_itertools import chunked
 
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
-from .corpus import Corpus, Raw, WithVocab, File
+from .corpus import Corpus, File, Pickled, Raw, WithVocab
 
 
 class Dataset:
@@ -147,9 +147,21 @@ class Dataset:
         return self.data["count_matrix"].get_vocab()  # type: ignore[attr-defined]
 
     def get_gensim_corpus(self) -> Iterable[List[Tuple[int, float]]]:
-        count_matrix = self.get_count_matrix()
-        for row in count_matrix:
-            yield [item for item in enumerate(row.compute().tolist()) if (item[1] != 0)]
+        if "gensim" not in self.data:
+            path = self.path / (self.name + ".gensim")
+            count_matrix = self.get_count_matrix()
+            self.data["gensim"] = Pickled.from_object(
+                path,
+                [
+                    [
+                        item
+                        for item in enumerate(row.compute().todense().tolist())
+                        if (item[1] != 0)
+                    ]
+                    for row in count_matrix
+                ],
+            )
+        return self.data["gensim"].get()
 
     def get_gensim_vocab(self) -> Dict[int, str]:
         return {
