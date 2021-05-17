@@ -1,12 +1,14 @@
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 import dask.array as da
 import numpy as np
 
 from ..common import xlogy
-from ..data.dataset import Dataset
 from ..data.topicmodel import TopicModel
 from .common import TMAlgorithm
+
+if TYPE_CHECKING:
+    from ..data.dataset import Dataset
 
 
 class PLSA(TMAlgorithm):
