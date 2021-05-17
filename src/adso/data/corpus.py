@@ -2,9 +2,10 @@
 
 from abc import ABC
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import dask.array as da
+import dill
 import h5py
 import numpy as np
 import sparse as sp
@@ -43,7 +44,7 @@ class Raw(Corpus):
                     lambda b: np.char.encode(b, encoding="utf-8"),
                     dtype=np.dtype(("S", array.itemsize // itemsize)),
                 ).to_hdf5(path, "/raw", shuffle=False)
-        return Raw(path)
+        return cls(path)
 
 
 class File(Corpus):
@@ -52,6 +53,22 @@ class File(Corpus):
             return self.path
         else:
             raise RuntimeError("Different hash")
+
+
+class Pickled(Corpus):
+    def get(self, skip_hash_check: bool = False) -> Any:
+        if self.hash == compute_hash(self.path):
+            return dill.load(self.path.open("rb"))
+        else:
+            raise RuntimeError("Different hash")
+
+    @classmethod
+    def from_object(cls, path: Path, obj: Any, overwrite: bool = False) -> "Pickled":
+        if path.is_file() and (not overwrite):
+            raise RuntimeError("File already exists")
+        else:
+            dill.dump(obj, path.open("xb"))
+        return cls(path)
 
 
 class WithVocab(Corpus):
