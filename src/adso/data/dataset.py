@@ -6,6 +6,7 @@ Define data-container for other classes.
 import json
 import os
 from pathlib import Path
+import subprocess
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import dask.array as da
@@ -113,7 +114,7 @@ class Dataset:
         # tokenizer: Optional[Callable] = tokenize_and_stem,
         # stop_words: Optional[Iterable[str]] = None,
         # strip_accents: Optional[str] = "unicode",
-        **kwargs
+        **kwargs,
     ) -> None:
         self.vectorizer = Vectorizer(
             self.path / (self.name + ".vectorizer.pickle"),
@@ -171,13 +172,25 @@ class Dataset:
     def get_mallet_corpus(self) -> Path:
         if "mallet" not in self.data:
             path = self.path / (self.name + ".mallet")
+            command = (
+                'mallet import-file --keep-sequence --token-regex "\\p{N}+" '
+                + f"--input {self.get_mallet_plain_corpus()} --output {path}"
+            )
+            print(command)
+            subprocess.run(command, shell=True, check=True)
+            self.data["mallet"] = File(path)
+        return self.data["mallet"].get()
+
+    def get_mallet_plain_corpus(self) -> Path:
+        if "mallet_plain" not in self.data:
+            path = self.path / (self.name + ".mallet.plain")
             MalletCorpus.save_corpus(
                 path,
                 self.get_gensim_corpus(),
-                id2word=self.get_gensim_vocab(),
+                # id2word=self.get_gensim_vocab(),
             )
-            self.data["mallet"] = File(path)
-        return self.data["mallet"].get()
+            self.data["mallet_plain"] = File(path)
+        return self.data["mallet_plain"].get()
 
 
 class LabeledDataset(Dataset):

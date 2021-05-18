@@ -1,13 +1,13 @@
 import os
 import re
-from shutil import which
 import subprocess
-from typing import TYPE_CHECKING, Optional
+from shutil import which
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import dask.array as da
-from gensim.models.ldamulticore import LdaMulticore
-import numpy as np
+import dask.dataframe as dd
 import sparse
+from gensim.models.ldamulticore import LdaMulticore
 
 from .. import common
 from ..common import get_seed
@@ -55,35 +55,41 @@ class LDAGS(TMAlgorithm):
     def __init__(
         self,
         n: int,
-        optimize_interval: int = 20,
-        memory: Optional[str] = None,
-        **kwargs,
+        memory: Optional[str] = "1G",
+        mallet_args: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.n = n
-        self.optimize_interval = optimize_interval
         self.memory = memory
-        self.kwargs = kwargs
+        self.mallet_args = mallet_args
 
     def fit_transform(self, dataset: "Dataset", name: str) -> TopicModel:
+
+        (common.PROJDIR / "mallet" / name).mkdir(exist_ok=True, parents=True)
+        doc_topic_path = (
+            common.PROJDIR / "mallet" / name / (name + ".doc_topic.mallet.out")
+        )
+        topic_word_path = (
+            common.PROJDIR / "mallet" / name / (name + ".topic_word.mallet.out")
+        )
 
         command = (
             "mallet train-topics "
             + f"--input {str(dataset.get_mallet_corpus())} "
             + f"--num-topics {self.n} "
-            + f"--optimize-interval {self.optimize_interval} "
-            + f"--output-doc-topics {str(common.PROJDIR / (name + '.doc_topic.mallet.out'))} "
-            + f"--topic-word-weights-file {str(common.PROJDIR / (name + '.topic_word.mallet.out'))} "
+            + f"--output-doc-topics {str(doc_topic_path)} "
+            + f"--topic-word-weights-file {str(topic_word_path)} "
         )
 
         if get_seed():
             command += f"--random-seed {get_seed()} "
         if os.cpu_count() is not None:
             command += f"--num-threads {os.cpu_count()} "
-        for key, value in self.kwargs.items():
-            command += f"--{key} {value} "
+        if self.mallet_args:
+            for key, value in self.mallet_args.items():
+                command += f"--{key} {value} "
 
-        if self.memory:
-            mallet_path = which("mallet")
+        mallet_path = which("mallet")
+        if mallet_path:
             with open(mallet_path) as f:
                 mallet_script = f.read()
             with open(mallet_path, "w") as f:
@@ -101,10 +107,38 @@ class LDAGS(TMAlgorithm):
                         flags=re.M,
                     )
                 )
+        else:
+            raise RuntimeError(
+                "MALLET not found, check to be available in PATH (mallet exec and not mallet bin folder). Install it with conda should resolve the issue"
+            )
 
-        subprocess.run(command).check_returncode()
+        print(command)
+        subprocess.run(command, shell=True, check=True)
 
-        # topic_word_matrix
-        # doc_topic_matrix
+        n_doc, n_word = dataset.get_count_matrix().shape
 
-        return TopicModel.from_dask_array(name, topic_word_matrix, doc_topic_matrix)
+        doc_topic_df = (
+            dd.read_csv(doc_topic_path, sep="\t", header=None)
+            .set_index(1)
+            .drop(columns=0)
+        )
+        doc_topic_matrix = da.zeros((n_doc, self.n))
+        doc_topic_matrix[
+            doc_topic_df.index.to_dask_array(), :
+        ] = doc_topic_df.to_dask_array()
+
+        topic_word_df = dd.read_csv(topic_word_path, sep="\t", header=None)
+        topic_word_matrix = da.from_array(
+            sparse.COO(
+                topic_word_df[[0, 1]].values.T,
+                data=topic_word_df[2].values,
+                fill_value=0,
+                shape=(self.n, n_word),
+            ).todense()
+        )
+
+        return TopicModel.from_dask_array(
+            name,
+            topic_word_matrix,
+            doc_topic_matrix,
+        )
