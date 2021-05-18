@@ -69,7 +69,7 @@ class TopicModel:
         doc_topic_matrix: da.array,
         overwrite: bool = False,
     ) -> "TopicModel":
-        model = cls(name)
+        model = cls(name, overwrite=overwrite)
         model.data["topic_word"] = Sparse.from_dask_array(
             model.path / "topic_word.hdf5", topic_word_matrix, overwrite=overwrite
         )
