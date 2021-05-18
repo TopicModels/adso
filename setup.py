@@ -17,7 +17,7 @@ setup(
     name="adso",
     version="0.1.0",
     description="A topic-modelling library",
-    python_requires=">=3.6.0",
+    python_requires=">=3.7.0",
     url="https://github.com/TnTo/adso",
     project_urls={
         "documentation": "https://tnto.github.io/adso/",
@@ -30,7 +30,7 @@ setup(
     package_dir={"": "src"},
     package_data={},
     install_requires=[
-        "dask>=2021.3.0",
+        "dask>=2021.5.0",
         "dask-ml>=1.8.0",
         "h5py>=3.0.0",
         "more-itertools>=8.7.0",
@@ -41,7 +41,7 @@ setup(
         "sparse>=0.12.0",
         "dill>=0.3.0",
         "pyldavis>=3.2.0",
-        "pandas>=1.1.0",
+        "pandas>=1.2.0",
         "gensim>=4.0.0",
         "tomotopy>=0.12.0",
     ],

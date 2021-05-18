@@ -2,10 +2,10 @@ name: adso
 channels:
   - conda-forge
 dependencies:
-  - python>=3.6
+  - python>=3.7
   - pathlib
   - numpy
-  - dask
+  - dask >= 2021.5
   - dask-ml
   - h5py >= 3.0
   - more-itertools
