@@ -21,8 +21,8 @@ def confusion_matrix(dataset: LabeledDataset, model: TopicModel) -> da.array:
     return COO.from_iter(
         (da.ones_like(labels, dtype=np.dtype("u1")), (labels, predicted)),
         shape=(
-            da.unique(labels).compute().shape[0],
-            da.unique(predicted).compute().shape[0],
+            da.max(labels).compute() + 1,
+            da.max(predicted).compute() + 1,
         ),
         fill_value=0,
         dtype=np.dtype(int),
