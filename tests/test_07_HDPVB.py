@@ -43,7 +43,7 @@ def test_HDPVB():
 
     topic_model, (n,) = hdp.fit_transform(dataset, "test_HDPVB")
 
-    # assert (round(NMI(dataset, topic_model), 5) == 0.02955)
+    assert round(NMI(dataset, topic_model), 5) == 0.02955
 
 
 if __name__ == "__main__":
