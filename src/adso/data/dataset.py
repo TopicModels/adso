@@ -5,12 +5,14 @@ Define data-container for other classes.
 
 import json
 import os
-from pathlib import Path
 import subprocess
+from itertools import chain
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import dask.array as da
 import numpy as np
+import tomotopy.utils
 from dask_ml.preprocessing import LabelEncoder
 from gensim.corpora.malletcorpus import MalletCorpus
 from more_itertools import chunked
@@ -168,6 +170,29 @@ class Dataset:
         return {
             index[0]: x for (index, x) in np.ndenumerate(self.get_vocab().compute())
         }
+
+    def get_tomotopy_corpus(self) -> tomotopy.utils.Corpus:
+        if "tomotopy" not in self.data:
+            path = self.path / (self.name + ".tomotopy")
+            corpus = tomotopy.utils.Corpus()
+            count_matrix = self.get_count_matrix()
+            for row in count_matrix:
+                corpus.add_doc(
+                    words=list(
+                        chain(
+                            *[
+                                [str(word)] * count
+                                for word, count in enumerate(
+                                    row.compute().todense().tolist()
+                                )
+                                if (count != 0)
+                            ]
+                        )
+                    )
+                )
+            corpus.save(str(path))
+            self.data["tomotopy"] = File(path)
+        return tomotopy.utils.Corpus.load(str(self.data["tomotopy"].get()))
 
     def get_mallet_corpus(self) -> Path:
         if "mallet" not in self.data:
