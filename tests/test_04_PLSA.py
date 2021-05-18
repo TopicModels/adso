@@ -61,4 +61,4 @@ if __name__ == "__main__":
         pass
 
     test_simple_PLSA()
-    dataset, model = test_PLSA()
+    test_PLSA()

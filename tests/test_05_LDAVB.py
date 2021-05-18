@@ -61,4 +61,4 @@ if __name__ == "__main__":
         pass
 
     test_simple_LDAVB()
-    dataset, model = test_LDAVB()
+    test_LDAVB()
