@@ -29,22 +29,16 @@ class LDAVB(TMAlgorithm):
             corpus=dataset.get_gensim_corpus(),
             id2word=dataset.get_gensim_vocab(),
             num_topics=self.n,
+            random_state=get_seed(),
             **self.kwargs,
         )
         # To get back DT matrix https://github.com/bmabey/pyLDAvis/blob/master/pyLDAvis/gensim_models.py
         topic_word_matrix = da.from_array(model.get_topics())
-        doc_topic_matrix = da.stack(
-            [
-                da.from_array(
-                    sparse.COO(
-                        *list(zip(*model.get_document_topics(doc))),
-                        shape=self.n,
-                    ).todense()
-                )
-                for doc in dataset.get_gensim_corpus()
-            ]
+        doc_topic_matrix = da.from_array(
+            model.inference(dataset.get_gensim_corpus())[0]
         )
 
+        self.model = model
         return TopicModel.from_dask_array(name, topic_word_matrix, doc_topic_matrix)
 
 
