@@ -43,5 +43,6 @@ setup(
         "pyldavis>=3.2.0",
         "pandas>=1.1.0",
         "gensim>=4.0.0",
+        "tomotopy>=0.12.0",
     ],
 )

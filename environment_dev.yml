@@ -20,5 +20,4 @@ dependencies:
   # pip
   - pip
   - pip:
-      # dev
       - flake8-bandit

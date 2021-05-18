@@ -17,3 +17,7 @@ dependencies:
   - pandas
   - gensim >= 4.0
   - mallet >= 2.0.8
+  # pip
+  - pip
+  - pip:
+      - tomotopy
