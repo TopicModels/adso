@@ -111,14 +111,12 @@ class LDAGS(TMAlgorithm):
         print(command)
         subprocess.run(command, shell=True, check=True)
 
-        n_doc, n_word = dataset.get_count_matrix().shape
-
         doc_topic_df = (
             dd.read_csv(doc_topic_path, sep="\t", header=None)
             .set_index(1)
             .drop(columns=0)
         )
-        doc_topic_matrix = da.zeros((n_doc, self.n))
+        doc_topic_matrix = da.zeros((dataset.n_doc(), self.n))
         doc_topic_matrix[
             doc_topic_df.index.to_dask_array(), :
         ] = doc_topic_df.to_dask_array()
@@ -129,7 +127,7 @@ class LDAGS(TMAlgorithm):
                 topic_word_df[[0, 1]].values.T,
                 data=topic_word_df[2].values,
                 fill_value=0,
-                shape=(self.n, n_word),
+                shape=(self.n, dataset.n_word()),
             ).todense()
         )
 

@@ -42,6 +42,7 @@ class Dataset:
 
         self.vectorizer: Optional[Vectorizer] = None
         self.data: Dict[str, Corpus] = {}
+        self.shape: Optional[Tuple[int, int]] = None
 
         self.save()
 
@@ -221,6 +222,17 @@ class Dataset:
             )
             self.data["mallet_plain"] = File(path)
         return self.data["mallet_plain"].get()
+
+    def get_shape(self) -> Tuple[int, int]:
+        if not self.shape:
+            self.shape = self.get_count_matrix().shape
+        return self.shape
+
+    def n_doc(self) -> int:
+        return self.get_shape()[0]
+
+    def n_word(self) -> int:
+        return self.get_shape()[1]
 
 
 class LabeledDataset(Dataset):
