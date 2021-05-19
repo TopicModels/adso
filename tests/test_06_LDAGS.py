@@ -1,10 +1,7 @@
-import numpy as np
-
 import adso
 import adso.data as data
 from adso.algorithms import LDAGS
 from adso.corpora import get_20newsgroups
-from adso.metrics.supervised import NMI, confusion_matrix
 
 
 def test_simple_LDAGS():
@@ -30,12 +27,7 @@ def test_simple_LDAGS():
         },
     )
 
-    topic_model = lda.fit_transform(dataset, "test_simple_LDAGS")
-
-    assert round(NMI(dataset, topic_model), 5) == 1.0
-    assert (
-        confusion_matrix(dataset, topic_model).todense() == np.array([[0, 2], [1, 0]])
-    ).all()
+    lda.fit_transform(dataset, "test_simple_LDAGS")
 
 
 def test_LDAGS():
@@ -57,13 +49,7 @@ def test_LDAGS():
         mallet_args={"optimize-interval": 20},
     )
 
-    topic_model = lda.fit_transform(dataset, "test_LDAGS")
-
-    assert round(NMI(dataset, topic_model), 5) == 0.80648
-    assert (
-        confusion_matrix(dataset, topic_model).todense()
-        == np.array([[11, 979], [935, 52]])
-    ).all()
+    lda.fit_transform(dataset, "test_LDAGS")
 
 
 if __name__ == "__main__":

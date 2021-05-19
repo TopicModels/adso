@@ -2,7 +2,6 @@ import adso
 import adso.data as data
 from adso.algorithms import HDPGS
 from adso.corpora import get_20newsgroups
-from adso.metrics.supervised import NMI
 
 
 def test_simple_HDPGS():
@@ -22,7 +21,6 @@ def test_simple_HDPGS():
     hdp = HDPGS()
 
     topic_model, (n,) = hdp.fit_transform(dataset, "test_simple_HDPGS")
-    assert round(NMI(dataset, topic_model), 5) == 1.0
 
 
 def test_HDPGS():
@@ -36,7 +34,6 @@ def test_HDPGS():
     hdp = HDPGS()
 
     topic_model, (n,) = hdp.fit_transform(dataset, "test_HDPGS")
-    assert round(NMI(dataset, topic_model), 5) == 0.76613
 
 
 if __name__ == "__main__":

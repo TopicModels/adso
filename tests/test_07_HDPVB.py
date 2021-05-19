@@ -1,10 +1,7 @@
-import numpy as np
-
 import adso
 import adso.data as data
 from adso.algorithms import HDPVB
 from adso.corpora import get_20newsgroups
-from adso.metrics.supervised import NMI, confusion_matrix
 
 
 def test_simple_HDPVB():
@@ -25,11 +22,6 @@ def test_simple_HDPVB():
 
     topic_model, (n,) = hdp.fit_transform(dataset, "test_simple_HDPVB")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.27402
-    assert (
-        confusion_matrix(dataset, topic_model).todense() == np.array([[1, 1], [0, 1]])
-    ).all()
-
 
 def test_HDPVB():
 
@@ -42,8 +34,6 @@ def test_HDPVB():
     hdp = HDPVB()
 
     topic_model, (n,) = hdp.fit_transform(dataset, "test_HDPVB")
-
-    assert round(NMI(dataset, topic_model), 5) == 0.02955
 
 
 if __name__ == "__main__":
