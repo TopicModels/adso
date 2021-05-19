@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Tuple
 
 import dask.array as da
@@ -24,7 +26,7 @@ class NMF(TMAlgorithm):
         )
 
     def fit_transform(
-        self, dataset: "Dataset", name: str
+        self, dataset: Dataset, name: str
     ) -> Tuple[TopicModel, Tuple[int, float]]:
 
         doc_topic_matrix = da.from_array(

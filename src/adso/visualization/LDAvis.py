@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import json
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -6,8 +9,10 @@ import pyLDAvis
 
 from .. import common
 from ..common import Data, compute_hash
-from ..data import Dataset
-from ..data.topicmodel import TopicModel
+
+if TYPE_CHECKING:
+    from ..data import Dataset
+    from ..data.topicmodel import TopicModel
 
 
 class Visualizer(Data):

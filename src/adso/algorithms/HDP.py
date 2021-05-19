@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Tuple
 
 import dask.array as da
@@ -18,7 +20,7 @@ class HDPVB(TMAlgorithm):
         self.kwargs = kwargs
 
     def fit_transform(
-        self, dataset: "Dataset", name: str
+        self, dataset: Dataset, name: str
     ) -> Tuple[TopicModel, Tuple[int]]:
         model = gensim.models.hdpmodel.HdpModel(
             dataset.get_gensim_corpus(),
@@ -42,7 +44,7 @@ class HDPGS(TMAlgorithm):
         self.kwargs = kwargs
 
     def fit_transform(
-        self, dataset: "Dataset", name: str
+        self, dataset: Dataset, name: str
     ) -> Tuple[TopicModel, Tuple[int]]:
         # https://bab2min.github.io/tomotopy/v0.12.0/en/index.html#tomotopy.HDPModel
         model = tomotopy.HDPModel(
@@ -51,10 +53,10 @@ class HDPGS(TMAlgorithm):
             **self.kwargs,
         )
         n = model.k
-        topic_word_matrix
-        doc_topic_matrix
+        # topic_word_matrix
+        # doc_topic_matrix
 
         self.model = model
-        return TopicModel.from_dask_array(name, topic_word_matrix, doc_topic_matrix), (
-            n,
-        )
+        # return TopicModel.from_dask_array(name, topic_word_matrix, doc_topic_matrix), (
+        #    n,
+        # )

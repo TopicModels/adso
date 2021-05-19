@@ -1,4 +1,5 @@
 """Common variable and function for adso module."""
+from __future__ import annotations
 
 import hashlib
 import os
@@ -7,9 +8,9 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import dask.array as da
 import numpy as np
 import scipy.special as special
-import dask.array as da
 from dask.array.ufunc import wrap_elemwise
 
 ADSODIR = (
@@ -105,7 +106,7 @@ class Data(ABC):
         }
 
     @classmethod
-    def load(cls, path: Union[Path, str], hash: Optional[str]) -> "Data":
+    def load(cls, path: Union[Path, str], hash: Optional[str]) -> Data:
         path = Path(path)
         if path.is_file():
             corpus = cls(path)

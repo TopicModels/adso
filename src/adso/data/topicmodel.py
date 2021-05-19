@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 import dask.array as da
 import numpy as np
 
 from .. import common
-from ..data.corpus import Corpus, Raw, Sparse
+from ..data.corpus import Raw, Sparse
+
+if TYPE_CHECKING:
+    from ..data.corpus import Corpus
 
 
 class TopicModel:

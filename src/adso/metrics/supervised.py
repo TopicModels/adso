@@ -1,10 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import dask.array as da
 import numpy as np
 from sklearn.metrics import normalized_mutual_info_score
 from sparse import COO
 
-from ..data import LabeledDataset
-from ..data.topicmodel import TopicModel
+if TYPE_CHECKING:
+    from ..data import LabeledDataset
+    from ..data.topicmodel import TopicModel
 
 
 def NMI(dataset: LabeledDataset, model: TopicModel) -> float:

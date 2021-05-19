@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Tuple, Union
 
@@ -14,13 +16,13 @@ class Algorithm(Data, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fit_transform(self, dataset: "Dataset") -> Any:
+    def fit_transform(self, dataset: Dataset) -> Any:
         raise NotImplementedError
 
 
 class TMAlgorithm(ABC):
     @abstractmethod
     def fit_transform(
-        self, dataset: "Dataset", name: str
+        self, dataset: Dataset, name: str
     ) -> Union[TopicModel, Tuple[TopicModel, Tuple[Any, ...]]]:
         raise NotImplementedError

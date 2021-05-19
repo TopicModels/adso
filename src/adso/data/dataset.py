@@ -3,12 +3,14 @@
 Define data-container for other classes.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import subprocess
 from itertools import chain
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import dask.array as da
 import numpy as np
@@ -19,7 +21,10 @@ from more_itertools import chunked
 
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
-from .corpus import Corpus, File, Pickled, Raw, WithVocab
+from .corpus import File, Pickled, Raw, WithVocab
+
+if TYPE_CHECKING:
+    from .corpus import Corpus
 
 
 class Dataset:
@@ -92,7 +97,7 @@ class Dataset:
         iterator: Iterable[str],
         batch_size: int = 64,
         overwrite: bool = False,
-    ) -> "Dataset":
+    ) -> Dataset:
         dataset = cls(name)
 
         dataset.data["raw"] = Raw.from_dask_array(
@@ -229,7 +234,7 @@ class LabeledDataset(Dataset):
         return save
 
     @classmethod
-    def load(cls, path: Union[str, os.PathLike]) -> "LabeledDataset":
+    def load(cls, path: Union[str, os.PathLike]) -> LabeledDataset:
 
         path = Path(path)
         if path.is_dir():
@@ -261,7 +266,7 @@ class LabeledDataset(Dataset):
         return dataset
 
     @classmethod
-    def from_iterator(cls, name: str, iterator: Iterable[Tuple[str, str]], batch_size: int = 64, overwrite: bool = False) -> "LabeledDataset":  # type: ignore[override]
+    def from_iterator(cls, name: str, iterator: Iterable[Tuple[str, str]], batch_size: int = 64, overwrite: bool = False) -> LabeledDataset:  # type: ignore[override]
         #
         # An alternative implementation can use itertool.tee + threading/async
         # https://stackoverflow.com/questions/50039223/how-to-execute-two-aggregate-functions-like-sum-concurrently-feeding-them-f

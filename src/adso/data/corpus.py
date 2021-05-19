@@ -1,5 +1,7 @@
 "Corpus Class and subclasses"
 
+from __future__ import annotations
+
 from abc import ABC
 from pathlib import Path
 from typing import Any, Optional
@@ -27,7 +29,7 @@ class Raw(Corpus):
     @classmethod
     def from_dask_array(
         cls, path: Path, array: da.array, overwrite: bool = False
-    ) -> "Raw":
+    ) -> Raw:
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
@@ -63,7 +65,7 @@ class Pickled(Corpus):
             raise RuntimeError("Different hash")
 
     @classmethod
-    def from_object(cls, path: Path, obj: Any, overwrite: bool = False) -> "Pickled":
+    def from_object(cls, path: Path, obj: Any, overwrite: bool = False) -> Pickled:
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
@@ -91,7 +93,7 @@ class WithVocab(Corpus):
         data: da.array,
         vocab: Optional[da.array],
         overwrite: bool = False,
-    ) -> "WithVocab":
+    ) -> WithVocab:
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:

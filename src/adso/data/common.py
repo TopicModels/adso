@@ -1,5 +1,7 @@
 """Common variable and function for data submodule."""
 
+from __future__ import annotations
+
 from typing import Iterable
 
 import nltk

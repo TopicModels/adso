@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import re
 import subprocess
@@ -23,7 +25,7 @@ class LDAVB(TMAlgorithm):
         self.n = n
         self.kwargs = kwargs
 
-    def fit_transform(self, dataset: "Dataset", name: str) -> TopicModel:
+    def fit_transform(self, dataset: Dataset, name: str) -> TopicModel:
         # https://radimrehurek.com/gensim/models/ldamulticore.html#module-gensim.models.ldamulticore
         model = LdaMulticore(
             corpus=dataset.get_gensim_corpus(),
@@ -56,7 +58,7 @@ class LDAGS(TMAlgorithm):
         self.memory = memory
         self.mallet_args = mallet_args
 
-    def fit_transform(self, dataset: "Dataset", name: str) -> TopicModel:
+    def fit_transform(self, dataset: Dataset, name: str) -> TopicModel:
 
         (common.PROJDIR / "mallet" / name).mkdir(exist_ok=True, parents=True)
         doc_topic_path = (

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Iterable, Optional
@@ -54,7 +56,7 @@ class Vectorizer(Algorithm):
         else:
             raise RuntimeError("Different hash")
 
-    def fit_transform(self, dataset: "Dataset", update: bool = True) -> None:
+    def fit_transform(self, dataset: Dataset, update: bool = True) -> None:
 
         bag = db.from_sequence([doc.compute().item() for doc in dataset.get_corpus()])
         model = self.get()
