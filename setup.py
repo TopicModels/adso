@@ -46,5 +46,7 @@ setup(
         "tomotopy>=0.12.0",
         "python-igraph>=0.9.0",
         "cdlib>=0.2.0",
+        "infomap>=1.3.0",
+        "leidenalg>=0.8.4",
     ],
 )

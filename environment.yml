@@ -18,6 +18,11 @@ dependencies:
   - gensim >= 3.8.3
   - mallet >= 2.0.8
   - python-igraph
+  - leidenalg
+  - infomap
+  # only conda
+  - graph-tool
+  - topicmapping
   # pip
   - pip
   - pip:
