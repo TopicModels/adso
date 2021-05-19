@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import find_packages, setup
-
 import os.path
+
+from setuptools import find_packages, setup
 
 readme = ""
 here = os.path.abspath(os.path.dirname(__file__))
