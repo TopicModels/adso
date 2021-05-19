@@ -15,9 +15,11 @@ dependencies:
   - dill
   - pyldavis
   - pandas
-  - gensim >= 4.0
+  - gensim >= 3.8.3
   - mallet >= 2.0.8
+  - python-igraph
   # pip
   - pip
   - pip:
       - tomotopy
+      - cdlib
