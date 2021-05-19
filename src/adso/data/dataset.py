@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import dask.array as da
+from igraph import Graph
 import numpy as np
 import tomotopy.utils
 from dask_ml.preprocessing import LabelEncoder
@@ -233,6 +234,15 @@ class Dataset:
 
     def n_word(self) -> int:
         return self.get_shape()[1]
+
+    def get_igraph_graph(self) -> Graph:
+        if "igraph" not in self.data:
+            path = self.path / (self.name + ".igraph")
+            Graph.Incidence(self.get_count_matrix(), weighted="count").write_picklez(
+                path
+            )
+            self.data["igraph"] = File(path)
+        return Graph.Read_Picklez(self.data["igraph"].get())
 
 
 class LabeledDataset(Dataset):
