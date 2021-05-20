@@ -15,16 +15,12 @@ dependencies:
   - dill
   - pyldavis
   - pandas
-  - gensim >= 3.8.3
-  - mallet >= 2.0.8
-  - python-igraph
-  - leidenalg
-  - infomap
+  - gensim
   # only conda
   - graph-tool
   - topicmapping
+  - mallet
   # pip
   - pip
   - pip:
       - tomotopy
-      - cdlib
