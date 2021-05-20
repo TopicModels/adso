@@ -13,7 +13,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import dask.array as da
-from igraph import Graph
+import igraph
+import networkx
 import numpy as np
 import tomotopy.utils
 from dask_ml.preprocessing import LabelEncoder
@@ -171,6 +172,7 @@ class Dataset:
                     for row in count_matrix
                 ],
             )
+            self.save()
         return self.data["gensim"].get()
 
     def get_gensim_vocab(self) -> Dict[int, str]:
@@ -199,6 +201,7 @@ class Dataset:
                 )
             corpus.save(str(path))
             self.data["tomotopy"] = File(path)
+            self.save()
         return tomotopy.utils.Corpus.load(str(self.data["tomotopy"].get()))
 
     def get_mallet_corpus(self) -> Path:
@@ -211,6 +214,7 @@ class Dataset:
             print(command)
             subprocess.run(command, shell=True, check=True)
             self.data["mallet"] = File(path)
+            self.save()
         return self.data["mallet"].get()
 
     def get_mallet_plain_corpus(self) -> Path:
@@ -222,11 +226,35 @@ class Dataset:
                 # id2word=self.get_gensim_vocab(),
             )
             self.data["mallet_plain"] = File(path)
+            self.save()
         return self.data["mallet_plain"].get()
+
+    def get_topicmapping_corpus(self) -> tomotopy.utils.Corpus:
+        if "topicmapping" not in self.data:
+            path = self.path / (self.name + ".topicmapping")
+            count_matrix = self.get_count_matrix()
+            with path.open("x") as f:
+                for row in count_matrix:
+                    f.write(
+                        (" ").join(
+                            [
+                                (" ").join([str(word)] * count)
+                                for word, count in enumerate(
+                                    row.compute().todense().tolist()
+                                )
+                                if (count != 0)
+                            ]
+                        )
+                        + "\n"
+                    )
+            self.data["topicmapping"] = File(path)
+            self.save()
+        return self.data["topicmapping"].get()
 
     def get_shape(self) -> Tuple[int, int]:
         if not self.shape:
             self.shape = self.get_count_matrix().shape
+            self.save()
         return self.shape
 
     def n_doc(self) -> int:
@@ -235,14 +263,14 @@ class Dataset:
     def n_word(self) -> int:
         return self.get_shape()[1]
 
-    def get_igraph_graph(self) -> Graph:
-        if "igraph" not in self.data:
-            path = self.path / (self.name + ".igraph")
-            Graph.Incidence(self.get_count_matrix(), weighted="count").write_picklez(
-                path
-            )
-            self.data["igraph"] = File(path)
-        return Graph.Read_Picklez(self.data["igraph"].get())
+    # def get_igraph_graph(self) -> igraph.Graph:
+    #     if "igraph" not in self.data:
+    #         path = self.path / (self.name + ".igraph")
+    #         igraph.Graph.Incidence(
+    #             self.get_count_matrix().compute().todense().tolist(), weighted="count"
+    #         ).write_picklez(path)
+    #         self.data["igraph"] = File(path)
+    #     return igraph.Graph.Read_Picklez(self.data["igraph"].get())
 
 
 class LabeledDataset(Dataset):

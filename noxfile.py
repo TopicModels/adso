@@ -120,7 +120,12 @@ def pip_test(session):
     session.install(".")
     session.run("rm", "-rf", ADSODIR, external=True)
     session.run("rm", "-rf", ".test", external=True)
-    session.run("pytest", "--ignore=tests/test_06_LDAGS.py", env={"ADSODIR": ADSODIR})
+    session.run(
+        "pytest",
+        "--ignore=tests/test_06_LDAGS.py",
+        "--ignore=tests/test_09_TM.py",
+        env={"ADSODIR": ADSODIR},
+    )
 
 
 @nox.session(venv_backend="conda")
