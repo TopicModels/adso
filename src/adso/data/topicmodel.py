@@ -130,3 +130,7 @@ class TopicModel:
             )
             self.save()
         return self.data["labels"].get()
+
+
+class HierarchicalTopicModel(TopicModel):
+    pass

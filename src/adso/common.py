@@ -45,6 +45,12 @@ def set_seed(seed: int) -> None:
     random.seed(SEED)
     np.random.seed(SEED)
     da.random.seed(SEED)
+    try:
+        import graph_tool.all as gt
+
+        gt.seed_rng(SEED)
+    except ImportError:
+        pass
 
 
 def get_seed() -> Optional[int]:

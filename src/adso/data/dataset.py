@@ -8,13 +8,13 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+from collections import defaultdict
 from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
+from sys import modules
 
 import dask.array as da
-import igraph
-import networkx
 import numpy as np
 import tomotopy.utils
 from dask_ml.preprocessing import LabelEncoder
@@ -24,6 +24,14 @@ from more_itertools import chunked
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
 from .corpus import File, Pickled, Raw, WithVocab
+
+try:
+    import graph_tool.all as gt
+
+except ImportError:
+    print(
+        "graph-tool not found, hSBM algorithm not available.\nInstall it with conda (graph-tool package) should resolve the issue"
+    )
 
 if TYPE_CHECKING:
     from .corpus import Corpus
@@ -262,6 +270,50 @@ class Dataset:
 
     def n_word(self) -> int:
         return self.get_shape()[1]
+
+    if "graph_tool" in modules:
+
+        def _compute_gt_graph(self) -> None:
+            path = path = self.path / (self.name + ".gt.gz")
+            g = gt.Graph(directed=False)
+            name = g.vp["name"] = g.new_vp("int")
+            kind = g.vp["kind"] = g.new_vp("int")
+            ecount = g.ep["count"] = g.new_ep("int")
+
+            docs_add: defaultdict = defaultdict(lambda: g.add_vertex())
+            words_add: defaultdict = defaultdict(lambda: g.add_vertex())
+
+            count_matrix = self.get_count_matrix().compute()
+            count_matrix._sum_duplicates()
+
+            n_doc, n_word = self.get_shape()
+
+            for i_d in range(n_doc):
+                d = docs_add[i_d]
+                name[d] = i_d
+                kind[d] = 0
+
+            for i_w in range(n_word):
+                w = words_add[i_w]
+                name[w] = i_w
+                kind[w] = 1
+
+            for i in range(count_matrix.nnz):
+                i_d, i_w = count_matrix.coords[:, i]
+                e = g.add_edge(i_d, n_doc + i_w)
+                ecount[e] = count_matrix.data[i]
+
+            g.save(str(path))
+            self.data["gt"] = File(path)
+
+        def get_gt_graph_path(self) -> Path:
+            if "gt" not in self.data:
+                self._compute_gt_graph()
+            return self.data["gt"].get()
+
+        def get_gt_graph(self) -> gt.Graph:
+            # https://github.com/martingerlach/hSBM_Topicmodel/blob/master/sbmtm.py
+            return gt.load_graph(str(self.get_gt_graph_path()))
 
     # def get_igraph_graph(self) -> igraph.Graph:
     #     if "igraph" not in self.data:
