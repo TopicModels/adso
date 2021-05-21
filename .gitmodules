@@ -1,0 +1,3 @@
+[submodule "src/vendor/hSBM_Topicmodel"]
+	path = src/vendor/hSBM_Topicmodel
+	url = https://github.com/martingerlach/hSBM_Topicmodel

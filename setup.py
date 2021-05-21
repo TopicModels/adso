@@ -26,7 +26,7 @@ setup(
     author="Michele 'TnTo' Ciruzzi",
     author_email="tnto@hotmail.it",
     license="GPL-3.0+",
-    packages=find_packages(where="src"),
+    packages=["adso"],
     package_dir={"": "src"},
     package_data={},
     install_requires=[
