@@ -18,18 +18,9 @@ def test_hSBM():
 
     hsbm = hSBM()
 
-    topic_model, (n,) = hsbm.fit_transform(dataset, "test_hSBM")
+    topic_model, (n_layer, results) = hsbm.fit_transform(dataset, "test_hSBM")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.16266
-    assert (
-        confusion_matrix(dataset, topic_model).todense()
-        == np.array(
-            [
-                [18, 12, 45, 7, 294, 21, 71, 26, 6, 28, 92, 115, 86, 81, 4, 84],
-                [162, 105, 58, 73, 2, 39, 79, 52, 44, 81, 36, 53, 54, 6, 130, 13],
-            ]
-        )
-    ).all()
+    assert round(NMI(dataset, topic_model), 5) == 0.19131
 
 
 if __name__ == "__main__":

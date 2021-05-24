@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from sys import modules
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Tuple
 
 import dask.array as da
 
@@ -11,6 +11,7 @@ from .common import TMAlgorithm
 
 if TYPE_CHECKING:
     from ..data import Dataset
+    import numpy as np
 
 try:
     from ._vendor.sbmtm import sbmtm
@@ -28,8 +29,37 @@ class hSBM(TMAlgorithm):
         def __init__(self, **kwargs) -> None:
             self.kwargs = kwargs
 
-        def fit_transform(self, dataset: Dataset, name: str) -> HierarchicalTopicModel:
+        def fit_transform(
+            self, dataset: Dataset, name: str
+        ) -> Tuple[HierarchicalTopicModel, Tuple[int, Any]]:
             model = sbmtm()
             model.load_graph(str(dataset.get_gt_graph_path()))
             model.fit(**self.kwargs)
-            return None
+            # probabilmente la soluzione migliore è salvare il model, e scivere hTM class per cachare le query (almento quelle semplici)
+            n_layers: int = model.L
+            results = []
+            for i in range(n_layers):
+                res = model.get_groups(l=i)
+                results.append(
+                    {
+                        "n_topic": res["Bw"],
+                        "n_docgroup": res["Bd"],
+                        "doc_topic": res["p_tw_d"].T,
+                        "topic_word": res["p_w_tw"].T,
+                        "doc_docgroup": res["p_td_d"].T,
+                    }
+                )
+
+            return (
+                HierarchicalTopicModel.from_dask_array(
+                    name,
+                    [
+                        (
+                            da.from_array(res["topic_word"]),
+                            da.from_array(res["doc_topic"]),
+                        )
+                        for res in results
+                    ],
+                ),
+                (n_layers, results),
+            )
