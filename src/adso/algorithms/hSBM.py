@@ -5,17 +5,16 @@ from typing import TYPE_CHECKING, Any, Tuple
 
 import dask.array as da
 
-from ..common import get_seed
 from ..data.topicmodel import HierarchicalTopicModel
 from .common import TMAlgorithm
 
 if TYPE_CHECKING:
     from ..data import Dataset
-    import numpy as np
 
 try:
-    from ._vendor.sbmtm import sbmtm
-except ImportError:
+    from ._sbmtm import sbmtm
+except ImportError as e:
+    print(e)
     print(
         "graph-tool not found, hSBM algorithm not available.\nInstall it with conda (graph-tool package) should resolve the issue"
     )
