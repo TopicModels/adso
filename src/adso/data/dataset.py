@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 class Dataset:
     """Dataset class."""
 
-    def __init__(self, name: str, overwrite: bool = False) -> None:
+    def __init__(self, name: str, overwrite: bool = False, load: bool = False) -> None:
         self.name = name
         self.path = common.PROJDIR / self.name
         try:
@@ -54,7 +54,8 @@ class Dataset:
         self.data: Dict[str, Corpus] = {}
         self.shape: Optional[Tuple[int, int]] = None
 
-        self.save()
+        if not load:
+            self.save()
 
     def serialize(self) -> dict:
         save: Dict[str, Any] = {
@@ -132,10 +133,12 @@ class Dataset:
         # tokenizer: Optional[Callable] = tokenize_and_stem,
         # stop_words: Optional[Iterable[str]] = None,
         # strip_accents: Optional[str] = "unicode",
+        overwrite: bool = False,
         **kwargs,
     ) -> None:
         self.vectorizer = Vectorizer(
             self.path / (self.name + ".vectorizer.pickle"),
+            overwrite=overwrite,
             **kwargs,
         )
         self.save()
@@ -326,9 +329,9 @@ class Dataset:
 
 
 class LabeledDataset(Dataset):
-    def __init__(self, name: str, overwrite: bool = False) -> None:
+    def __init__(self, name: str, overwrite: bool = False, load: bool = False) -> None:
         self.labels: Dict[str, Corpus] = {}
-        super().__init__(name, overwrite=overwrite)
+        super().__init__(name, overwrite=overwrite, load=load)
 
     def serialize(self) -> dict:
         save = super().serialize()
@@ -347,8 +350,15 @@ class LabeledDataset(Dataset):
                 loaded = json.load(f)
             path = path.parent
 
-        dataset = cls(loaded["name"], overwrite=True)
+        dataset = cls(loaded["name"], overwrite=True, load=True)
         dataset.path = path
+
+        if "vectorizer" in loaded:
+            dataset.vectorizer = Vectorizer.load(
+                loaded["vectorizer"]["path"], loaded["vectorizer"]["hash"]
+            )  # type: ignore[assignment]
+        else:
+            dataset.vectorizer = None
 
         dataset.data = {
             key: globals()[loaded["data"][key]["format"]].load(
