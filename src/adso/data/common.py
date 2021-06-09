@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from typing import Iterable
 
+import dask.array as da
 import nltk
+import numpy as np
 
 from .. import common
 
@@ -33,3 +35,16 @@ def tokenize_and_stem(doc: str) -> Iterable[str]:
 def get_nltk_stopwords() -> Iterable[str]:
     nltk_download("stopwords")
     return nltk.corpus.stopwords.words("english")
+
+
+def encode(array: da.array) -> da.array:
+    if array.dtype.kind == "U":
+        itemsize = np.dtype("U1").itemsize
+    elif array.dtype.kind == "S":
+        itemsize = np.dtype("S1").itemsize
+    else:
+        raise TypeError("Numpy dtype not recognized")
+    return array.map_blocks(
+        lambda b: np.char.encode(b, encoding="utf-8"),
+        dtype=np.dtype(("S", array.itemsize // itemsize)),
+    ).rechunk()

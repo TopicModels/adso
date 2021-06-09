@@ -13,6 +13,7 @@ import numpy as np
 import sparse as sp
 
 from ..common import Data, compute_hash
+from .common import encode
 
 
 class Corpus(Data, ABC):
@@ -36,16 +37,7 @@ class Raw(Corpus):
             try:
                 array.to_hdf5(path, "/raw", shuffle=False)
             except TypeError:
-                if array.dtype.kind == "U":
-                    itemsize = np.dtype("U1").itemsize
-                elif array.dtype.kind == "S":
-                    itemsize = np.dtype("S1").itemsize
-                else:
-                    raise TypeError("Numpy dtype not recognized")
-                array.map_blocks(
-                    lambda b: np.char.encode(b, encoding="utf-8"),
-                    dtype=np.dtype(("S", array.itemsize // itemsize)),
-                ).to_hdf5(path, "/raw", shuffle=False)
+                encode(array).to_hdf5(path, "/raw", shuffle=False)
         return cls(path)
 
 
@@ -105,20 +97,11 @@ class WithVocab(Corpus):
                         shuffle=False,
                     )
                 except TypeError:
-                    if vocab.dtype.kind == "U":
-                        itemsize = np.dtype("U1").itemsize
-                    elif vocab.dtype.kind == "S":
-                        itemsize = np.dtype("S1").itemsize
-                    else:
-                        raise TypeError("Numpy dtype not recognized")
                     da.to_hdf5(
                         path,
                         {
                             "/data": data,
-                            "/vocab": vocab.map_blocks(
-                                lambda b: np.char.encode(b, encoding="utf-8"),
-                                dtype=np.dtype(("S", vocab.itemsize // itemsize)),
-                            ),
+                            "/vocab": encode(vocab),
                         },
                         shuffle=False,
                     )
