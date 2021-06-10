@@ -95,7 +95,9 @@ class Vectorizer(Algorithm):
         vocab.persist()
 
         dataset.data["count_matrix"] = SparseWithVocab.from_dask_array(
-            dataset.path / (dataset.name + ".count_matrix.hdf5"), count_matrix, vocab
+            dataset.path / (dataset.name + ".count_matrix.zarr.zip"),
+            count_matrix,
+            vocab,
         )
 
         if update:

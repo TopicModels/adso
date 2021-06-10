@@ -76,10 +76,10 @@ class TopicModel:
     ) -> "TopicModel":
         model = cls(name, overwrite=overwrite)
         model.data["topic_word"] = Sparse.from_dask_array(
-            model.path / "topic_word.hdf5", topic_word_matrix, overwrite=overwrite
+            model.path / "topic_word.zarr.zip", topic_word_matrix, overwrite=overwrite
         )
         model.data["doc_topic"] = Sparse.from_dask_array(
-            model.path / "doc_topic.hdf5", doc_topic_matrix, overwrite=overwrite
+            model.path / "doc_topic.zarr.zip", doc_topic_matrix, overwrite=overwrite
         )
         model.save()
         return model
@@ -125,7 +125,7 @@ class TopicModel:
     def get_labels(self) -> da.array:
         if "labels" not in self.data:
             self.data["labels"] = Raw.from_dask_array(
-                self.path / "labels.hdf5",
+                self.path / "labels.zarr.zip",
                 da.argmax(self.get_doc_topic_matrix(sparse=False), axis=1),
             )
             self.save()
@@ -199,10 +199,14 @@ class HierarchicalTopicModel(TopicModel):
         for i in range(len(matrices)):
             model.data[i] = {}
             model.data[i]["topic_word"] = Sparse.from_dask_array(
-                model.path / f"topic_word{i}.hdf5", matrices[i][0], overwrite=overwrite
+                model.path / f"topic_word{i}.zarr.zip",
+                matrices[i][0],
+                overwrite=overwrite,
             )
             model.data[i]["doc_topic"] = Sparse.from_dask_array(
-                model.path / f"doc_topic{i}.hdf5", matrices[i][1], overwrite=overwrite
+                model.path / f"doc_topic{i}.zarr.zip",
+                matrices[i][1],
+                overwrite=overwrite,
             )
         model.save()
         return model
@@ -250,7 +254,7 @@ class HierarchicalTopicModel(TopicModel):
     def get_labels(self, l: int = 0) -> da.array:
         if "labels" not in self.data[l]:
             self.data[l]["labels"] = Raw.from_dask_array(
-                self.path / f"labels{l}.hdf5",
+                self.path / f"labels{l}.zarr.zip",
                 da.argmax(self.get_doc_topic_matrix(l=l, sparse=False), axis=1),
             )
             self.save()

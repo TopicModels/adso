@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Iterable
+import shutil
+from pathlib import Path
+from typing import Dict, Iterable, Optional, Union
 
 import dask.array as da
 import nltk
 import numpy as np
+import zarr
 
 from .. import common
 
@@ -48,3 +51,42 @@ def encode(array: da.array) -> da.array:
         lambda b: np.char.encode(b, encoding="utf-8"),
         dtype=np.dtype(("S", array.itemsize // itemsize)),
     ).rechunk()
+
+
+def save_array_to_zarr(array: Union[da.array, Dict[str, da.array]], path: Path) -> None:
+    dirpath = path.with_name(path.name + ".dir")
+    with zarr.storage.DirectoryStore(dirpath) as store:
+        if isinstance(array, da.Array):
+            array.to_zarr(
+                zarr.open(
+                    store,
+                    shape=array.shape,
+                    dtype=array.dtype,
+                    chunks=array.chunksize,
+                    mode="a",
+                )
+            )
+        else:
+            for component, array in array.items():
+                array.to_zarr(
+                    zarr.open(
+                        store,
+                        shape=array.shape,
+                        dtype=array.dtype,
+                        chunks=array.chunksize,
+                        mode="a",
+                    ),
+                    component=component,
+                )
+
+    if path.suffix == ".zip":
+        name = path.with_suffix("")
+    else:
+        name = path
+
+    shutil.make_archive(str(name), "zip", dirpath)
+
+    if path.suffix != ".zip":
+        name.with_suffix(name.suffix + ".zip").rename(path)
+
+    shutil.rmtree(dirpath, ignore_errors=True)

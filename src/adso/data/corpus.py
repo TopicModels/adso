@@ -8,12 +8,12 @@ from typing import Any, Optional
 
 import dask.array as da
 import dill
-import h5py
 import numpy as np
 import sparse as sp
+import zarr
 
 from ..common import Data, compute_hash
-from .common import encode
+from .common import save_array_to_zarr
 
 
 class Corpus(Data, ABC):
@@ -23,7 +23,7 @@ class Corpus(Data, ABC):
 class Raw(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
-            return da.from_array(h5py.File(self.path, "r")["/raw"])
+            return da.from_zarr(zarr.open(store=zarr.ZipStore(self.path), mode="r"))
         else:
             raise RuntimeError("Different hash")
 
@@ -34,10 +34,7 @@ class Raw(Corpus):
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            try:
-                array.to_hdf5(path, "/raw", shuffle=False)
-            except TypeError:
-                encode(array).to_hdf5(path, "/raw", shuffle=False)
+            save_array_to_zarr(array, path)
         return cls(path)
 
 
@@ -68,13 +65,17 @@ class Pickled(Corpus):
 class WithVocab(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
-            return da.from_array(h5py.File(self.path, "r")["/data"])
+            return da.from_zarr(
+                zarr.open(store=zarr.ZipStore(self.path), mode="r"), component="data"
+            )
         else:
             raise RuntimeError("Different hash")
 
     def get_vocab(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
-            return da.from_array(h5py.File(self.path, "r")["/vocab"])
+            return da.from_zarr(
+                zarr.open(store=zarr.ZipStore(self.path), mode="r"), component="vocab"
+            )
         else:
             raise RuntimeError("Different hash")
 
@@ -90,23 +91,9 @@ class WithVocab(Corpus):
             raise RuntimeError("File already exists")
         else:
             if vocab is not None:
-                try:
-                    da.to_hdf5(
-                        path,
-                        {"/data": data, "/vocab": vocab},
-                        shuffle=False,
-                    )
-                except TypeError:
-                    da.to_hdf5(
-                        path,
-                        {
-                            "/data": data,
-                            "/vocab": encode(vocab),
-                        },
-                        shuffle=False,
-                    )
+                save_array_to_zarr({"data": data, "vocab": vocab}, path)
             else:
-                data.to_hdf5(path, "/data", shuffle=False)
+                save_array_to_zarr({"data": data}, path)
         return cls(path)
 
 

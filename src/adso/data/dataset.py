@@ -113,7 +113,7 @@ class Dataset:
         dataset = cls(name)
 
         dataset.data["raw"] = Raw.from_dask_array(
-            common.PROJDIR / name / (name + ".raw.hdf5"),
+            common.PROJDIR / name / (name + ".raw.zarr.zip"),
             da.concatenate(
                 [
                     da.from_array(np.array(chunk, dtype=np.bytes_))
@@ -387,8 +387,8 @@ class LabeledDataset(Dataset):
         # (Label, Doc)
 
         dataset = cls(name, overwrite=overwrite)
-        data_path = common.PROJDIR / name / (name + ".raw.hdf5")
-        label_path = common.PROJDIR / name / (name + ".label.raw.hdf5")
+        data_path = common.PROJDIR / name / (name + ".raw.zarr.zip")
+        label_path = common.PROJDIR / name / (name + ".label.raw.zarr.zip")
 
         data = da.concatenate(
             [da.from_array(np.array(chunk)) for chunk in chunked(iterator, batch_size)]
@@ -421,7 +421,7 @@ class LabeledDataset(Dataset):
             encoder = LabelEncoder()
             labels = encoder.fit_transform(self.labels["raw"].get())
             self.labels["vect"] = WithVocab.from_dask_array(
-                self.path / (self.name + ".label.vect.hdf5"),
+                self.path / (self.name + ".label.vect.zarr.zip"),
                 labels,
                 encoder.classes_.compute_chunk_sizes(),
             )
