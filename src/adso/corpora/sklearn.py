@@ -10,7 +10,9 @@ from ..common import get_seed
 from ..data import LabeledDataset
 
 
-def get_20newsgroups(name: str, overwrite: bool = False, **kwargs) -> LabeledDataset:
+def get_20newsgroups(
+    name: str, overwrite: bool = False, batch_size: int = 32, **kwargs
+) -> LabeledDataset:
     # https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_20newsgroups.html
     SKDIR = common.DATADIR / "sklearn"
     SKDIR.mkdir(exist_ok=True, parents=True)
@@ -24,7 +26,5 @@ def get_20newsgroups(name: str, overwrite: bool = False, **kwargs) -> LabeledDat
     data = bunch.data
     labels = [bunch.target_names[label] for label in bunch.target]
     return LabeledDataset.from_iterator(
-        name,
-        zip(labels, data),
-        overwrite=overwrite,
+        name, zip(labels, data), overwrite=overwrite, batch_size=batch_size
     )
