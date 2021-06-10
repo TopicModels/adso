@@ -22,11 +22,7 @@ def nltk_download(id: str) -> None:
         id (str): id of the required downloadable data. Cfr
             <http://www.nltk.org/nltk_data/>
     """
-    NLTKDIR = common.DATADIR / "nltk"
-    NLTKDIR.mkdir(exist_ok=True, parents=True)
-    if NLTKDIR not in nltk.data.path:
-        nltk.data.path.append(NLTKDIR)
-    nltk.downloader.download(id, download_dir=NLTKDIR)
+    nltk.downloader.download(id, download_dir=common.NLTKDIR)
 
 
 def tokenize_and_stem(doc: str) -> Iterable[str]:
@@ -55,29 +51,28 @@ def encode(array: da.array) -> da.array:
 
 def save_array_to_zarr(array: Union[da.array, Dict[str, da.array]], path: Path) -> None:
     dirpath = path.with_name(path.name + ".dir")
-    with zarr.storage.DirectoryStore(dirpath) as store:
-        if isinstance(array, da.Array):
+    if isinstance(array, da.Array):
+        array.to_zarr(
+            zarr.open(
+                zarr.storage.DirectoryStore(dirpath),
+                shape=array.shape,
+                dtype=array.dtype,
+                chunks=array.chunksize,
+                mode="a",
+            )
+        )
+    else:
+        group = zarr.open_group(store=zarr.storage.DirectoryStore(dirpath), mode="a")
+        for component, array in array.items():
             array.to_zarr(
-                zarr.open(
-                    store,
-                    shape=array.shape,
+                group.require_dataset(
+                    component,
+                    array.shape,
                     dtype=array.dtype,
-                    chunks=array.chunksize,
-                    mode="a",
+                    chuncks=array.chunksize,
+                    overwrite=False,
                 )
             )
-        else:
-            for component, array in array.items():
-                array.to_zarr(
-                    zarr.open(
-                        store,
-                        shape=array.shape,
-                        dtype=array.dtype,
-                        chunks=array.chunksize,
-                        mode="a",
-                    ),
-                    component=component,
-                )
 
     if path.suffix == ".zip":
         name = path.with_suffix("")

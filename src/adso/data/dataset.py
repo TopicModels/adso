@@ -11,8 +11,8 @@ import subprocess
 from collections import defaultdict
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
 from sys import modules
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import dask.array as da
 import numpy as np
@@ -23,7 +23,7 @@ from more_itertools import chunked
 
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
-from .corpus import File, Pickled, Raw, WithVocab
+from .corpus import File, Pickled, Raw, Sparse, SparseWithVocab, WithVocab
 
 try:
     import graph_tool.all as gt

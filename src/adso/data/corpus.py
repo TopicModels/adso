@@ -66,7 +66,7 @@ class WithVocab(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
             return da.from_zarr(
-                zarr.open(store=zarr.ZipStore(self.path), mode="r"), component="data"
+                zarr.open(store=zarr.ZipStore(self.path), mode="r")["data"]
             )
         else:
             raise RuntimeError("Different hash")
@@ -74,7 +74,7 @@ class WithVocab(Corpus):
     def get_vocab(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
             return da.from_zarr(
-                zarr.open(store=zarr.ZipStore(self.path), mode="r"), component="vocab"
+                zarr.open(store=zarr.ZipStore(self.path), mode="r")["vocab"]
             )
         else:
             raise RuntimeError("Different hash")

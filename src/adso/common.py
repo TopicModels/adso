@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import dask.array as da
+import nltk
 import numpy as np
 import scipy.special as special
 from dask.array.ufunc import wrap_elemwise
@@ -26,6 +27,10 @@ PROJDIR.mkdir(exist_ok=True, parents=True)
 
 DATADIR = ADSODIR / "data"
 DATADIR.mkdir(exist_ok=True, parents=True)
+
+NLTKDIR = DATADIR / "nltk"
+NLTKDIR.mkdir(exist_ok=True, parents=True)
+nltk.data.path.append(str(NLTKDIR.resolve()))
 
 SEED: int = 0
 
@@ -63,10 +68,14 @@ def get_seed() -> Optional[int]:
 def set_adso_dir(path: str) -> None:
     global ADSODIR
     global DATADIR
+    global NLTKDIR
     ADSODIR = Path(path)
     ADSODIR.mkdir(exist_ok=True, parents=True)
     DATADIR = ADSODIR / "data"
     DATADIR.mkdir(exist_ok=True, parents=True)
+    NLTKDIR = DATADIR / "nltk"
+    NLTKDIR.mkdir(exist_ok=True, parents=True)
+    nltk.data.path.append(str(NLTKDIR.resolve()))
 
 
 def set_project_name(name: str) -> None:
