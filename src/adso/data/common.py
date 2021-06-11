@@ -52,7 +52,7 @@ def encode(array: da.array) -> da.array:
 def save_array_to_zarr(array: Union[da.array, Dict[str, da.array]], path: Path) -> None:
     dirpath = path.with_name(path.name + ".dir")
     if isinstance(array, da.Array):
-        array.rechunck().to_zarr(
+        array.rechunk().to_zarr(
             zarr.open(
                 zarr.storage.DirectoryStore(dirpath),
                 shape=array.shape,
