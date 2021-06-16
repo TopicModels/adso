@@ -27,11 +27,14 @@ class hSBM(TMAlgorithm):
             self.kwargs = kwargs
 
         def fit_transform(
-            self, dataset: Dataset, name: str
+            self,
+            dataset: Dataset,
+            name: str,
+            parallel: bool = True,
         ) -> Tuple[HierarchicalTopicModel, Tuple[int, Any]]:
             model = sbmtm()
             model.load_graph(str(dataset.get_gt_graph_path()))
-            model.fit(**self.kwargs)
+            model.fit(parallel=parallel, **self.kwargs)
             # probabilmente la soluzione migliore è salvare il model, e scivere hTM class per cachare le query (almento quelle semplici)
             n_layers: int = model.L
             results = []
