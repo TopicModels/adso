@@ -10,7 +10,7 @@ import numpy as np
 import zarr
 
 from .. import common
-from ..data.corpus import Raw, Sparse
+from ..data.corpus import Raw
 
 if TYPE_CHECKING:
     from ..data.corpus import Corpus
@@ -89,8 +89,8 @@ class TopicModel:
     def from_array(
         cls,
         name: str,
-        topic_word_matrix: np.array,
-        doc_topic_matrix: np.array,
+        topic_word_matrix: np.ndarray,
+        doc_topic_matrix: np.ndarray,
         overwrite: bool = False,
     ) -> "TopicModel":
         model = cls(name, overwrite=overwrite)
@@ -127,7 +127,7 @@ class TopicModel:
         if "labels" not in self.data:
             self.data["labels"] = Raw.from_dask_array(
                 self.path / "labels.zarr.zip",
-                da.argmax(self.get_doc_topic_matrix(sparse=False), axis=1),
+                da.argmax(self.get_doc_topic_matrix(), axis=1),
             )
             self.save()
         return self.data["labels"].get()
@@ -199,12 +199,12 @@ class HierarchicalTopicModel(TopicModel):
         model = cls(name, overwrite=overwrite)
         for i in range(len(matrices)):
             model.data[i] = {}
-            model.data[i]["topic_word"] = Sparse.from_dask_array(
+            model.data[i]["topic_word"] = Raw.from_dask_array(
                 model.path / f"topic_word{i}.zarr.zip",
                 matrices[i][0],
                 overwrite=overwrite,
             )
-            model.data[i]["doc_topic"] = Sparse.from_dask_array(
+            model.data[i]["doc_topic"] = Raw.from_dask_array(
                 model.path / f"doc_topic{i}.zarr.zip",
                 matrices[i][1],
                 overwrite=overwrite,
@@ -216,7 +216,7 @@ class HierarchicalTopicModel(TopicModel):
     def from_array(  # type: ignore[override]
         cls,
         name: str,
-        matrices: List[Tuple[np.array, np.array]],  # topic_word, doc_topic
+        matrices: List[Tuple[np.ndarray, np.ndarray]],  # topic_word, doc_topic
         overwrite: bool = False,
     ) -> "HierarchicalTopicModel":
         model = cls(name, overwrite=overwrite)
@@ -261,7 +261,7 @@ class HierarchicalTopicModel(TopicModel):
         if "labels" not in self.data[l]:
             self.data[l]["labels"] = Raw.from_array(
                 self.path / f"labels{l}.zarr.zip",
-                np.argmax(self.get_doc_topic_matrix(l=l), axis=1),
+                np.argmax(self.get_doc_topic_matrix(l=l), axis=1),  # type: ignore[arg-type]
             )
             self.save()
         return self.data[l]["labels"].get()
