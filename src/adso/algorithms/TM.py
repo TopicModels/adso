@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class TopicMapping(TMAlgorithm):
     # https://amaral.northwestern.edu/resources/software/topic-mapping
     # https://bitbucket.org/andrealanci/topicmapping/src/master/ReadMe.pdf
-    def __init__(self, lag=1000, **kwargs) -> None:
+    def __init__(self, lag: int = 1000, **kwargs) -> None:
         self.lag = lag
         self.kwargs = kwargs
 

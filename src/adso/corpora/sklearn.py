@@ -24,7 +24,10 @@ def get_20newsgroups(
         **kwargs
     )
     data = bunch.data
-    labels = [bunch.target_names[label] for label in bunch.target]
-    return LabeledDataset.from_iterator(
-        name, zip(labels, data), overwrite=overwrite, batch_size=batch_size
+    labels = np.array([bunch.target_names[label] for label in bunch.target])
+    return LabeledDataset.from_array(
+        name,
+        labels,
+        data,
+        overwrite=overwrite,
     )

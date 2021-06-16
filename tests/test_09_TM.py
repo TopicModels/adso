@@ -4,7 +4,6 @@ import adso
 import adso.data as data
 from adso.algorithms import TopicMapping
 from adso.corpora import get_20newsgroups
-
 from adso.metrics.supervised import NMI, confusion_matrix
 
 

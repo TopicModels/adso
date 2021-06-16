@@ -1,6 +1,6 @@
 [flake8]
 select = ANN,B,B9,BLK,C,D,DAR,E,F,I,W
-ignore = E501, ANN003, ANN101, ANN102, B008, B950, D415, W503, D
+ignore = E501, ANN003, ANN101, ANN102, B008, B950, D415, W503, D, E741
 max-line-length = 80
 application-import-names = adso,example,tests
 import-order-style = pep8
@@ -11,3 +11,15 @@ per-file-ignores =
     docs/source/conf.py:ANN,D
     src/adso/__init__.py: F401
     src/adso/*/__init__.py:F401
+    examples/*:ANN,I100,I201
+    tests/*:ANN,I100,I201
+exclude =
+    __pycache__
+    .*
+    build
+    coverage
+    dist
+    examples/v0.0.1
+    docs/_downloads
+    src/vendor
+    src/adso/algorithms/_sbmtm.py

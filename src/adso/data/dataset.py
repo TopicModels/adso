@@ -429,7 +429,7 @@ class LabeledDataset(Dataset):
         labels: np.ndarray,
         docs: np.ndarray,
         overwrite: bool = False,
-    ) -> Dataset:
+    ) -> LabeledDataset:
         dataset = cls(name, overwrite=overwrite)
         data_path = common.PROJDIR / name / (name + ".raw.zarr.zip")
         label_path = common.PROJDIR / name / (name + ".label.raw.zarr.zip")

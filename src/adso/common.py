@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional, Union
 import dask.array as da
 import nltk
 import numpy as np
-import scipy.special as special
 
 ADSODIR = (
     (Path.home() / ".adso")

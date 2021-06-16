@@ -42,9 +42,9 @@ def test_from_iterator():
     assert [
         x.decode("utf-8")
         for x in list(
-            data.LabeledDataset.load(".test/test/labeled_test_from_iterator")
-            .get_labels()
-            .compute()
+            data.LabeledDataset.load(
+                ".test/test/labeled_test_from_iterator"
+            ).get_labels()
         )
     ] == labels
 

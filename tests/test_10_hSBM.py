@@ -1,11 +1,7 @@
-import numpy as np
-
 import adso
-import adso.data as data
 from adso.algorithms import hSBM
 from adso.corpora import get_20newsgroups
-
-from adso.metrics.supervised import NMI, confusion_matrix
+from adso.metrics.supervised import NMI
 
 
 def test_hSBM():

@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, List
 
-import dask.array as da
 import numpy as np
-from sklearn.metrics import normalized_mutual_info_score
-from sparse import COO
 
 if TYPE_CHECKING:
     from ..data import LabeledDataset
     from ..data.topicmodel import TopicModel
+
 
 # untested
 def top_words(

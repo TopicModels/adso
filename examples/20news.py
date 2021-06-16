@@ -1,11 +1,10 @@
-import adso
-from adso.corpora import get_20newsgroups
+import gc
+
 import dask
 from dask.distributed import Client
 
-import gc
-
-import os
+import adso
+from adso.corpora import get_20newsgroups
 
 if __name__ == "__main__":
 

@@ -20,7 +20,7 @@ def test_simple_LDAVB():
 
     lda = LDAVB(2)
 
-    topic_model = lda.fit_transform(dataset, "test_simple_LDAVB")
+    return lda.fit_transform(dataset, "test_simple_LDAVB")
 
 
 def test_LDAVB():
