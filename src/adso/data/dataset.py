@@ -16,14 +16,16 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Un
 
 import dask.array as da
 import numpy as np
+import sparse
 import tomotopy.utils
+import zarr
 from dask_ml.preprocessing import LabelEncoder
 from gensim.corpora.malletcorpus import MalletCorpus
 from more_itertools import chunked
 
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
-from .corpus import File, Pickled, Raw, Sparse, SparseWithVocab, WithVocab
+from .corpus import File, Pickled, Raw, WithVocab
 
 try:
     import graph_tool.all as gt
@@ -110,7 +112,7 @@ class Dataset:
         batch_size: int = 64,
         overwrite: bool = False,
     ) -> Dataset:
-        dataset = cls(name)
+        dataset = cls(name, overwrite=overwrite)
 
         dataset.data["raw"] = Raw.from_dask_array(
             common.PROJDIR / name / (name + ".raw.zarr.zip"),
@@ -125,7 +127,24 @@ class Dataset:
         dataset.save()
         return dataset
 
-    def get_corpus(self) -> da.array:
+    @classmethod
+    def from_array(
+        cls,
+        name: str,
+        array: np.ndarray,
+        overwrite: bool = False,
+    ) -> Dataset:
+        dataset = cls(name, overwrite=overwrite)
+
+        dataset.data["raw"] = Raw.from_array(
+            common.PROJDIR / name / (name + ".raw.zarr.zip"),
+            array,
+            overwrite=overwrite,
+        )
+        dataset.save()
+        return dataset
+
+    def get_corpus(self) -> zarr.array:
         return self.data["raw"].get()
 
     def set_vectorizer_params(
@@ -152,16 +171,11 @@ class Dataset:
     def get_count_matrix(self, sparse: bool = True) -> da.array:
         if "count_matrix" not in self.data:
             self._compute_count_matrix()
-        return self.data["count_matrix"].get(sparse=sparse)  # type: ignore[call-arg]
+        return self.data["count_matrix"].get()
 
-    def get_frequency_matrix(self) -> da.array:
+    def get_frequency_matrix(self) -> zarr.array:
         count_matrix = self.get_count_matrix()
-        return (
-            count_matrix
-            / (count_matrix.sum(axis=1)).map_blocks(
-                lambda b: b.todense(), dtype=np.int64
-            )[:, np.newaxis]
-        )
+        return count_matrix / (count_matrix.sum(axis=1)[:, np.newaxis])
 
     def get_vocab(self) -> da.array:
         if "count_matrix" not in self.data:
@@ -175,11 +189,7 @@ class Dataset:
             self.data["gensim"] = Pickled.from_object(
                 path,
                 [
-                    [
-                        item
-                        for item in enumerate(row.compute().todense().tolist())
-                        if (item[1] != 0)
-                    ]
+                    [item for item in enumerate(row.tolist()) if (item[1] != 0)]
                     for row in count_matrix
                 ],
             )
@@ -187,9 +197,7 @@ class Dataset:
         return self.data["gensim"].get()
 
     def get_gensim_vocab(self) -> Dict[int, str]:
-        return {
-            index[0]: x for (index, x) in np.ndenumerate(self.get_vocab().compute())
-        }
+        return {index[0]: x for (index, x) in np.ndenumerate(self.get_vocab())}
 
     def get_tomotopy_corpus(self) -> tomotopy.utils.Corpus:
         if "tomotopy" not in self.data:
@@ -202,9 +210,7 @@ class Dataset:
                         chain(
                             *[
                                 [str(word)] * count
-                                for word, count in enumerate(
-                                    row.compute().todense().tolist()
-                                )
+                                for word, count in enumerate(row.tolist())
                                 if (count != 0)
                             ]
                         )
@@ -250,9 +256,7 @@ class Dataset:
                         (" ").join(
                             [
                                 (" ").join([str(word)] * count)
-                                for word, count in enumerate(
-                                    row.compute().todense().tolist()
-                                )
+                                for word, count in enumerate(row.tolist())
                                 if (count != 0)
                             ]
                         )
@@ -286,8 +290,7 @@ class Dataset:
             docs_add: defaultdict = defaultdict(lambda: g.add_vertex())
             words_add: defaultdict = defaultdict(lambda: g.add_vertex())
 
-            count_matrix = self.get_count_matrix().compute()
-            count_matrix._sum_duplicates()
+            count_matrix = sparse.COO(self.get_count_matrix())
 
             n_doc, n_word = self.get_shape()
 
@@ -322,7 +325,7 @@ class Dataset:
     #     if "igraph" not in self.data:
     #         path = self.path / (self.name + ".igraph")
     #         igraph.Graph.Incidence(
-    #             self.get_count_matrix().compute().todense().tolist(), weighted="count"
+    #             self.get_count_matrix().tolist(), weighted="count"
     #         ).write_picklez(path)
     #         self.data["igraph"] = File(path)
     #     return igraph.Graph.Read_Picklez(self.data["igraph"].get())
@@ -378,7 +381,13 @@ class LabeledDataset(Dataset):
         return dataset
 
     @classmethod
-    def from_iterator(cls, name: str, iterator: Iterable[Tuple[str, str]], batch_size: int = 64, overwrite: bool = False) -> LabeledDataset:  # type: ignore[override]
+    def from_iterator(  # type: ignore[override]
+        cls,
+        name: str,
+        iterator: Iterable[Tuple[str, str]],
+        batch_size: int = 64,
+        overwrite: bool = False,
+    ) -> LabeledDataset:
         #
         # An alternative implementation can use itertool.tee + threading/async
         # https://stackoverflow.com/questions/50039223/how-to-execute-two-aggregate-functions-like-sum-concurrently-feeding-them-f
@@ -413,13 +422,49 @@ class LabeledDataset(Dataset):
         dataset.save()
         return dataset
 
-    def get_labels(self) -> da.array:
+    @classmethod
+    def from_array(  # type: ignore[override]
+        cls,
+        name: str,
+        labels: np.ndarray,
+        docs: np.ndarray,
+        overwrite: bool = False,
+    ) -> Dataset:
+        dataset = cls(name, overwrite=overwrite)
+        data_path = common.PROJDIR / name / (name + ".raw.zarr.zip")
+        label_path = common.PROJDIR / name / (name + ".label.raw.zarr.zip")
+
+        if len(labels) == len(docs):
+
+            if data_path.is_file() and (not overwrite):
+                raise RuntimeError("File already exists")
+            else:
+                dataset.data["raw"] = Raw.from_array(
+                    data_path,
+                    docs,
+                    overwrite=overwrite,
+                )
+
+            if label_path.is_file() and (not overwrite):
+                raise RuntimeError("File already exists")
+            else:
+                dataset.labels["raw"] = Raw.from_array(
+                    label_path, labels, overwrite=overwrite
+                )
+
+        else:
+            raise RuntimeError("Different number of elements in labels and docs")
+
+        dataset.save()
+        return dataset
+
+    def get_labels(self) -> zarr.array:
         return self.labels["raw"].get()
 
-    def get_labels_vect(self) -> da.array:
+    def get_labels_vect(self) -> zarr.array:
         if "vect" not in self.labels:
             encoder = LabelEncoder()
-            labels = encoder.fit_transform(self.labels["raw"].get())
+            labels = encoder.fit_transform(da.array(self.labels["raw"].get()))
             self.labels["vect"] = WithVocab.from_dask_array(
                 self.path / (self.name + ".label.vect.zarr.zip"),
                 labels,
