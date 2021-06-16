@@ -13,7 +13,7 @@ from dask_ml.feature_extraction.text import CountVectorizer
 
 # from ..data.common import nltk_download, tokenize_and_stem
 from ..common import compute_hash
-from ..data.corpus import SparseWithVocab
+from ..data.corpus import WithVocab
 from .common import Algorithm
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ class Vectorizer(Algorithm):
             model = CountVectorizer(
                 tokenizer=tokenizer, stop_words=stop_words, strip_accents=strip_accents
             )
-            if path.is_file() and (not overwrite):
+            if path.is_file() and not overwrite:
                 raise RuntimeError("File already exists")
             else:
                 self.save(model)
@@ -78,23 +78,21 @@ class Vectorizer(Algorithm):
     def fit_transform(self, dataset: Dataset, update: bool = True) -> None:
 
         # actually, the list comprehension is a bottleneck
-        bag = db.from_sequence([doc.compute().item() for doc in dataset.get_corpus()])
+        bag = db.from_sequence([doc.item() for doc in dataset.get_corpus()])
         model = self.get()
 
         model.fit(bag)
 
         count_matrix = (
             (model.transform(bag))
-            .map_blocks(lambda x: sparse.COO(x, fill_value=0).todense())
+            .map_blocks(lambda x: sparse.COO(x, fill_value=0))
             .compute_chunk_sizes()
             .rechunk()
         )
-        count_matrix.persist()
 
         vocab = da.from_array(np.array(model.get_feature_names()))
-        vocab.persist()
 
-        dataset.data["count_matrix"] = SparseWithVocab.from_dask_array(
+        dataset.data["count_matrix"] = WithVocab.from_dask_array(
             dataset.path / (dataset.name + ".count_matrix.zarr.zip"),
             count_matrix,
             vocab,

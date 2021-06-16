@@ -9,7 +9,6 @@ from typing import Any, Optional
 import dask.array as da
 import dill
 import numpy as np
-import sparse as sp
 import zarr
 
 from ..common import Data, compute_hash
@@ -23,7 +22,7 @@ class Corpus(Data, ABC):
 class Raw(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
-            return da.from_zarr(zarr.open(store=zarr.ZipStore(self.path), mode="r"))
+            return zarr.open(store=zarr.ZipStore(self.path), mode="r")
         else:
             raise RuntimeError("Different hash")
 
@@ -35,6 +34,14 @@ class Raw(Corpus):
             raise RuntimeError("File already exists")
         else:
             save_array_to_zarr(array, path)
+        return cls(path)
+
+    @classmethod
+    def from_array(cls, path: Path, array: np.ndarray, overwrite: bool = False) -> Raw:
+        if path.is_file() and (not overwrite):
+            raise RuntimeError("File already exists")
+        else:
+            zarr.save_array(zarr.ZipStore(path), array)
         return cls(path)
 
 
@@ -65,17 +72,13 @@ class Pickled(Corpus):
 class WithVocab(Corpus):
     def get(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
-            return da.from_zarr(
-                zarr.open(store=zarr.ZipStore(self.path), mode="r")["data"]
-            )
+            return zarr.open(store=zarr.ZipStore(self.path), mode="r")["data"]
         else:
             raise RuntimeError("Different hash")
 
     def get_vocab(self, skip_hash_check: bool = False) -> da.array:
         if self.hash == compute_hash(self.path):
-            return da.from_zarr(
-                zarr.open(store=zarr.ZipStore(self.path), mode="r")["vocab"]
-            )
+            return zarr.open(store=zarr.ZipStore(self.path), mode="r")["vocab"]
         else:
             raise RuntimeError("Different hash")
 
@@ -96,18 +99,19 @@ class WithVocab(Corpus):
                 save_array_to_zarr({"data": data}, path)
         return cls(path)
 
-
-class SparseWithVocab(WithVocab):
-    def get(self, skip_hash_check: bool = False, sparse: bool = True) -> da.array:
-        if sparse:
-            return super().get().map_blocks(lambda x: sp.COO(x, fill_value=0))
+    @classmethod
+    def from_array(
+        cls,
+        path: Path,
+        data: np.ndarray,
+        vocab: Optional[np.ndarray],
+        overwrite: bool = False,
+    ) -> WithVocab:
+        if path.is_file() and (not overwrite):
+            raise RuntimeError("File already exists")
         else:
-            return super().get()
-
-
-class Sparse(Raw):
-    def get(self, skip_hash_check: bool = False, sparse: bool = True) -> da.array:
-        if sparse:
-            return super().get().map_blocks(lambda x: sp.COO(x, fill_value=0))
-        else:
-            return super().get()
+            if vocab is not None:
+                zarr.save_group(zarr.ZipStore(path), data=data, vocab=vocab)
+            else:
+                zarr.save_group(zarr.ZipStore(path), data=data)
+        return cls(path)

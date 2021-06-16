@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Tuple
 
-import dask.array as da
 import gensim.models.hdpmodel
 import numpy as np
 import tomotopy
@@ -31,13 +30,11 @@ class HDPVB(TMAlgorithm):
         )
         # To get back DT matrix https://github.com/bmabey/pyLDAvis/blob/master/pyLDAvis/gensim_models.py
         n = len(model.lda_alpha)
-        topic_word_matrix = da.from_array(model.lda_beta)
-        doc_topic_matrix = da.from_array(model.inference(dataset.get_gensim_corpus()))
+        topic_word_matrix = model.lda_beta
+        doc_topic_matrix = model.inference(dataset.get_gensim_corpus())
 
         self.model = model
-        return TopicModel.from_dask_array(name, topic_word_matrix, doc_topic_matrix), (
-            n,
-        )
+        return TopicModel.from_array(name, topic_word_matrix, doc_topic_matrix), (n,)
 
 
 class HDPGS(TMAlgorithm):
@@ -61,14 +58,14 @@ class HDPGS(TMAlgorithm):
             [model.get_topic_word_dist(i) for i in range(n_topic)]
         )
         word_idx = [int(i) for i in model.vocabs]
-        topic_word_matrix = da.zeros(shape=(n_topic, dataset.n_word()), dtype=np.float_)
+        topic_word_matrix = np.zeros(shape=(n_topic, dataset.n_word()), dtype=np.float_)
         topic_word_matrix[:, word_idx] = unordered_word_topic
 
-        doc_topic_matrix = da.from_array(
-            np.array([model.infer(d)[0] for d in model.docs], dtype=np.float_)
+        doc_topic_matrix = np.array(
+            [model.infer(d)[0] for d in model.docs], dtype=np.float_
         )
 
         self.model = model
-        return TopicModel.from_dask_array(name, topic_word_matrix, doc_topic_matrix), (
+        return TopicModel.from_array(name, topic_word_matrix, doc_topic_matrix), (
             n_topic,
         )

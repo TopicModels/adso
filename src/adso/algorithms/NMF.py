@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Tuple
 
-import dask.array as da
 import sklearn.decomposition
+import sparse
 
 from ..common import get_seed
 from ..data.topicmodel import TopicModel
@@ -29,13 +29,11 @@ class NMF(TMAlgorithm):
         self, dataset: Dataset, name: str
     ) -> Tuple[TopicModel, Tuple[int, float]]:
 
-        doc_topic_matrix = da.from_array(
-            self.model.fit_transform(dataset.get_frequency_matrix().compute().tocsr())
+        doc_topic_matrix = self.model.fit_transform(
+            sparse.COO(dataset.get_frequency_matrix()).tocsr()
         )
-        topic_word_matrix = da.from_array(self.model.components_)
+        topic_word_matrix = self.model.components_
 
-        topic_model = TopicModel.from_dask_array(
-            name, topic_word_matrix, doc_topic_matrix
-        )
+        topic_model = TopicModel.from_array(name, topic_word_matrix, doc_topic_matrix)
 
         return topic_model, (self.model.n_iter_, self.model.reconstruction_err_)

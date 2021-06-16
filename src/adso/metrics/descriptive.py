@@ -16,9 +16,6 @@ def top_words(
     dataset: LabeledDataset, model: TopicModel, n: int = 10
 ) -> List[List[str]]:
     return [
-        [
-            dataset.get_vocab()[idx].compute()
-            for idx in np.argsort(-row.compute().squeeze())[:n]
-        ]
-        for row in model.get_doc_topic_matrix(sparse=False)
+        [dataset.get_vocab()[idx] for idx in np.argsort(-row.squeeze())[:n]]
+        for row in model.get_doc_topic_matrix()
     ]

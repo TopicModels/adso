@@ -56,19 +56,11 @@ class Visualizer(Data):
         path = common.PROJDIR / (name + ".LDAvis.json")
         pyLDAvis.save_json(
             pyLDAvis.prepare(
-                model.get_topic_word_matrix(normalize=True).compute(),
-                model.get_doc_topic_matrix(normalize=True).compute(),
-                dataset.get_count_matrix()
-                .sum(axis=1)
-                .map_blocks(lambda b: b.todense(), dtype=np.int64)
-                .squeeze()
-                .compute(),
-                [word.decode() for word in dataset.get_vocab().compute()],
-                dataset.get_count_matrix()
-                .sum(axis=0)
-                .map_blocks(lambda b: b.todense(), dtype=np.int64)
-                .squeeze()
-                .compute(),
+                model.get_topic_word_matrix(normalize=True),
+                model.get_doc_topic_matrix(normalize=True),
+                dataset.get_count_matrix().sum(axis=1).squeeze(),
+                [word.decode() for word in dataset.get_vocab()],
+                dataset.get_count_matrix().sum(axis=0).squeeze(),
                 **kwargs
             ),
             str(path),

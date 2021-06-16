@@ -26,14 +26,14 @@ def confusion_matrix(
     if L != P:
         raise ValueError("Mismatching in document number")
     if n_topic:
-        shape = (da.max(labels).compute() + 1, n_topic + 1)
+        shape = (np.max(labels) + 1, n_topic + 1)
     else:
         shape = (
-            da.max(labels).compute() + 1,
-            da.max(predicted).compute() + 1,
+            np.max(labels) + 1,
+            np.max(predicted) + 1,
         )
     return COO.from_iter(
-        (da.ones_like(labels, dtype=np.dtype("u1")), (labels, predicted)),
+        (np.ones_like(labels, dtype=np.dtype("u1")), (labels, predicted)),
         shape=shape,
         fill_value=0,
         dtype=np.dtype(int),

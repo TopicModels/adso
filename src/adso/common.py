@@ -12,7 +12,6 @@ import dask.array as da
 import nltk
 import numpy as np
 import scipy.special as special
-from dask.array.ufunc import wrap_elemwise
 
 ADSODIR = (
     (Path.home() / ".adso")
@@ -33,8 +32,6 @@ NLTKDIR.mkdir(exist_ok=True, parents=True)
 nltk.data.path.append(str(NLTKDIR.resolve()))
 
 SEED: int = 0
-
-xlogy = wrap_elemwise(special.xlogy, source=special)
 
 
 def set_seed(seed: int) -> None:

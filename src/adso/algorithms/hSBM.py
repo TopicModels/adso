@@ -3,8 +3,6 @@ from __future__ import annotations
 from sys import modules
 from typing import TYPE_CHECKING, Any, Tuple
 
-import dask.array as da
-
 from ..data.topicmodel import HierarchicalTopicModel
 from .common import TMAlgorithm
 
@@ -50,12 +48,12 @@ class hSBM(TMAlgorithm):
                 )
 
             return (
-                HierarchicalTopicModel.from_dask_array(
+                HierarchicalTopicModel.from_array(
                     name,
                     [
                         (
-                            da.from_array(res["topic_word"]),
-                            da.from_array(res["doc_topic"]),
+                            res["topic_word"],
+                            res["doc_topic"],
                         )
                         for res in results
                     ],

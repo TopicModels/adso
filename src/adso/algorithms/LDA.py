@@ -35,13 +35,11 @@ class LDAVB(TMAlgorithm):
             **self.kwargs,
         )
         # To get back DT matrix https://github.com/bmabey/pyLDAvis/blob/master/pyLDAvis/gensim_models.py
-        topic_word_matrix = da.from_array(model.get_topics())
-        doc_topic_matrix = da.from_array(
-            model.inference(dataset.get_gensim_corpus())[0]
-        )
+        topic_word_matrix = model.get_topics()
+        doc_topic_matrix = model.inference(dataset.get_gensim_corpus())[0]
 
         self.model = model
-        return TopicModel.from_dask_array(name, topic_word_matrix, doc_topic_matrix)
+        return TopicModel.from_array(name, topic_word_matrix, doc_topic_matrix)
 
 
 # https://github.com/RaRe-Technologies/gensim/blob/release-3.8.3/gensim/models/wrappers/ldamallet.py
@@ -128,7 +126,7 @@ class LDAGS(TMAlgorithm):
                 data=topic_word_df[2].values,
                 fill_value=0,
                 shape=(self.n, dataset.n_word()),
-            ).todense()
+            )
         )
 
         return TopicModel.from_dask_array(

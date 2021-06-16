@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 import dask.array as da
 import numpy as np
+import zarr
 
 from .. import common
 from ..data.corpus import Raw, Sparse
@@ -75,10 +76,28 @@ class TopicModel:
         overwrite: bool = False,
     ) -> "TopicModel":
         model = cls(name, overwrite=overwrite)
-        model.data["topic_word"] = Sparse.from_dask_array(
+        model.data["topic_word"] = Raw.from_dask_array(
             model.path / "topic_word.zarr.zip", topic_word_matrix, overwrite=overwrite
         )
-        model.data["doc_topic"] = Sparse.from_dask_array(
+        model.data["doc_topic"] = Raw.from_dask_array(
+            model.path / "doc_topic.zarr.zip", doc_topic_matrix, overwrite=overwrite
+        )
+        model.save()
+        return model
+
+    @classmethod
+    def from_array(
+        cls,
+        name: str,
+        topic_word_matrix: np.array,
+        doc_topic_matrix: np.array,
+        overwrite: bool = False,
+    ) -> "TopicModel":
+        model = cls(name, overwrite=overwrite)
+        model.data["topic_word"] = Raw.from_array(
+            model.path / "topic_word.zarr.zip", topic_word_matrix, overwrite=overwrite
+        )
+        model.data["doc_topic"] = Raw.from_array(
             model.path / "doc_topic.zarr.zip", doc_topic_matrix, overwrite=overwrite
         )
         model.save()
@@ -87,42 +106,24 @@ class TopicModel:
     def get_topic_word_matrix(
         self,
         skip_hash_check: bool = False,
-        sparse: bool = False,
         normalize: bool = False,
-    ) -> da.array:
-        topic_word = self.data["topic_word"].get(sparse=sparse)  # type: ignore[call-arg]
+    ) -> zarr.array:
+        topic_word = self.data["topic_word"].get()
         if normalize:
-            if sparse:
-                return (
-                    topic_word
-                    / (topic_word.sum(axis=1)).map_blocks(
-                        lambda b: b.todense(), dtype=np.float64
-                    )[:, np.newaxis]
-                )
-            else:
-                return topic_word / (topic_word.sum(axis=1))[:, np.newaxis]
+            return topic_word / (topic_word.sum(axis=1))[:, np.newaxis]
         return topic_word
 
     def get_doc_topic_matrix(
         self,
         skip_hash_check: bool = False,
-        sparse: bool = False,
         normalize: bool = False,
-    ) -> da.array:
-        doc_topic = self.data["doc_topic"].get(sparse=sparse)  # type: ignore[call-arg]
+    ) -> zarr.array:
+        doc_topic = self.data["doc_topic"].get()
         if normalize:
-            if sparse:
-                return (
-                    doc_topic
-                    / (doc_topic.sum(axis=1)).map_blocks(
-                        lambda b: b.todense(), dtype=np.float64
-                    )[:, np.newaxis]
-                )
-            else:
-                return doc_topic / (doc_topic.sum(axis=1))[:, np.newaxis]
+            return doc_topic / (doc_topic.sum(axis=1))[:, np.newaxis]
         return doc_topic
 
-    def get_labels(self) -> da.array:
+    def get_labels(self) -> zarr.array:
         if "labels" not in self.data:
             self.data["labels"] = Raw.from_dask_array(
                 self.path / "labels.zarr.zip",
@@ -211,51 +212,56 @@ class HierarchicalTopicModel(TopicModel):
         model.save()
         return model
 
+    @classmethod
+    def from_array(  # type: ignore[override]
+        cls,
+        name: str,
+        matrices: List[Tuple[np.array, np.array]],  # topic_word, doc_topic
+        overwrite: bool = False,
+    ) -> "HierarchicalTopicModel":
+        model = cls(name, overwrite=overwrite)
+        for i in range(len(matrices)):
+            model.data[i] = {}
+            model.data[i]["topic_word"] = Raw.from_array(
+                model.path / f"topic_word{i}.zarr.zip",
+                matrices[i][0],
+                overwrite=overwrite,
+            )
+            model.data[i]["doc_topic"] = Raw.from_array(
+                model.path / f"doc_topic{i}.zarr.zip",
+                matrices[i][1],
+                overwrite=overwrite,
+            )
+        model.save()
+        return model
+
     def get_topic_word_matrix(
         self,
         skip_hash_check: bool = False,
-        sparse: bool = False,
         normalize: bool = False,
         l: int = 0,
     ) -> da.array:
-        topic_word = self.data[l]["topic_word"].get(sparse=sparse)  # type: ignore[call-arg]
+        topic_word = self.data[l]["topic_word"].get()
         if normalize:
-            if sparse:
-                return (
-                    topic_word
-                    / (topic_word.sum(axis=1)).map_blocks(
-                        lambda b: b.todense(), dtype=np.float64
-                    )[:, np.newaxis]
-                )
-            else:
-                return topic_word / (topic_word.sum(axis=1))[:, np.newaxis]
+            return topic_word / (topic_word.sum(axis=1))[:, np.newaxis]
         return topic_word
 
     def get_doc_topic_matrix(
         self,
         skip_hash_check: bool = False,
-        sparse: bool = False,
         normalize: bool = False,
         l: int = 0,
-    ) -> da.array:
-        doc_topic = self.data[l]["doc_topic"].get(sparse=sparse)  # type: ignore[call-arg]
+    ) -> zarr.array:
+        doc_topic = self.data[l]["doc_topic"].get()
         if normalize:
-            if sparse:
-                return (
-                    doc_topic
-                    / (doc_topic.sum(axis=1)).map_blocks(
-                        lambda b: b.todense(), dtype=np.float64
-                    )[:, np.newaxis]
-                )
-            else:
-                return doc_topic / (doc_topic.sum(axis=1))[:, np.newaxis]
+            return doc_topic / (doc_topic.sum(axis=1))[:, np.newaxis]
         return doc_topic
 
-    def get_labels(self, l: int = 0) -> da.array:
+    def get_labels(self, l: int = 0) -> zarr.array:
         if "labels" not in self.data[l]:
-            self.data[l]["labels"] = Raw.from_dask_array(
+            self.data[l]["labels"] = Raw.from_array(
                 self.path / f"labels{l}.zarr.zip",
-                da.argmax(self.get_doc_topic_matrix(l=l, sparse=False), axis=1),
+                np.argmax(self.get_doc_topic_matrix(l=l), axis=1),
             )
             self.save()
         return self.data[l]["labels"].get()
