@@ -30,9 +30,7 @@ if __name__ == "__main__":
     try:
         dataset = adso.data.LabeledDataset.load(".test/test/20news")
     except FileNotFoundError:
-        dataset = get_20newsgroups(
-            "20news", categories=["sci.space", "rec.autos"], overwrite=True
-        )
+        dataset = get_20newsgroups("20news", overwrite=True)
 
         # tokenizer = None
 
@@ -43,6 +41,12 @@ if __name__ == "__main__":
             overwrite=True,
         )
 
-    vocab = dataset.get_vocab()
-    for w in vocab.compute():
-        print(w)
+    dataset.get_vocab()
+    dataset.get_labels_vect()
+    dataset.get_frequency_matrix()
+    dataset.get_gensim_corpus()
+    dataset.get_gensim_vocab()
+    dataset.get_tomotopy_corpus()
+    dataset.get_mallet_corpus()
+    dataset.get_topicmapping_corpus()
+    dataset.get_gt_graph()
