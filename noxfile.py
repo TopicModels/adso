@@ -30,7 +30,7 @@ def install_this(session):
 def black(session):
     args = session.posargs or locations
     session.install("black")
-    session.run("black", *args)
+    session.run("black", "--exclude", "src/vendor/*", *args)
 
 
 @nox.session()
