@@ -54,6 +54,7 @@ def mypy(session):
     args = session.posargs or locations
     install_this(session)
     session.conda_install("mypy")
+    session.run("python", "-m", "pip", "install", "types-requests")
     session.run("mypy", *args)
 
 
