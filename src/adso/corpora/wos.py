@@ -11,7 +11,7 @@ from ..common import compute_hash
 from ..data import LabeledDataset
 
 
-def get_wos46985(
+def get_wos(
     name: str, overwrite: bool = False, subfields=False, **kwargs
 ) -> LabeledDataset:
     # https://data.mendeley.com/datasets/9rw3vkcfy4/6

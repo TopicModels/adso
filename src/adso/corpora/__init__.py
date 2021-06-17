@@ -1,2 +1,2 @@
 from .sklearn import get_20newsgroups
-from .wos import get_wos46985
+from .wos import get_wos
