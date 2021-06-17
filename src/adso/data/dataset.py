@@ -144,6 +144,23 @@ class Dataset:
         dataset.save()
         return dataset
 
+    @classmethod
+    def from_dask_array(
+        cls,
+        name: str,
+        array: da.array,
+        overwrite: bool = False,
+    ) -> Dataset:
+        dataset = cls(name, overwrite=overwrite)
+
+        dataset.data["raw"] = Raw.from_dask_array(
+            common.PROJDIR / name / (name + ".raw.zarr.zip"),
+            array,
+            overwrite=overwrite,
+        )
+        dataset.save()
+        return dataset
+
     def get_corpus(self) -> zarr.array:
         return self.data["raw"].get()
 
@@ -453,6 +470,42 @@ class LabeledDataset(Dataset):
                 raise RuntimeError("File already exists")
             else:
                 dataset.labels["raw"] = Raw.from_array(
+                    label_path, labels, overwrite=overwrite
+                )
+
+        else:
+            raise RuntimeError("Different number of elements in labels and docs")
+
+        dataset.save()
+        return dataset
+
+    @classmethod
+    def from_dask_array(  # type: ignore[override]
+        cls,
+        name: str,
+        labels: da.array,
+        docs: da.array,
+        overwrite: bool = False,
+    ) -> LabeledDataset:
+        dataset = cls(name, overwrite=overwrite)
+        data_path = common.PROJDIR / name / (name + ".raw.zarr.zip")
+        label_path = common.PROJDIR / name / (name + ".label.raw.zarr.zip")
+
+        if len(labels) == len(docs):
+
+            if data_path.is_file() and (not overwrite):
+                raise RuntimeError("File already exists")
+            else:
+                dataset.data["raw"] = Raw.from_dask_array(
+                    data_path,
+                    docs,
+                    overwrite=overwrite,
+                )
+
+            if label_path.is_file() and (not overwrite):
+                raise RuntimeError("File already exists")
+            else:
+                dataset.labels["raw"] = Raw.from_dask_array(
                     label_path, labels, overwrite=overwrite
                 )
 

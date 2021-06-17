@@ -44,5 +44,7 @@ setup(
         "pandas>=1.2.0",
         "gensim>=3.8.3",
         "tomotopy>=0.12.0",
+        "requests>=2.25.1",
+        "openpyxl>=3.0.7",
     ],
 )

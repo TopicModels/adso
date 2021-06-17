@@ -15,7 +15,9 @@ dependencies:
   - dill
   - pyldavis
   - pandas
+  - openpyxl
   - gensim
+  - requests
   # only conda
   - graph-tool
   - topicmapping
