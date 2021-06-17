@@ -1,5 +1,5 @@
 import adso
-from adso.corpora import get_wos46985
+from adso.corpora import get_wos
 
 
 def test_wos():
@@ -8,7 +8,7 @@ def test_wos():
     adso.set_project_name("test")
     adso.set_seed(8686)
 
-    get_wos46985("wos")
+    get_wos("wos")
 
 
 if __name__ == "__main__":
