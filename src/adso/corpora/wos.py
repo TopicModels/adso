@@ -11,7 +11,9 @@ from ..common import compute_hash
 from ..data import LabeledDataset
 
 
-def get_wos46985(name: str, overwrite: bool = False, **kwargs) -> LabeledDataset:
+def get_wos46985(
+    name: str, overwrite: bool = False, subfields=False, **kwargs
+) -> LabeledDataset:
     # https://data.mendeley.com/datasets/9rw3vkcfy4/6
     WOSDIR = common.DATADIR / "wos"
     WOSDIR.mkdir(exist_ok=True, parents=True)
@@ -40,7 +42,12 @@ def get_wos46985(name: str, overwrite: bool = False, **kwargs) -> LabeledDataset
         with z.open("Meta-data/Data.xlsx") as f:
             df = pd.read_excel(f)
 
-    labels = df["area"].to_numpy(dtype=np.dtype(str))
+    if subfields:
+        col = "area"
+    else:
+        col = "Domain"
+
+    labels = df[col].to_numpy(dtype=np.dtype(str))
     data = df["Abstract"].to_numpy(dtype=np.dtype(str))
 
     return LabeledDataset.from_array(
