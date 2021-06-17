@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Tuple
 
 import sklearn.decomposition
-import sparse
 
 from ..common import get_seed
 from ..data.topicmodel import TopicModel
