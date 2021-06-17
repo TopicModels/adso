@@ -21,10 +21,10 @@ def test_vectorizer():
     vocab = dataset.get_vocab()
 
     assert (
-        count_matrix.compute().todense()
+        count_matrix[...]
         == np.array([[2, 1, 1, 1, 0, 0], [1, 3, 1, 0, 0, 0], [0, 0, 0, 0, 2, 1]])
     ).all()
-    assert {w.decode() for w in vocab.compute()} == {"a", "b", "c", "d", "e", "f"}
+    assert set(vocab) == {"a", "b", "c", "d", "e", "f"}
 
 
 if __name__ == "__main__":

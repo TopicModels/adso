@@ -25,10 +25,8 @@ def test_from_iterator():
     )
 
     assert [
-        x.decode("utf-8")
-        for x in list(
-            data.Dataset.load(".test/test/test_from_iterator").get_corpus().compute()
-        )
+        x.item().decode("utf-8")
+        for x in list(data.Dataset.load(".test/test/test_from_iterator").get_corpus())
     ] == docs
 
     data.LabeledDataset.from_iterator("labeled_test_from_iterator", zip(labels, docs))
@@ -40,7 +38,7 @@ def test_from_iterator():
     )
 
     assert [
-        x.decode("utf-8")
+        x.item()
         for x in list(
             data.LabeledDataset.load(
                 ".test/test/labeled_test_from_iterator"

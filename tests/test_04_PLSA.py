@@ -27,7 +27,7 @@ def test_simple_PLSA():
 
     assert round(NMI(dataset, topic_model), 5) == 1.0
     assert (
-        confusion_matrix(dataset, topic_model).todense() == np.array([[0, 2], [1, 0]])
+        confusion_matrix(dataset, topic_model).todense() == np.array([[2, 0], [0, 1]])
     ).all()
 
 
