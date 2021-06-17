@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import zipfile
 from abc import ABC
 from pathlib import Path
 from typing import Any, Optional
@@ -41,7 +42,7 @@ class Raw(Corpus):
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            with zarr.ZipStore(path) as store:
+            with zarr.ZipStore(path, zipfile.ZIP_DEFLATED) as store:
                 zarr.save_array(store, array)
         return cls(path)
 
@@ -111,7 +112,7 @@ class WithVocab(Corpus):
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            with zarr.ZipStore(path) as store:
+            with zarr.ZipStore(path, compression=zipfile.ZIP_DEFLATED) as store:
                 if vocab is not None:
                     zarr.save_group(store, data=data, vocab=vocab)
                 else:
