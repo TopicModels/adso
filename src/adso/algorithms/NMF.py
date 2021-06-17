@@ -30,7 +30,7 @@ class NMF(TMAlgorithm):
     ) -> Tuple[TopicModel, Tuple[int, float]]:
 
         doc_topic_matrix = self.model.fit_transform(
-            sparse.COO(dataset.get_frequency_matrix()).tocsr()
+            dataset.get_frequency_matrix().tocsr()
         )
         topic_word_matrix = self.model.components_
 

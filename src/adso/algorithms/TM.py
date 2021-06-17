@@ -93,8 +93,8 @@ class TopicMapping(TMAlgorithm):
                 data=topic_word_df["val"].values,
                 fill_value=0,
                 shape=(n_topic, dataset.n_word()),
-            ).todense()
-        )
+            )
+        ).map_blocks(lambda b: b.todense(), dtype=np.dtype(float))
 
         return (
             TopicModel.from_dask_array(

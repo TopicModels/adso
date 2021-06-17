@@ -8,7 +8,6 @@ import dask.array as da
 import dask.bag as db
 import dill
 import numpy as np
-import sparse
 from dask_ml.feature_extraction.text import CountVectorizer
 
 # from ..data.common import nltk_download, tokenize_and_stem
@@ -83,9 +82,10 @@ class Vectorizer(Algorithm):
 
         model.fit(bag)
 
+        count_matrix = model.transform(bag)
+
         count_matrix = (
-            (model.transform(bag))
-            .map_blocks(lambda x: sparse.COO(x, fill_value=0))
+            count_matrix.map_blocks(lambda x: x.todense(), dtype=count_matrix.dtype)
             .compute_chunk_sizes()
             .rechunk()
         )

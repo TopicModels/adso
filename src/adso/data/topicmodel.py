@@ -127,7 +127,7 @@ class TopicModel:
         if "labels" not in self.data:
             self.data["labels"] = Raw.from_dask_array(
                 self.path / "labels.zarr.zip",
-                da.argmax(self.get_doc_topic_matrix(), axis=1),
+                da.argmax(da.array(self.get_doc_topic_matrix()), axis=1),
             )
             self.save()
         return self.data["labels"].get()

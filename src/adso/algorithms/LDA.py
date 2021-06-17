@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import dask.array as da
 import dask.dataframe as dd
+import numpy as np
 import sparse
 from gensim.models.ldamulticore import LdaMulticore
 
@@ -127,7 +128,7 @@ class LDAGS(TMAlgorithm):
                 fill_value=0,
                 shape=(self.n, dataset.n_word()),
             )
-        )
+        ).map_blocks(lambda b: b.todense(), dtype=np.dtype(float))
 
         return TopicModel.from_dask_array(
             name,

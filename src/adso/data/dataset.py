@@ -168,16 +168,20 @@ class Dataset:
 
         self.vectorizer.fit_transform(self)  # type: ignore[union-attr]
 
-    def get_count_matrix(self, sparse: bool = True) -> da.array:
+    def get_count_matrix(self, sparse: bool = True) -> zarr.array:
         if "count_matrix" not in self.data:
             self._compute_count_matrix()
         return self.data["count_matrix"].get()
 
-    def get_frequency_matrix(self) -> zarr.array:
-        count_matrix = self.get_count_matrix()
-        return count_matrix / (count_matrix.sum(axis=1)[:, np.newaxis])
+    def get_frequency_matrix(self) -> sparse.COO:
+        count_matrix = da.array(self.get_count_matrix())
+        return (
+            (count_matrix / (count_matrix.sum(axis=1)[:, np.newaxis]))
+            .map_blocks(lambda x: sparse.COO(x), dtype=np.dtype(float))
+            .compute()
+        )
 
-    def get_vocab(self) -> da.array:
+    def get_vocab(self) -> zarr.array:
         if "count_matrix" not in self.data:
             self._compute_count_matrix()
         return self.data["count_matrix"].get_vocab()  # type: ignore[attr-defined]
@@ -190,7 +194,7 @@ class Dataset:
                 path,
                 [
                     [item for item in enumerate(row.tolist()) if (item[1] != 0)]
-                    for row in count_matrix
+                    for row in count_matrix.islice()
                 ],
             )
             self.save()
@@ -204,7 +208,7 @@ class Dataset:
             path = self.path / (self.name + ".tomotopy")
             corpus = tomotopy.utils.Corpus()
             count_matrix = self.get_count_matrix()
-            for row in count_matrix:
+            for row in count_matrix.islice():
                 corpus.add_doc(
                     words=list(
                         chain(
@@ -251,7 +255,7 @@ class Dataset:
             path = self.path / (self.name + ".topicmapping")
             count_matrix = self.get_count_matrix()
             with path.open("x") as f:
-                for row in count_matrix:
+                for row in count_matrix.islice():
                     f.write(
                         (" ").join(
                             [
@@ -290,7 +294,7 @@ class Dataset:
             docs_add: defaultdict = defaultdict(lambda: g.add_vertex())
             words_add: defaultdict = defaultdict(lambda: g.add_vertex())
 
-            count_matrix = sparse.COO(self.get_count_matrix())
+            count_matrix = sparse.COO(self.get_count_matrix()[...])
 
             n_doc, n_word = self.get_shape()
 
