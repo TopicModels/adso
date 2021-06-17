@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 from __future__ import annotations
 
 import numpy as np
@@ -10,9 +8,7 @@ from ..common import get_seed
 from ..data import LabeledDataset
 
 
-def get_20newsgroups(
-    name: str, overwrite: bool = False, batch_size: int = 32, **kwargs
-) -> LabeledDataset:
+def get_20newsgroups(name: str, overwrite: bool = False, **kwargs) -> LabeledDataset:
     # https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_20newsgroups.html
     SKDIR = common.DATADIR / "sklearn"
     SKDIR.mkdir(exist_ok=True, parents=True)
