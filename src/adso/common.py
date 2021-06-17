@@ -109,6 +109,9 @@ class Data(ABC):
     def update_hash(self) -> None:
         self.hash = compute_hash(self.path)
 
+    def check_hash(self) -> bool:
+        return self.hash == compute_hash(self.path)
+
     def serialize(self) -> Dict[str, Union[str, List[str]]]:
         return {
             "format": type(self).__name__,

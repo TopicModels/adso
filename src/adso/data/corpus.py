@@ -11,7 +11,7 @@ import dill
 import numpy as np
 import zarr
 
-from ..common import Data, compute_hash
+from ..common import Data
 from .common import save_array_to_zarr
 
 
@@ -20,8 +20,8 @@ class Corpus(Data, ABC):
 
 
 class Raw(Corpus):
-    def get(self, skip_hash_check: bool = False) -> da.array:
-        if self.hash == compute_hash(self.path):
+    def get(self, skip_hash_check: bool = False) -> zarr.array:
+        if self.check_hash() or skip_hash_check:
             return zarr.open(store=zarr.ZipStore(self.path), mode="r")
         else:
             raise RuntimeError("Different hash")
@@ -41,13 +41,14 @@ class Raw(Corpus):
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            zarr.save_array(zarr.ZipStore(path), array)
+            with zarr.ZipStore(path) as store:
+                zarr.save_array(store, array)
         return cls(path)
 
 
 class File(Corpus):
     def get(self, skip_hash_check: bool = False) -> Path:
-        if self.hash == compute_hash(self.path):
+        if self.check_hash() or skip_hash_check:
             return self.path
         else:
             raise RuntimeError("Different hash")
@@ -55,7 +56,7 @@ class File(Corpus):
 
 class Pickled(Corpus):
     def get(self, skip_hash_check: bool = False) -> Any:
-        if self.hash == compute_hash(self.path):
+        if self.check_hash() or skip_hash_check:
             return dill.load(self.path.open("rb"))
         else:
             raise RuntimeError("Different hash")
@@ -70,14 +71,14 @@ class Pickled(Corpus):
 
 
 class WithVocab(Corpus):
-    def get(self, skip_hash_check: bool = False) -> da.array:
-        if self.hash == compute_hash(self.path):
+    def get(self, skip_hash_check: bool = False) -> zarr.array:
+        if self.check_hash() or skip_hash_check:
             return zarr.open(store=zarr.ZipStore(self.path), mode="r")["data"]
         else:
             raise RuntimeError("Different hash")
 
-    def get_vocab(self, skip_hash_check: bool = False) -> da.array:
-        if self.hash == compute_hash(self.path):
+    def get_vocab(self, skip_hash_check: bool = False) -> zarr.array:
+        if self.check_hash() or skip_hash_check:
             return zarr.open(store=zarr.ZipStore(self.path), mode="r")["vocab"]
         else:
             raise RuntimeError("Different hash")
@@ -110,8 +111,9 @@ class WithVocab(Corpus):
         if path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            if vocab is not None:
-                zarr.save_group(zarr.ZipStore(path), data=data, vocab=vocab)
-            else:
-                zarr.save_group(zarr.ZipStore(path), data=data)
+            with zarr.ZipStore(path) as store:
+                if vocab is not None:
+                    zarr.save_group(store, data=data, vocab=vocab)
+                else:
+                    zarr.save_group(store, data=data)
         return cls(path)
