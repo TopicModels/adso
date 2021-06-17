@@ -218,7 +218,7 @@ class Dataset:
         return self.data["gensim"].get()
 
     def get_gensim_vocab(self) -> Dict[int, str]:
-        return {index[0]: x for (index, x) in np.ndenumerate(self.get_vocab())}
+        return {index[0]: x for (index, x) in np.ndenumerate(self.get_vocab()[...])}
 
     def get_tomotopy_corpus(self) -> tomotopy.utils.Corpus:
         if "tomotopy" not in self.data:
@@ -521,7 +521,7 @@ class LabeledDataset(Dataset):
     def get_labels_vect(self) -> zarr.array:
         if "vect" not in self.labels:
             encoder = LabelEncoder()
-            labels = encoder.fit_transform(da.array(self.labels["raw"].get()))
+            labels = encoder.fit_transform(da.array(self.get_labels()))
             self.labels["vect"] = WithVocab.from_dask_array(
                 self.path / (self.name + ".label.vect.zarr.zip"),
                 labels,
