@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Tuple
 
 from ..data.topicmodel import HierarchicalTopicModel
 from .common import TMAlgorithm
+from .. import common
 
 if TYPE_CHECKING:
     from ..data import Dataset
@@ -33,33 +34,25 @@ class hSBM(TMAlgorithm):
             parallel: bool = True,
         ) -> Tuple[HierarchicalTopicModel, Tuple[int, Any]]:
             model = sbmtm()
+            print("Load")
             model.load_graph(str(dataset.get_gt_graph_path()))
+            print("Fit")
             model.fit(parallel=parallel, **self.kwargs)
-            # probabilmente la soluzione migliore è salvare il model, e scivere hTM class per cachare le query (almento quelle semplici)
+            # probabilmente la soluzione migliore è salvare il model, e scrivere hTM class per cachare le query (almento quelle semplici)
+            print("Save model")
             n_layers: int = model.L
-            results = []
-            for i in range(n_layers):
-                res = model.get_groups(l=i)
-                results.append(
-                    {
-                        "n_topic": res["Bw"],
-                        "n_docgroup": res["Bd"],
-                        "doc_topic": res["p_tw_d"].T,
-                        "topic_word": res["p_w_tw"].T,
-                        "doc_docgroup": res["p_td_d"].T,
-                    }
-                )
-
+            model.dump_model(filename=str(common.PROJDIR / name / "model.pkl"))
+            print("Save TM")
             return (
                 HierarchicalTopicModel.from_array(
                     name,
                     [
                         (
-                            res["topic_word"],
-                            res["doc_topic"],
+                            model.get_groups(l=i)["p_w_tw"].T,
+                            model.get_groups(l=i)["p_tw_d"].T,
                         )
-                        for res in results
+                        for i in range(n_layers)
                     ],
                 ),
-                (n_layers, results),
+                (n_layers,),
             )
