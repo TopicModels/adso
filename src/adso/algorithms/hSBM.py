@@ -41,7 +41,9 @@ class hSBM(TMAlgorithm):
             # probabilmente la soluzione migliore è salvare il model, e scrivere hTM class per cachare le query (almento quelle semplici)
             print("Save model")
             n_layers: int = model.L
-            model.dump_model(filename=str(common.PROJDIR / name / "model.pkl"))
+            hSBMDIR = common.PROJDIR / "hSBM" / name
+            hSBMDIR.mkdir(exist_ok=True, parents=True)
+            model.dump_model(filename=str(hSBMDIR / "model.pkl"))
             print("Save TM")
             return (
                 HierarchicalTopicModel.from_array(
