@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from sys import modules
-from typing import TYPE_CHECKING, Any, Tuple
+from typing import TYPE_CHECKING, Tuple
 
 from ..data.topicmodel import HierarchicalTopicModel
 from .common import TMAlgorithm
@@ -32,7 +32,7 @@ class hSBM(TMAlgorithm):
             dataset: Dataset,
             name: str,
             parallel: bool = True,
-        ) -> Tuple[HierarchicalTopicModel, Tuple[int, Any]]:
+        ) -> Tuple[HierarchicalTopicModel, Tuple[int]]:
             model = sbmtm()
             print("Load")
             model.load_graph(str(dataset.get_gt_graph_path()))

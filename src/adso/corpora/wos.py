@@ -12,7 +12,7 @@ from ..data import LabeledDataset
 
 
 def get_wos(
-    name: str, overwrite: bool = False, subfields=False, **kwargs
+    name: str, overwrite: bool = False, subfields: bool = False, **kwargs
 ) -> LabeledDataset:
     # https://data.mendeley.com/datasets/9rw3vkcfy4/6
     WOSDIR = common.DATADIR / "wos"

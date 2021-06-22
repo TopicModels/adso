@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Un
 
 import dask.array as da
 import numpy as np
+import scipy.sparse
 import sparse
 import tomotopy.utils
 import zarr
@@ -311,7 +312,11 @@ class Dataset:
             docs_add: defaultdict = defaultdict(lambda: g.add_vertex())
             words_add: defaultdict = defaultdict(lambda: g.add_vertex())
 
-            count_matrix = sparse.COO(self.get_count_matrix()[...])
+            zarr_count_matrix = self.get_count_matrix()
+            count_matrix = scipy.sparse.lil_matrix(
+                zarr_count_matrix, dtype=np.dtype(int)
+            )
+            count_matrix = sparse.COO(count_matrix.tocoo())
 
             n_doc, n_word = self.get_shape()
 
