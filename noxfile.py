@@ -125,6 +125,7 @@ def pip_test(session):
         "pytest",
         "--ignore=tests/test_06_LDAGS.py",
         "--ignore=tests/test_09_TM.py",
+        "--ignore=tests/test_10_hSBM.py",
         env={"ADSODIR": ADSODIR},
     )
 
