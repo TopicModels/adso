@@ -76,7 +76,7 @@ class PLSA(TMAlgorithm):
     def __init__(
         self,
         n: int,
-        max_iter: int = 50,
+        max_iter: int = 20,
         tol: float = 10e-5,  # deprecated
     ) -> None:
         self.n = n
