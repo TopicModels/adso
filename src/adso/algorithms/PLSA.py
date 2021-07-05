@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Tuple
 
 import numpy as np
 import scipy.special
+from numba_plsa.plsa import plsa
 
 from ..data.topicmodel import TopicModel
 from .common import TMAlgorithm
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 
 # non-compiled resolution
 # numba failed on stack call, want tuple but tuple([... for ...]) not working
+# deprecated
 def _plsa(
     count: np.ndarray, n: int, max_iter: int, tol: float
 ) -> Tuple[np.ndarray, np.ndarray, int, float]:
@@ -74,24 +76,19 @@ class PLSA(TMAlgorithm):
     def __init__(
         self,
         n: int,
-        max_iter: int = 50,
-        tol: float = 10e-5,
+        max_iter: int = 20,
+        tol: float = 10e-5,  # deprecated
     ) -> None:
         self.n = n
         self.max_iter = max_iter
         self.tol = tol
 
-    def fit_transform(
-        self, dataset: "Dataset", name: str
-    ) -> Tuple[TopicModel, Tuple[int, float]]:
+    def fit_transform(self, dataset: "Dataset", name: str) -> TopicModel:
 
-        topic_word, doc_topic, _i, error = _plsa(
-            dataset.get_count_matrix()[...],
-            self.n,
-            self.max_iter,
-            self.tol,
+        doc_topic, topic_word = plsa(
+            dataset.get_count_matrix()[...], self.n, self.max_iter, method="numba"
         )
 
         topic_model = TopicModel.from_array(name, topic_word, doc_topic)
 
-        return topic_model, (_i, error)  # type: ignore[attr-defined]
+        return topic_model  # type: ignore[attr-defined]

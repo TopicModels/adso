@@ -23,7 +23,7 @@ def test_simple_PLSA():
 
     plsa = PLSA(2)
 
-    topic_model, (n_iter, error) = plsa.fit_transform(dataset, "test_simple_PLSA")
+    topic_model = plsa.fit_transform(dataset, "test_simple_PLSA")
 
     assert round(NMI(dataset, topic_model), 5) == 1.0
     assert (
@@ -39,14 +39,14 @@ def test_PLSA():
 
     dataset = get_20newsgroups("PLSA_20news", categories=["sci.space", "rec.autos"])
 
-    plsa = PLSA(2)
+    plsa = PLSA(2, max_iter=5)
 
-    topic_model, (n_iter, error) = plsa.fit_transform(dataset, "test_PLSA")
+    topic_model = plsa.fit_transform(dataset, "test_PLSA")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.00271
+    assert round(NMI(dataset, topic_model), 5) == 0.00032
     assert (
         confusion_matrix(dataset, topic_model).todense()
-        == np.array([[47, 943], [70, 917]])
+        == np.array([[521, 469], [540, 447]])
     ).all()
 
     return dataset, topic_model
