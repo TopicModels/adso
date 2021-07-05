@@ -46,5 +46,6 @@ setup(
         "tomotopy>=0.12.0",
         "requests>=2.25.1",
         "openpyxl>=3.0.7",
+        "numba-plsa>=0.0.2",
     ],
 )
