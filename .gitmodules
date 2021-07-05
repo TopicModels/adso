@@ -1,3 +1,6 @@
 [submodule "src/vendor/hSBM_Topicmodel"]
 	path = src/vendor/hSBM_Topicmodel
 	url = https://github.com/martingerlach/hSBM_Topicmodel
+[submodule "src/vendor/numba-plsa"]
+	path = src/vendor/numba-plsa
+	url = https://github.com/henryre/numba-plsa
