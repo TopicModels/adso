@@ -26,3 +26,4 @@ dependencies:
   - pip
   - pip:
       - tomotopy
+      - numba-plsa>=0.0.2
