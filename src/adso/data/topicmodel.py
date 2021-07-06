@@ -165,7 +165,7 @@ class HierarchicalTopicModel(TopicModel):
             json.dump(self.serialize(), f, indent=4)
 
     @classmethod
-    def load(cls, path: Union[str, os.PathLike]) -> "TopicModel":
+    def load(cls, path: Union[str, os.PathLike]) -> "HierarchicalTopicModel":
         path = Path(path)
         if path.is_dir():
             with (path / (path.name + ".json")).open(mode="r") as f:
