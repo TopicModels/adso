@@ -265,3 +265,56 @@ class HierarchicalTopicModel(TopicModel):
             )
             self.save()
         return self.data[l]["labels"].get()
+
+    def __getitem__(self, l: int):
+        return PseudoTopicModel(self, l)
+
+
+class PseudoTopicModel(TopicModel):
+    def __init__(self, parent: HierarchicalTopicModel, idx: int) -> None:
+        self.parent = parent
+        self.idx = idx
+
+    def save(self) -> None:
+        self.parent.save()
+
+    @classmethod
+    def from_dask_array(
+        cls,
+        name: str,
+        topic_word_matrix: da.array,
+        doc_topic_matrix: da.array,
+        overwrite: bool = False,
+    ) -> "TopicModel":
+        raise NotImplementedError
+
+    @classmethod
+    def from_array(
+        cls,
+        name: str,
+        topic_word_matrix: np.ndarray,
+        doc_topic_matrix: np.ndarray,
+        overwrite: bool = False,
+    ) -> "TopicModel":
+        raise NotImplementedError
+
+    def get_topic_word_matrix(
+        self,
+        skip_hash_check: bool = False,
+        normalize: bool = False,
+    ) -> zarr.array:
+        return self.parent.get_topic_word_matrix(
+            skip_hash_chek=skip_hash_check, normalize=normalize, l=self.idx
+        )
+
+    def get_doc_topic_matrix(
+        self,
+        skip_hash_check: bool = False,
+        normalize: bool = False,
+    ) -> zarr.array:
+        return self.parent.get_doc_topic_matrix(
+            skip_hash_chek=skip_hash_check, normalize=normalize, l=self.idx
+        )
+
+    def get_labels(self) -> zarr.array:
+        return self.parent.get_labels(l=self.idx)
