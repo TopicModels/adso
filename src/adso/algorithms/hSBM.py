@@ -3,9 +3,11 @@ from __future__ import annotations
 from sys import modules
 from typing import TYPE_CHECKING, Tuple
 
+import dill
+
+from .. import common
 from ..data.topicmodel import HierarchicalTopicModel
 from .common import TMAlgorithm
-from .. import common
 
 if TYPE_CHECKING:
     from ..data import Dataset
@@ -42,7 +44,7 @@ class hSBM(TMAlgorithm):
             n_layers: int = model.L
             hSBMDIR = common.PROJDIR / "hSBM" / name
             hSBMDIR.mkdir(exist_ok=True, parents=True)
-            model.dump_model(filename=str(hSBMDIR / "model.pkl"))
+            dill.dump(model, hSBMDIR / "model.pkl")
             print("Save TM")
             return (
                 HierarchicalTopicModel.from_array(
