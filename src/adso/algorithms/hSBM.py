@@ -44,7 +44,7 @@ class hSBM(TMAlgorithm):
             n_layers: int = model.L
             hSBMDIR = common.PROJDIR / "hSBM" / name
             hSBMDIR.mkdir(exist_ok=True, parents=True)
-            dill.dump(model, hSBMDIR / "model.pkl")
+            dill.dump(model, (hSBMDIR / "model.pkl").open("wb"))
             print("Save TM")
             return (
                 HierarchicalTopicModel.from_array(
