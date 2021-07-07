@@ -265,7 +265,7 @@ class HierarchicalTopicModel(TopicModel):
             self.save()
         return self.data[l]["labels"].get()
 
-    def __getitem__(self, l: int):
+    def __getitem__(self, l: int) -> "PseudoTopicModel":
         return PseudoTopicModel(self, l)
 
 
@@ -284,7 +284,7 @@ class PseudoTopicModel(TopicModel):
         topic_word_matrix: da.array,
         doc_topic_matrix: da.array,
         overwrite: bool = False,
-    ) -> "TopicModel":
+    ) -> "PseudoTopicModel":
         raise NotImplementedError
 
     @classmethod
@@ -294,7 +294,7 @@ class PseudoTopicModel(TopicModel):
         topic_word_matrix: np.ndarray,
         doc_topic_matrix: np.ndarray,
         overwrite: bool = False,
-    ) -> "TopicModel":
+    ) -> "PseudoTopicModel":
         raise NotImplementedError
 
     def get_topic_word_matrix(
@@ -303,7 +303,7 @@ class PseudoTopicModel(TopicModel):
         normalize: bool = False,
     ) -> zarr.array:
         return self.parent.get_topic_word_matrix(
-            skip_hash_chek=skip_hash_check, normalize=normalize, l=self.idx
+            skip_hash_check=skip_hash_check, normalize=normalize, l=self.idx
         )
 
     def get_doc_topic_matrix(
@@ -312,7 +312,7 @@ class PseudoTopicModel(TopicModel):
         normalize: bool = False,
     ) -> zarr.array:
         return self.parent.get_doc_topic_matrix(
-            skip_hash_chek=skip_hash_check, normalize=normalize, l=self.idx
+            skip_hash_check=skip_hash_check, normalize=normalize, l=self.idx
         )
 
     def get_labels(self) -> zarr.array:
