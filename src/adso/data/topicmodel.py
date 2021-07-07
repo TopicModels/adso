@@ -134,7 +134,6 @@ class TopicModel:
 
 
 class HierarchicalTopicModel(TopicModel):
-    # TODO: review in order to get a TopicModel-like with [l]
     def __init__(self, name: str, overwrite: bool = False) -> None:
         self.name = name
         self.path = common.PROJDIR / self.name
