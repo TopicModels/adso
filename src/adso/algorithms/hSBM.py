@@ -31,13 +31,12 @@ class hSBM(TMAlgorithm):
             self,
             dataset: Dataset,
             name: str,
-            parallel: bool = True,
         ) -> Tuple[HierarchicalTopicModel, Tuple[int]]:
             model = sbmtm()
             print("Load")
             model.load_graph(str(dataset.get_gt_graph_path()))
             print("Fit")
-            model.fit(parallel=parallel, **self.kwargs)
+            model.fit(**self.kwargs)
             # probabilmente la soluzione migliore è salvare il model, e scrivere hTM class per cachare le query (almento quelle semplici)
             print("Save model")
             n_layers: int = model.L
