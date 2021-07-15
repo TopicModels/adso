@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple, Union
 
 import dask.array as da
 import numpy as np
@@ -192,20 +192,20 @@ class HierarchicalTopicModel(TopicModel):
     def from_dask_array(  # type: ignore[override]
         cls,
         name: str,
-        matrices: List[Tuple[da.array, da.array]],  # topic_word, doc_topic
+        matrices: Iterable[Tuple[da.array, da.array]],  # topic_word, doc_topic
         overwrite: bool = False,
     ) -> "HierarchicalTopicModel":
         model = cls(name, overwrite=overwrite)
-        for i in range(len(matrices)):
+        for i, mat in enumerate(matrices):
             model.data[i] = {}
             model.data[i]["topic_word"] = Raw.from_dask_array(
                 model.path / f"topic_word{i}.zarr.zip",
-                matrices[i][0],
+                mat[0],
                 overwrite=overwrite,
             )
             model.data[i]["doc_topic"] = Raw.from_dask_array(
                 model.path / f"doc_topic{i}.zarr.zip",
-                matrices[i][1],
+                mat[1],
                 overwrite=overwrite,
             )
         model.save()

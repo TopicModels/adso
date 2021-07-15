@@ -16,7 +16,7 @@ def test_hSBM():
 
     topic_model, (n_layer,) = hsbm.fit_transform(dataset, "test_hSBM")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.16874
+    assert round(NMI(dataset, topic_model), 5) == 0.1668
 
 
 if __name__ == "__main__":
