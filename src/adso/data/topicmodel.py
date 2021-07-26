@@ -180,11 +180,13 @@ class HierarchicalTopicModel(TopicModel):
         model.path = path
 
         model.data = {
-            key: globals()[loaded["data"][l][key]["format"]].load(
-                Path(loaded["data"][l][key]["path"]), loaded["data"][l][key]["hash"]
-            )
+            l: {
+                key: globals()[loaded["data"][l][key]["format"]].load(
+                    Path(loaded["data"][l][key]["path"]), loaded["data"][l][key]["hash"]
+                )
+                for key in loaded["data"][l]
+            }
             for l in loaded["data"]
-            for key in loaded["data"][l]
         }
 
         model.save()
