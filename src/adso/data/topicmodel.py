@@ -111,7 +111,7 @@ class TopicModel:
     ) -> zarr.array:
         topic_word = self.data["topic_word"].get()
         if normalize:
-            return topic_word / (topic_word.sum(axis=1))[:, np.newaxis]
+            return zarr.array(topic_word / (topic_word[:].sum(axis=1))[:, np.newaxis])
         return topic_word
 
     def get_doc_topic_matrix(
@@ -121,7 +121,7 @@ class TopicModel:
     ) -> zarr.array:
         doc_topic = self.data["doc_topic"].get()
         if normalize:
-            return doc_topic / (doc_topic.sum(axis=1))[:, np.newaxis]
+            return zarr.array(doc_topic / (doc_topic[:].sum(axis=1))[:, np.newaxis])
         return doc_topic
 
     def get_labels(self) -> zarr.array:
@@ -246,7 +246,7 @@ class HierarchicalTopicModel(TopicModel):
     ) -> da.array:
         topic_word = self.data[l]["topic_word"].get()
         if normalize:
-            return topic_word / (topic_word.sum(axis=1))[:, np.newaxis]
+            return zarr.array(topic_word / (topic_word[:].sum(axis=1))[:, np.newaxis])
         return topic_word
 
     def get_doc_topic_matrix(
@@ -257,7 +257,7 @@ class HierarchicalTopicModel(TopicModel):
     ) -> zarr.array:
         doc_topic = self.data[l]["doc_topic"].get()
         if normalize:
-            return doc_topic / (doc_topic.sum(axis=1))[:, np.newaxis]
+            return zarr.array(doc_topic / (doc_topic[:].sum(axis=1))[:, np.newaxis])
         return doc_topic
 
     def get_labels(self, l: int = 0) -> zarr.array:
