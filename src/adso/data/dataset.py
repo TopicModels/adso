@@ -84,7 +84,7 @@ class Dataset:
                 loaded = json.load(f)
             path = path.parent
 
-        dataset = cls(loaded["name"], overwrite=True)
+        dataset = cls(loaded["name"], overwrite=True, load=True)
         dataset.path = path
 
         if "vectorizer" in loaded:

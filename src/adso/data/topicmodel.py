@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class TopicModel:
-    def __init__(self, name: str, overwrite: bool = False) -> None:
+    def __init__(self, name: str, overwrite: bool = False, load: bool = False) -> None:
         self.name = name
         self.path = common.PROJDIR / self.name
         try:
@@ -29,7 +29,8 @@ class TopicModel:
 
         self.data: Dict[str, Corpus] = {}
 
-        self.save()
+        if not load:
+            self.save()
 
     def serialize(self) -> dict:
         save: Dict[str, Any] = {
@@ -54,7 +55,7 @@ class TopicModel:
                 loaded = json.load(f)
             path = path.parent
 
-        model = cls(loaded["name"], overwrite=True)
+        model = cls(loaded["name"], overwrite=True, load=True)
         model.path = path
 
         model.data = {
@@ -134,7 +135,7 @@ class TopicModel:
 
 
 class HierarchicalTopicModel(TopicModel):
-    def __init__(self, name: str, overwrite: bool = False) -> None:
+    def __init__(self, name: str, overwrite: bool = False, load: bool = False) -> None:
         self.name = name
         self.path = common.PROJDIR / self.name
         try:
@@ -145,7 +146,8 @@ class HierarchicalTopicModel(TopicModel):
             )
 
         self.data: Dict[int, Dict[str, Corpus]] = {}  # type: ignore[assignment]
-        self.save()
+        if not load:
+            self.save()
 
     def serialize(self) -> dict:
         save: Dict[str, Any] = {
