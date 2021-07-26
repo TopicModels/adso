@@ -180,7 +180,7 @@ class HierarchicalTopicModel(TopicModel):
         model.path = path
 
         model.data = {
-            l: {
+            int(l): {
                 key: globals()[loaded["data"][l][key]["format"]].load(
                     Path(loaded["data"][l][key]["path"]), loaded["data"][l][key]["hash"]
                 )
