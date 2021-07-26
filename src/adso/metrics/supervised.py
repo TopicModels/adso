@@ -12,15 +12,12 @@ if TYPE_CHECKING:
     from ..data.topicmodel import TopicModel
 
 
-def NMI(dataset: LabeledDataset, model: TopicModel, soft: bool = False) -> float:
-    if soft:
-        return normalized_mutual_info_score(
-            dataset.get_labels_vect(), model.get_doc_topic_matrix(normalize=True)
-        )
-    else:
-        return normalized_mutual_info_score(
-            dataset.get_labels_vect(), model.get_labels()
-        )
+def NMI(dataset: LabeledDataset, model: TopicModel) -> float:
+    return normalized_mutual_info_score(dataset.get_labels_vect(), model.get_labels())
+
+
+# for NMI extension to soft clusering see Lei et al.
+# return normalized_mutual_info_score(dataset.get_labels_vect(), model.get_doc_topic_matrix(normalize=True))
 
 
 def confusion_matrix(
