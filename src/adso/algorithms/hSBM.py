@@ -50,7 +50,7 @@ class hSBM(TMAlgorithm):
             dill.dump(model, (hSBMDIR / "model.pkl").open("wb"))
             print("Save TM")
 
-            def get_groups(model: "sbmtm", l: int = 0):
+            def get_groups(model: "sbmtm", l: int = 0) -> Tuple[da.array, da.array]:
                 # rewrite from _sbmtm to use dask
                 V = model.get_V()
                 D = model.get_D()
