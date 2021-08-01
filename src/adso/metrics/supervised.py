@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, Optional
 
 import dask.array as da
 import numpy as np
-from sklearn.metrics import normalized_mutual_info_score
+from scipy.stats import entropy
+from sklearn.metrics import normalized_mutual_info_score, mutual_info_score
 from sparse import COO
 
 if TYPE_CHECKING:
@@ -14,6 +15,17 @@ if TYPE_CHECKING:
 
 def NMI(dataset: LabeledDataset, model: TopicModel) -> float:
     return normalized_mutual_info_score(dataset.get_labels_vect(), model.get_labels())
+
+
+def softNMI(dataset: LabeledDataset, model: TopicModel) -> float:
+    c = dataset.get_labels_matrix().T @ model.get_doc_topic_matrix(normalize=True)
+    norm = entropy(c.sum(axis=0)) + entropy(c.sum(axis=1))
+    mi = mutual_info_score(
+        None,
+        None,
+        contingency=c,
+    )
+    return mi / norm
 
 
 # for NMI extension to soft clusering see Lei et al.
