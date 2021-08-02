@@ -17,6 +17,7 @@ def NMI(dataset: LabeledDataset, model: TopicModel) -> float:
     return normalized_mutual_info_score(dataset.get_labels_vect(), model.get_labels())
 
 
+# for NMI extension to soft clusering see Lei et al.
 def softNMI(dataset: LabeledDataset, model: TopicModel) -> float:
     c = dataset.get_labels_matrix().T @ model.get_doc_topic_matrix(normalize=True)
     norm = entropy(c.sum(axis=0)) + entropy(c.sum(axis=1))
@@ -26,10 +27,6 @@ def softNMI(dataset: LabeledDataset, model: TopicModel) -> float:
         contingency=c,
     )
     return mi / norm
-
-
-# for NMI extension to soft clusering see Lei et al.
-# return normalized_mutual_info_score(dataset.get_labels_vect(), model.get_doc_topic_matrix(normalize=True))
 
 
 def confusion_matrix(
