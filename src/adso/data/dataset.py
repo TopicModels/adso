@@ -539,7 +539,10 @@ class LabeledDataset(Dataset):
             self.labels["matrix"] = Raw.from_dask_array(
                 self.path / (self.name + ".label.matrix.zarr.zip"),
                 da.array(
-                    sparse.COO([range(self.n_doc()), self.get_labels_vect], 1)
+                    sparse.COO(
+                        [range(self.n_doc()), self.get_labels_vect()],
+                        1,
+                    )
                 ).map_blocks(lambda b: b.todense()),
             )
             self.save()
