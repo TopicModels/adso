@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 import dask.array as da
 import numpy as np
 from scipy.stats import entropy
-from scipy.sparse import csr_matrix as csr
+from scipy.sparse import csc_matrix as csc
 from sklearn.metrics import normalized_mutual_info_score, mutual_info_score
 from sparse import COO
 
@@ -20,7 +20,7 @@ def NMI(dataset: LabeledDataset, model: TopicModel) -> float:
 
 # for NMI extension to soft clusering see Lei et al.
 def softNMI(dataset: LabeledDataset, model: TopicModel) -> float:
-    c = csr(dataset.get_labels_matrix()).T @ model.get_doc_topic_matrix(normalize=True)
+    c = csc(dataset.get_labels_matrix()).T @ model.get_doc_topic_matrix(normalize=True)
     norm = entropy(c.sum(axis=0)) + entropy(c.sum(axis=1))
     mi = mutual_info_score(
         None,
