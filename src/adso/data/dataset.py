@@ -293,8 +293,13 @@ class Dataset:
             self.save()
         return self.shape
 
-    def n_doc(self) -> int:  # TODO: maybe not from count_matrix ...
-        return self.get_shape()[0]
+    def n_doc(self) -> int:
+        if "count_matrix" in self.data:
+            return self.get_shape()[0]
+        else:
+            return self.get_corpus().shape[
+                0
+            ]  # avoid to compute count_matrix if not necessary
 
     def n_word(self) -> int:
         return self.get_shape()[1]
