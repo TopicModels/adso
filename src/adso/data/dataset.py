@@ -293,7 +293,7 @@ class Dataset:
             self.save()
         return self.shape
 
-    def n_doc(self) -> int:
+    def n_doc(self) -> int:  # TODO: maybe not from count_matrix ...
         return self.get_shape()[0]
 
     def n_word(self) -> int:
