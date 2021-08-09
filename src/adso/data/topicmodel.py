@@ -337,6 +337,15 @@ class HierarchicalTopicModel(TopicModel):
 
         self.data[l]["cluser"].get()
 
+    def get_cluster_labels(self, l: int = 0) -> zarr.array:
+        if "cluster_labels" not in self.data[l]:
+            self.data[l]["cluster_labels"] = Raw.from_array(
+                self.path / f"cluster_labels{l}.zarr.zip",
+                np.argmax(self.get_doc_cluster_matrix(l=l), axis=1),  # type: ignore[arg-type]
+            )
+            self.save()
+        return self.data[l]["cluster_labels"].get()
+
 
 class PseudoTopicModel(TopicModel):
     def __init__(self, parent: HierarchicalTopicModel, idx: int) -> None:
