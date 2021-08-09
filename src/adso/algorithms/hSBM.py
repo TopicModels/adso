@@ -25,8 +25,6 @@ except ImportError as e:
 
 
 class hSBM(TMAlgorithm):
-    # https://amaral.northwestern.edu/resources/software/topic-mapping
-    # https://bitbucket.org/andrealanci/topicmapping/src/master/ReadMe.pdf
     if "graph_tool" in modules:
 
         def __init__(self, **kwargs) -> None:
