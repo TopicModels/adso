@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple, Union
 
 import dask.array as da
+import dill
 import numpy as np
+import sparse
 import zarr
 
 from .. import common
@@ -14,6 +16,14 @@ from ..data.corpus import Raw
 
 if TYPE_CHECKING:
     from ..data.corpus import Corpus
+
+try:
+    from ._sbmtm import sbmtm
+except ImportError as e:
+    print(e)
+    print(
+        "graph-tool not found, hSBM algorithm not available.\nInstall it with conda (graph-tool package) should resolve the issue"
+    )
 
 
 class TopicModel:
@@ -271,6 +281,61 @@ class HierarchicalTopicModel(TopicModel):
 
     def __getitem__(self, l: int) -> "PseudoTopicModel":
         return PseudoTopicModel(self, l)
+
+    def get_doc_cluster_matrix(self, normalize: bool = True, l: int = 0) -> da.array:
+        if "cluster" not in self.data[l]:
+            path = common.PROJDIR / "hSBM" / self.name / "model.pkl"
+            if path.is_file():
+                model = dill.load(path.open("rb"))
+            else:
+                raise RuntimeError("File not found")
+
+            def get_clusters(model: "sbmtm", l: int = 0) -> da.array:
+                # rewrite from _sbmtm to use dask
+                D = model.get_D()
+
+                g = model.g
+                state = model.state
+                state_l = state.project_level(l).copy(overlap=True)
+                state_l_edges = state_l.get_edge_blocks()  # labeled half-edges
+
+                # count labeled half-edges, group-memberships
+                B = state_l.get_B()
+
+                id_d = np.zeros(g.edge_index_range, dtype=np.dtype(int))
+                id_b = np.zeros(g.edge_index_range, dtype=np.dtype(int))
+                weig = np.zeros(g.edge_index_range, dtype=np.dtype(int))
+
+                for i, e in enumerate(g.edges()):
+                    id_b[i], _ = state_l_edges[e]
+                    id_d[i] = int(e.source())
+                    weig[i] = g.ep["count"][e]
+
+                n_db = sparse.COO(
+                    [id_d, id_b], weig, shape=(D, B), fill_value=0
+                )  # number of half-edges incident on document-node d and labeled as cluster
+
+                del weig
+                del id_b
+                del id_d
+
+                #####
+                ind_d = np.where(np.sum(n_db, axis=0) > 0)[0]
+                n_db = n_db[:, ind_d]
+                del ind_d
+
+                # Mixture of clusters into documetns P(d | c)
+                p_td_d = n_db / np.sum(n_db, axis=0).todense()[np.newaxis, :]
+
+                return da.array(p_td_d).map_blocks(
+                    lambda b: b.todense(), dtype=np.dtype(float)
+                )
+
+            self.data[l]["cluser"] = Raw.from_dask_array(
+                self.path / f"clusters{l}.zarr.zip", get_clusters(model, l)
+            )
+
+        self.data[l]["cluser"].get()
 
 
 class PseudoTopicModel(TopicModel):
