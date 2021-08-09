@@ -282,7 +282,7 @@ class HierarchicalTopicModel(TopicModel):
     def __getitem__(self, l: int) -> "PseudoTopicModel":
         return PseudoTopicModel(self, l)
 
-    def get_doc_cluster_matrix(self, normalize: bool = True, l: int = 0) -> da.array:
+    def get_doc_cluster_matrix(self, l: int = 0) -> da.array:
         if "cluster" not in self.data[l]:
             path = common.PROJDIR / "hSBM" / self.name / "model.pkl"
             if path.is_file():
