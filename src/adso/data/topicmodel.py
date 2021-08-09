@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..data.corpus import Corpus
 
 try:
-    from ._sbmtm import sbmtm
+    from ..algorithms._sbmtm import sbmtm
 except ImportError as e:
     print(e)
     print(
