@@ -16,6 +16,7 @@
 [x] Allow to save and load TopicModel OR create Experiment envelop
 [ ] print some messages?
 [ ] Add support for multiple label level
+[ ] Reactivate github actions
 
 ### Additional Topic Modellind algorithms
 [x] NMF
