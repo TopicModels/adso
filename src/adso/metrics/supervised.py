@@ -20,7 +20,9 @@ def NMI(dataset: LabeledDataset, model: TopicModel) -> float:
 
 # for NMI extension to soft clusering see Lei et al.
 def softNMI(dataset: LabeledDataset, model: TopicModel) -> float:
-    c = csr(dataset.get_labels_matrix()).T @ csr(model.get_doc_topic_matrix(normalize=True))
+    c = csr(dataset.get_labels_matrix()).T @ csr(
+        model.get_doc_topic_matrix(normalize=True)
+    )
     norm = entropy(c.sum(axis=0)) + entropy(c.sum(axis=1))
     mi = mutual_info_score(
         None,
