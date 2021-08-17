@@ -282,7 +282,7 @@ class HierarchicalTopicModel(TopicModel):
     def __getitem__(self, l: int) -> "PseudoTopicModel":
         return PseudoTopicModel(self, l)
 
-    def get_doc_cluster_matrix(self, l: int = 0) -> da.array:
+    def get_doc_cluster_matrix(self, l: int = 0, normalize: bool = False) -> da.array:
         if "cluster" not in self.data[l]:
             path = common.PROJDIR / "hSBM" / self.name / "model.pkl"
             if path.is_file():
@@ -331,11 +331,15 @@ class HierarchicalTopicModel(TopicModel):
                     lambda b: b.todense(), dtype=np.dtype(float)
                 )
 
-            self.data[l]["cluser"] = Raw.from_dask_array(
+            self.data[l]["cluster"] = Raw.from_dask_array(
                 self.path / f"clusters{l}.zarr.zip", get_clusters(model, l)
             )
+            self.save()
 
-        self.data[l]["cluser"].get()
+        doc_cluster = self.data[l]["cluster"].get()
+        if normalize:
+            return zarr.array(doc_cluster / (doc_cluster[:].sum(axis=1))[:, np.newaxis])
+        return doc_cluster
 
     def get_cluster_labels(self, l: int = 0) -> zarr.array:
         if "cluster_labels" not in self.data[l]:
