@@ -23,7 +23,7 @@ def softNMI(dataset: LabeledDataset, model: TopicModel) -> float:
     c = csr(dataset.get_labels_matrix()).T @ csr(
         model.get_doc_topic_matrix(normalize=True)
     )
-    norm = entropy(c.sum(axis=0)) + entropy(c.sum(axis=1))
+    norm = (entropy(c.sum(axis=0), axis=1) + entropy(c.sum(axis=1))).item()
     mi = mutual_info_score(
         None,
         None,
