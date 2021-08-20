@@ -118,7 +118,7 @@ class LDAGS(TMAlgorithm):
         doc_topic_matrix = da.zeros((dataset.n_doc(), self.n))
         doc_topic_matrix[
             doc_topic_df.index.to_dask_array().compute(), :
-        ] = doc_topic_df.to_dask_array()
+        ] = doc_topic_df.to_dask_array().compute_chunck_size()
 
         topic_word_df = dd.read_csv(topic_word_path, sep="\t", header=None)
         topic_word_matrix = da.from_array(
