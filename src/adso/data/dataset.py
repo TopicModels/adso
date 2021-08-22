@@ -21,7 +21,7 @@ import tomotopy.utils
 import zarr
 from dask_ml.preprocessing import LabelEncoder
 from gensim.corpora.malletcorpus import MalletCorpus
-from more_itertools import chunked
+from more_itertools import chunked, unzip
 
 from .. import common
 from ..algorithms.vectorizer import Vectorizer
@@ -429,24 +429,34 @@ class LabeledDataset(Dataset):
         data_path = common.PROJDIR / name / (name + ".raw.zarr.zip")
         label_path = common.PROJDIR / name / (name + ".label.raw.zarr.zip")
 
-        data = da.concatenate(
-            [da.from_array(np.array(chunk)) for chunk in chunked(iterator, batch_size)]
-        )
+        labels, docs = unzip(iterator)
 
         if data_path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            raw = data[:, 1].squeeze()
             dataset.data["raw"] = Raw.from_dask_array(
-                data_path, raw, overwrite=overwrite
+                data_path,
+                da.concatenate(
+                    [
+                        da.from_array(np.array(chunk))
+                        for chunk in chunked(docs, batch_size)
+                    ]
+                ),
+                overwrite=overwrite,
             )
 
         if label_path.is_file() and (not overwrite):
             raise RuntimeError("File already exists")
         else:
-            label = data[:, 0].squeeze()
             dataset.labels["raw"] = Raw.from_dask_array(
-                label_path, label, overwrite=overwrite
+                label_path,
+                da.concatenate(
+                    [
+                        da.from_array(np.array(chunk))
+                        for chunk in chunked(labels, batch_size)
+                    ]
+                ),
+                overwrite=overwrite,
             )
 
         dataset.save()
