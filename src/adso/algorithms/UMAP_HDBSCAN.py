@@ -4,6 +4,11 @@ import numpy as np
 import umap
 import hdbscan
 
+from .. import common
+from ..common import get_seed
+from ..data.topicmodel import TopicModel
+from .common import TMAlgorithm
+
 class UMAP_HDBSCAN(TMAlgorithm):
     def __init__(self, u_args: dict, h_args: dict, **kwargs) -> None:
         self.u_args = u_args
@@ -11,8 +16,11 @@ class UMAP_HDBSCAN(TMAlgorithm):
         self.kwargs = kwargs
 
     def fit_transform(self, dataset: Dataset, name: str) -> TopicModel:
+        seed = None
+        if get_seed():
+            seed = get_seed()
         # https://umap-learn.readthedocs.io/en/latest/index.html
-        model = umap.UMAP(**u_args).fit(dataset.get_count_matrix())
+        model = umap.UMAP(random_state = seed, **u_args).fit(dataset.get_count_matrix())
         disc = umap.utils.disconnected_vertices(mapper)
         embedding = mapper.embedding_[~disc,:]
         
