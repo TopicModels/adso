@@ -28,6 +28,7 @@ class Vectorizer(Algorithm):
         stop_words: Optional[Iterable[str]] = None,
         strip_accents: Optional[str] = "unicode",
         load: bool = False,
+        npartitions: int = 100,
         **kwargs
     ) -> None:
         self.path = path
@@ -43,6 +44,7 @@ class Vectorizer(Algorithm):
             model = CountVectorizer(
                 tokenizer=tokenizer, stop_words=stop_words, strip_accents=strip_accents
             )
+            self.npartitions = npartitions
             if path.is_file() and not overwrite:
                 raise RuntimeError("File already exists")
             else:
@@ -78,7 +80,8 @@ class Vectorizer(Algorithm):
 
         # actually, the list comprehension is a bottleneck
         bag = db.from_sequence(
-            map(lambda doc: doc.item(), dataset.get_corpus())
+            map(lambda doc: doc.item(), dataset.get_corpus()),
+            npartitions=self.npartitions,
         ).persist()
         model = self.get()
 
