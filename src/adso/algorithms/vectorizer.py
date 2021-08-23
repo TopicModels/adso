@@ -77,7 +77,7 @@ class Vectorizer(Algorithm):
     def fit_transform(self, dataset: Dataset, update: bool = True) -> None:
 
         # actually, the list comprehension is a bottleneck
-        bag = db.from_sequence([doc.item() for doc in dataset.get_corpus()])
+        bag = db.from_sequence(map(lambda doc: doc.item(), dataset.get_corpus()))
         model = self.get()
 
         model.fit(bag)
