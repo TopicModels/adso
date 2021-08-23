@@ -77,12 +77,12 @@ class Vectorizer(Algorithm):
     def fit_transform(self, dataset: Dataset, update: bool = True) -> None:
 
         # actually, the list comprehension is a bottleneck
-        bag = db.from_sequence(map(lambda doc: doc.item(), dataset.get_corpus()))
+        bag = db.from_sequence(
+            map(lambda doc: doc.item(), dataset.get_corpus())
+        ).persist()
         model = self.get()
 
-        model.fit(bag)
-
-        count_matrix = model.transform(bag)
+        count_matrix = model.fit_transform(bag)
 
         count_matrix = (
             count_matrix.map_blocks(lambda x: x.todense(), dtype=count_matrix.dtype)
