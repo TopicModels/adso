@@ -57,7 +57,10 @@ def get_salesforce(
             json.loads(z.open(path).read()) for path in z.namelist() if filterpath(path)
         ]
     values = [(f["lang"], f["text"].values()) for f in jsons]
-    data = chain(*[tuple(zip(repeat(t[0]), t[1])) for t in values])
+    data = filter(
+        lambda t: len(t[1].split()) >= 5,
+        chain(*[tuple(zip(repeat(t[0]), t[1])) for t in values]),
+    )
 
     return LabeledDataset.from_iterator(
         name,
