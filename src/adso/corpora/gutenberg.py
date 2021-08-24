@@ -22,7 +22,7 @@ def get_gutenberg(
     countpath = GUTENDIR / "SPGC-counts-2018-07-18.zip"
     metapath = GUTENDIR / "SPGC-metadata-2018-07-18.csv"
     shelfpath = GUTENDIR / "gutenberg-analysis.zip"
-    counthash = "d41d8cd98f00b204e9800998ecf8427e"
+    counthash = "bccfbdf00caa906d84344cf335cc96ee"
     metahash = "a2d5f325f13846cbec2fd21d982b4ef4"
     shelfhash = "a02b0108c47da4578de497e552df55f4"
 
@@ -42,7 +42,7 @@ def get_gutenberg(
                 download(url, path)
         else:
             download(url, path)
-        assert compute_hash(path) == path
+        assert compute_hash(path) == hash
 
     get(
         "https://zenodo.org/record/2422561/files/SPGC-counts-2018-07-18.zip?download=1",

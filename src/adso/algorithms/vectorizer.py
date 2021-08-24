@@ -44,7 +44,7 @@ class Vectorizer(Algorithm):
             model = CountVectorizer(
                 tokenizer=tokenizer, stop_words=stop_words, strip_accents=strip_accents
             )
-            self.npartitions = npartitions
+            model.npartitions = npartitions
             if path.is_file() and not overwrite:
                 raise RuntimeError("File already exists")
             else:
@@ -78,20 +78,20 @@ class Vectorizer(Algorithm):
 
     def fit_transform(self, dataset: Dataset, update: bool = True) -> None:
 
+        model = self.get()
+
         # actually, the list comprehension is a bottleneck
         bag = db.from_sequence(
             map(lambda doc: doc.item(), dataset.get_corpus()),
-            npartitions=self.npartitions,
-        ).persist()
-        model = self.get()
-
-        count_matrix = model.fit_transform(bag)
-
-        count_matrix = (
-            count_matrix.map_blocks(lambda x: x.todense(), dtype=count_matrix.dtype)
-            .compute_chunk_sizes()
-            .rechunk()
+            npartitions=model.npartitions,
         )
+
+        model.fit(bag)
+        count_matrix = model.transform(bag)
+
+        count_matrix = count_matrix.map_blocks(
+            lambda x: x.todense(), dtype=count_matrix.dtype
+        ).compute_chunk_sizes()
 
         vocab = da.from_array(np.array(model.get_feature_names()))
 
