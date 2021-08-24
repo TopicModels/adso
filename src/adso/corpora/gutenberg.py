@@ -114,6 +114,7 @@ def get_gutenberg(
 
     data = metadata.merge(bookshelves, how="inner", left_on="id", right_on="index")
     data = data[["id", "Bookshelf"]]
+    data = data[data.id != "PG8700"]  # empty file
     with zipfile.ZipFile(countpath) as z:
         files = z.namelist()
     data = data[("SPGC-counts-2018-07-18/" + data.id + "_counts.txt").isin(files)]
