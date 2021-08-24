@@ -30,7 +30,7 @@ class UMAP_HDBSCAN(TMAlgorithm):
             embedding = mapper.embedding_
         
         # https://hdbscan.readthedocs.io/en/latest/index.html
-        clusterer = hdbscan.HDBSCAN(**h_args).fit(embedding)
+        clusterer = hdbscan.HDBSCAN(prediction_data = True, **h_args).fit(embedding)
         #labels = clusterer.labels_
         doc_topic_matrix = hdbscan.all_points_membership_vectors(clusterer)        
         topic_word_matrix = np.array()
