@@ -32,6 +32,7 @@ class UMAP_HDBSCAN(TMAlgorithm):
         # https://hdbscan.readthedocs.io/en/latest/index.html
         clusterer = hdbscan.HDBSCAN(prediction_data = True, **h_args).fit(embedding)
         #labels = clusterer.labels_
+        #predicted labels (hard clusters) with -1 for too noisy observations: how to return them?
         doc_topic_matrix = hdbscan.all_points_membership_vectors(clusterer)        
         topic_word_matrix = np.array()
         
