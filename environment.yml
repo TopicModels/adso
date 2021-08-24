@@ -18,6 +18,8 @@ dependencies:
   - openpyxl
   - gensim
   - requests
+  - umap
+  - hdbscan
   # only conda
   - graph-tool
   - topicmapping
