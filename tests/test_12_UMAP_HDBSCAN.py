@@ -38,8 +38,12 @@ def test_UMAP_HDBSCAN():
     adso.set_seed(8686)
 
     dataset = get_20newsgroups("PLSA_20news", categories=["sci.space", "rec.autos"])
-
-    model = UMAP_HDBSCAN()
+    
+    u_args = {'n_components' : 2,
+              'n_neighbors' : 15, 
+              'min_dist' : 0.1,
+              'metric' : 'hellinger'}
+    model = UMAP_HDBSCAN(u_args=u_args)
 
     topic_model = model.fit_transform(dataset, "test_simple_UMAP_HDBSCAN")
 
