@@ -161,6 +161,26 @@ class Dataset:
         dataset.save()
         return dataset
 
+    @classmethod
+    def from_count_matrix(
+        cls,
+        name: str,
+        count_matrix: da.array,
+        vocab: da.array,
+        overwrite: bool = False,
+    ) -> Dataset:
+        dataset = cls(name, overwrite=overwrite)
+
+        assert vocab.shape[0] == count_matrix.shape[1]
+
+        dataset.data["count_matrix"] = WithVocab.from_dask_array(
+            dataset.path / (dataset.name + ".count_matrix.zarr.zip"),
+            count_matrix,
+            vocab,
+        )
+        dataset.save()
+        return dataset
+
     def get_corpus(self) -> zarr.array:
         return self.data["raw"].get()
 
@@ -531,6 +551,33 @@ class LabeledDataset(Dataset):
         else:
             raise RuntimeError("Different number of elements in labels and docs")
 
+        dataset.save()
+        return dataset
+
+    @classmethod
+    def from_count_matrix(  # type: ignore[override]
+        cls,
+        name: str,
+        count_matrix: da.array,
+        vocab: da.array,
+        labels: da.array,
+        overwrite: bool = False,
+    ) -> Dataset:
+        dataset = cls(name, overwrite=overwrite)
+
+        assert vocab.shape[0] == count_matrix.shape[1]
+        assert labels.shape[0] == count_matrix.shape[0]
+
+        dataset.data["count_matrix"] = WithVocab.from_dask_array(
+            dataset.path / (dataset.name + ".count_matrix.zarr.zip"),
+            count_matrix,
+            vocab,
+        )
+        dataset.labels["raw"] = Raw.from_dask_array(
+            dataset.path / (dataset.name + ".label.raw.zarr.zip"),
+            labels,
+            overwrite=overwrite,
+        )
         dataset.save()
         return dataset
 
