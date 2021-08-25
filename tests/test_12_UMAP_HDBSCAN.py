@@ -1,9 +1,7 @@
-import numpy as np
-
 import adso
 from adso.algorithms import UMAP_HDBSCAN
 from adso.corpora import get_20newsgroups
-from adso.metrics.supervised import NMI, confusion_matrix
+from adso.metrics.supervised import NMI
 
 
 def test_UMAP_HDBSCAN():
