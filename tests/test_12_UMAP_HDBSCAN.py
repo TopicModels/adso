@@ -1,34 +1,9 @@
 import numpy as np
 
 import adso
-import adso.data as data
 from adso.algorithms import UMAP_HDBSCAN
 from adso.corpora import get_20newsgroups
 from adso.metrics.supervised import NMI, confusion_matrix
-
-
-def test_simple_UMAP_HDBSCAN():
-    adso.set_adso_dir(".test")
-    adso.set_project_name("test")
-    adso.set_seed(8686)
-
-    docs = ["A A B C D", "B B B A C", "E F E"]
-    labels = ["1", "1", "2"]
-
-    dataset = data.LabeledDataset.from_iterator("PLSA_simple_data", zip(labels, docs))
-
-    dataset.set_vectorizer_params(
-        tokenizer=(lambda s: s.split(" ")),
-    )
-
-    model = UMAP_HDBSCAN()
-
-    topic_model = model.fit_transform(dataset, "test_simple_UMAP_HDBSCAN")
-
-    assert round(NMI(dataset, topic_model), 5) == 1.0
-    assert (
-        confusion_matrix(dataset, topic_model).todense() == np.array([[2, 0], [0, 1]])
-    ).all()
 
 
 def test_UMAP_HDBSCAN():
@@ -37,21 +12,19 @@ def test_UMAP_HDBSCAN():
     adso.set_project_name("test")
     adso.set_seed(8686)
 
-    dataset = get_20newsgroups("PLSA_20news", categories=["sci.space", "rec.autos"])
-    
-    u_args = {'n_components' : 2,
-              'n_neighbors' : 15, 
-              'min_dist' : 0.1,
-              'metric' : 'hellinger'}
+    dataset = get_20newsgroups("UH_20news", categories=["sci.space", "rec.autos"])
+
+    u_args = {
+        "n_components": 2,
+        "n_neighbors": 15,
+        "min_dist": 0.1,
+        "metric": "hellinger",
+    }
     model = UMAP_HDBSCAN(u_args=u_args)
 
     topic_model = model.fit_transform(dataset, "test_simple_UMAP_HDBSCAN")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.00032
-    assert (
-        confusion_matrix(dataset, topic_model).todense()
-        == np.array([[521, 469], [540, 447]])
-    ).all()
+    assert round(NMI(dataset, topic_model), 5) == 0.24392
 
     return dataset, topic_model
 
@@ -64,5 +37,4 @@ if __name__ == "__main__":
     except FileNotFoundError:
         pass
 
-    test_simple_UMAP_HDBSCAN()
     test_UMAP_HDBSCAN()

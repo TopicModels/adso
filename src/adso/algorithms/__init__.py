@@ -4,3 +4,4 @@ from .LDA import LDAGS, LDAVB
 from .NMF import NMF
 from .PLSA import PLSA
 from .TM import TopicMapping
+from .UH import UMAP_HDBSCAN

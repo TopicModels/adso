@@ -17,6 +17,9 @@
 [ ] print some messages?
 [ ] Add support for multiple label level
 [ ] Reactivate github actions
+[ ] HDBSCAN uncertain labels
+[ ] Sparse to zarr? [GitHub](https://github.com/zarr-developers/zarr-python/issues/152)
+[ ] Complete rework (maybe switch to Julia/Rust with python API)
 
 ### Additional Topic Modellind algorithms
 [x] NMF
