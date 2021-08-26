@@ -562,7 +562,7 @@ class LabeledDataset(Dataset):
         vocab: da.array,
         labels: da.array,
         overwrite: bool = False,
-    ) -> Dataset:
+    ) -> LabeledDataset:
         dataset = cls(name, overwrite=overwrite)
 
         assert vocab.shape[0] == count_matrix.shape[1]
