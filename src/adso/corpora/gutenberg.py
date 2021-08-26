@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import zipfile
-from itertools import chain, repeat
+from math import ceil, floor
 from pathlib import Path
-from typing import Any, List, Set, Tuple
+from typing import Callable, Optional
 
 import dask.array as da
-import dask.bag as db
-import numpy as np
+import dask.dataframe as dd
 import pandas as pd
+import sparse
 import requests
-from more_itertools import unzip
 
 from .. import common
 from ..common import compute_hash
@@ -18,7 +17,15 @@ from ..data import LabeledDataset
 
 
 def get_gutenberg(
-    name: str, overwrite: bool = False, min_book_per_shelf: int = 10, **kwargs
+    name: str,
+    overwrite: bool = False,
+    min_book_per_shelf: int = 10,
+    min_count: int = 0,
+    max_count: Optional[int] = None,
+    min_freq: float = 0.0,
+    max_freq: float = 1.0,
+    filter: Optional[Callable[[str], bool]] = None,
+    **kwargs
 ) -> LabeledDataset:
     # https://github.com/pgcorpus/
     GUTENDIR = common.DATADIR / "gutenberg"
@@ -96,43 +103,79 @@ def get_gutenberg(
     bookshelves.Bookshelf = bookshelves.Bookshelf.apply(clean)
 
     data = metadata.merge(bookshelves, how="inner", left_on="id", right_on="index")
+
+    del metadata
+    del bookshelves
+
     data = data[["id", "Bookshelf"]]
     data = data[data.id != "PG8700"]  # empty file
     with zipfile.ZipFile(countpath) as z:
         files = z.namelist()
     data["path"] = "SPGC-counts-2018-07-18/" + data.id + "_counts.txt"
-    data = data[data.path.isin(files)].reset_index(drop=True)
+    data = data[data.path.isin(files)]
 
-    labelpath = db.from_sequence(
-        data[["Bookshelf", "path"]].itertuples(name=None, index=True)
-    )
+    with zipfile.ZipFile(countpath) as z:
+        data = dd.from_pandas(data, chunksize=50)
+        data["text"] = data.apply(
+            lambda row: [
+                s.strip().decode("utf-8").split("\t")
+                for s in z.open(row.path, "r").readlines()
+            ],
+            axis=1,
+        )
+        data = data.explode("text")
+        data[["word", "count"]] = data["text"].tolist()
+        data.drop(columns=["text"])
+        data["count"] = data["count"].astype(int)
+        data = data.compute()
 
-    def get_tuples(labelpath: Tuple[str, str]) -> List[Tuple[str, str, str]]:
-        with zipfile.ZipFile(countpath) as z:
-            return zip(
-                repeat(labelpath[0]),
-                map(
-                    lambda s: s.decode("utf-8").strip().split("\t"),
-                    z.open(labelpath[1], "r").readlines(),
-                ),
-            )
+    if filter is not None:
+        data = data[data["word"].map(filter)]
 
-    def union(set1: Set[Any], set2: Set[Any]) -> Set[Any]:
-        return set1.union(set2)
+    if min_freq > 0 or max_freq < 1:
+        total_count = data["count"].sum()
 
-    vocab = list(
-        path.map(lambda path: {t[0] for t in get_tuples(path)}).fold(union).compute()
-    )
+    if min_freq > 0:
+        min_count = max(min_count, ceil(min_freq * total_count))
 
-    def transform_tuple(t: Tuple[str, str], vocab: List[str]) -> Tuple[int, int]:
-        return (vocab.index(t[0]), int(t[1]))
+    if max_freq < 1:
+        if max_count is not None:
+            max_count = min(max_count, floor(max_freq * total_count))
+        else:
+            max_count = floor(max_freq * total_count)
 
-    rows = path.map(lambda path: [transform_tuple(t, vocab) for t in get_tuples(path)])
+    word_count = data.groupby("word").sum()[["word", "count"]]
+
+    min_word = word_count[word_count.count >= min_count]["word"].unique().tolist()
+    if max_count is None:
+        vocab = min_word
+    else:
+        max_word = word_count[word_count.count <= max_count]["word"].unique().tolist()
+        vocab = list(set(min_word) | set(max_word))
+        del max_word
+    del min_word
+    del word_count
+
+    data = data[data.word.isin(vocab)]
+
+    doc_count = data.groupby("word").sum()[["id", "count"]]
+    docs = doc_count[doc_count.count > 0]["id"].unique().tolist()
+    data = data[data.id.isin(docs)]
+    del doc_count
+
+    data["word"] = data["word"].map(lambda word: vocab.index(word))
+    data["id"] = data["id"].map(lambda id: docs.index(id))
 
     return LabeledDataset.from_count_matrix(
         name,
-        count_matrix,
+        da.array(
+            sparse.COO(
+                data[["id", "word"]].to_numpy().T,
+                data=data.count.to_numpy(),
+                fill_value=0,
+            )
+        ),
         da.array(vocab),
-        da.array(labels),
+        da.array(data.Bookshelf.to_numpy()),
         overwrite=overwrite,
     )
