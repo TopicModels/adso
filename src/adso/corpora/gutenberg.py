@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import zipfile
+from functools import reduce
 from math import ceil, floor
 from pathlib import Path
 from typing import Callable, Optional
 
 import dask.array as da
-import dask.dataframe as dd
 import pandas as pd
-import sparse
 import requests
+import sparse
+from more_itertools import chunked
 
 from .. import common
 from ..common import compute_hash
@@ -20,11 +21,12 @@ def get_gutenberg(
     name: str,
     overwrite: bool = False,
     min_book_per_shelf: int = 10,
-    min_count: int = 0,
+    min_count: int = 3,
     max_count: Optional[int] = None,
     min_freq: float = 0.0,
     max_freq: float = 1.0,
     filter: Optional[Callable[[str], bool]] = None,
+    chunksize: int = 100,
     **kwargs
 ) -> LabeledDataset:
     # https://github.com/pgcorpus/
@@ -114,23 +116,30 @@ def get_gutenberg(
     data["path"] = "SPGC-counts-2018-07-18/" + data.id + "_counts.txt"
     data = data[data.path.isin(files)]
 
-    with zipfile.ZipFile(countpath) as z:
-        data = dd.from_pandas(data, chunksize=50)
-        data["text"] = data.apply(
-            lambda row: [
-                s.strip().decode("utf-8").split("\t")
-                for s in z.open(row.path, "r").readlines()
-            ],
-            axis=1,
-        )
+    def get_data(data: pd.Dataframe) -> pd.Dataframe:
+        with zipfile.ZipFile(countpath) as z:
+            data["text"] = data.apply(
+                lambda row: [
+                    s.strip().decode("utf-8").split("\t")
+                    for s in z.open(row.path, "r").readlines()
+                ],
+                axis=1,
+            )
         data = data.explode("text")
         data[["word", "count"]] = data["text"].tolist()
         data.drop(columns=["text"])
         data["count"] = data["count"].astype(int)
-        data = data.compute()
+        if filter is not None:
+            data = data[data["word"].map(filter)]
+        return data
 
-    if filter is not None:
-        data = data[data["word"].map(filter)]
+    data = reduce(
+        pd.concat,
+        map(
+            get_data,
+            [data[data.id.isin(ids)] for ids in chunked(data.id.unique(), chunksize)],
+        ),
+    )
 
     if min_freq > 0 or max_freq < 1:
         total_count = data["count"].sum()
