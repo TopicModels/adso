@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import zipfile
-from itertools import chain
+from itertools import chain, repeat
 from pathlib import Path
-from typing import Tuple
+from typing import Any, List, Set, Tuple
 
+import dask.array as da
+import dask.bag as db
+import numpy as np
 import pandas as pd
 import requests
+from more_itertools import unzip
 
 from .. import common
 from ..common import compute_hash
@@ -91,39 +95,44 @@ def get_gutenberg(
     bookshelves = bookshelves[bookshelves.value == True][["index", "Bookshelf"]]
     bookshelves.Bookshelf = bookshelves.Bookshelf.apply(clean)
 
-    def process(t: Tuple[str, str]) -> Tuple[str, str]:
-        with zipfile.ZipFile(countpath) as z:
-            return (
-                t[0],
-                " ".join(
-                    list(
-                        chain(
-                            *[
-                                [t[0]] * int(t[1])
-                                for t in [
-                                    s.decode("utf-8").strip().split("\t")
-                                    for s in z.open(
-                                        f"SPGC-counts-2018-07-18/{t[1]}_counts.txt", "r"
-                                    ).readlines()
-                                ]
-                            ]
-                        )
-                    )
-                ),
-            )
-
     data = metadata.merge(bookshelves, how="inner", left_on="id", right_on="index")
     data = data[["id", "Bookshelf"]]
     data = data[data.id != "PG8700"]  # empty file
     with zipfile.ZipFile(countpath) as z:
         files = z.namelist()
-    data = data[("SPGC-counts-2018-07-18/" + data.id + "_counts.txt").isin(files)]
-    iterator = map(
-        process, data[["Bookshelf", "id"]].itertuples(name=None, index=False)
+    data["path"] = "SPGC-counts-2018-07-18/" + data.id + "_counts.txt"
+    data = data[data.path.isin(files)].reset_index(drop=True)
+
+    labelpath = db.from_sequence(
+        data[["Bookshelf", "path"]].itertuples(name=None, index=True)
     )
 
-    return LabeledDataset.from_iterator(
+    def get_tuples(labelpath: Tuple[str, str]) -> List[Tuple[str, str, str]]:
+        with zipfile.ZipFile(countpath) as z:
+            return zip(
+                repeat(labelpath[0]),
+                map(
+                    lambda s: s.decode("utf-8").strip().split("\t"),
+                    z.open(labelpath[1], "r").readlines(),
+                ),
+            )
+
+    def union(set1: Set[Any], set2: Set[Any]) -> Set[Any]:
+        return set1.union(set2)
+
+    vocab = list(
+        path.map(lambda path: {t[0] for t in get_tuples(path)}).fold(union).compute()
+    )
+
+    def transform_tuple(t: Tuple[str, str], vocab: List[str]) -> Tuple[int, int]:
+        return (vocab.index(t[0]), int(t[1]))
+
+    rows = path.map(lambda path: [transform_tuple(t, vocab) for t in get_tuples(path)])
+
+    return LabeledDataset.from_count_matrix(
         name,
-        iterator,
+        count_matrix,
+        da.array(vocab),
+        da.array(labels),
         overwrite=overwrite,
     )
