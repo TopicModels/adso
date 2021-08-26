@@ -116,6 +116,8 @@ def get_gutenberg(
     data["path"] = "SPGC-counts-2018-07-18/" + data.id + "_counts.txt"
     data = data[data.path.isin(files)]
 
+    data = data.iloc[:10, :]
+
     def get_data(data: pd.Dataframe) -> pd.Dataframe:
         with zipfile.ZipFile(countpath) as z:
             data["text"] = data.apply(
@@ -127,14 +129,17 @@ def get_gutenberg(
             )
         data = data.explode("text")
         data[["word", "count"]] = data["text"].tolist()
-        data.drop(columns=["text"])
+        data.drop(columns=["text", "path"], inplace=True)
         data["count"] = data["count"].astype(int)
         if filter is not None:
             data = data[data["word"].map(filter)]
         return data
 
+    def concat(df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
+        return df1.append(df2)
+
     data = reduce(
-        pd.concat,
+        concat,
         map(
             get_data,
             [data[data.id.isin(ids)] for ids in chunked(data.id.unique(), chunksize)],
@@ -153,9 +158,9 @@ def get_gutenberg(
         else:
             max_count = floor(max_freq * total_count)
 
-    word_count = data.groupby("word").sum()[["word", "count"]]
+    word_count = data.groupby("word").sum().reset_index(drop=False)
 
-    min_word = word_count[word_count.count >= min_count]["word"].unique().tolist()
+    min_word = word_count[word_count["count"] >= min_count]["word"].unique().tolist()
     if max_count is None:
         vocab = min_word
     else:
@@ -167,8 +172,8 @@ def get_gutenberg(
 
     data = data[data.word.isin(vocab)]
 
-    doc_count = data.groupby("word").sum()[["id", "count"]]
-    docs = doc_count[doc_count.count > 0]["id"].unique().tolist()
+    doc_count = data.groupby("id").sum().reset_index()
+    docs = doc_count[doc_count["count"] > 0]["id"].unique().tolist()
     data = data[data.id.isin(docs)]
     del doc_count
 
@@ -185,6 +190,11 @@ def get_gutenberg(
             )
         ),
         da.array(vocab),
-        da.array(data.Bookshelf.to_numpy()),
+        da.array(
+            data[["id", "Bookshelf"]]
+            .sort_values("id", ascending=True)
+            .drop_duplicates()["Bookshelf"]
+            .to_numpy()
+        ),
         overwrite=overwrite,
     )
