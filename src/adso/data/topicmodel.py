@@ -399,3 +399,15 @@ class PseudoTopicModel(TopicModel):
 
     def get_labels(self) -> zarr.array:
         return self.parent.get_labels(l=self.idx)
+
+    def get_cluster_labels(self) -> zarr.array:
+        return self.parent.get_cluster_labels(l=self.idx)
+
+    def get_doc_cluster_matrix(
+        self,
+        skip_hash_check: bool = False,
+        normalize: bool = False,
+    ) -> zarr.array:
+        return self.parent.get_doc_cluster_matrix(
+            skip_hash_check=skip_hash_check, normalize=normalize, l=self.idx
+        )
