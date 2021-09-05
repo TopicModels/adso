@@ -408,6 +408,4 @@ class PseudoTopicModel(TopicModel):
         skip_hash_check: bool = False,
         normalize: bool = False,
     ) -> zarr.array:
-        return self.parent.get_doc_cluster_matrix(
-            skip_hash_check=skip_hash_check, normalize=normalize, l=self.idx
-        )
+        return self.parent.get_doc_cluster_matrix(normalize=normalize, l=self.idx)
