@@ -126,6 +126,7 @@ def pip_test(session):
         "--ignore=tests/test_06_LDAGS.py",
         "--ignore=tests/test_09_TM.py",
         "--ignore=tests/test_10_hSBM.py",
+        "--ignore=tests/test_12_UMAP_HDBSCAN.py",
         env={"ADSODIR": ADSODIR},
     )
 
