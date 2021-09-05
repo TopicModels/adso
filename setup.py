@@ -48,6 +48,5 @@ setup(
         "openpyxl>=3.0.7",
         "numba-plsa>=0.0.2",
         "umap-learn>=0.5",
-        "hdbscan>=0.8.1",
     ],
 )
