@@ -13,7 +13,9 @@ if TYPE_CHECKING:
 def top_words(
     dataset: LabeledDataset, model: TopicModel, n: int = 10
 ) -> List[List[str]]:
+    vocab = dataset.get_vocab()
+    topic_word_matrix = model.get_topic_word_matrix()
     return [
-        [dataset.get_vocab()[idx] for idx in np.argsort(-row.squeeze())[:n]]
-        for row in model.get_doc_topic_matrix().islice()
+        [vocab[idx] for idx in np.argsort(-row.squeeze())[:n]]
+        for row in topic_word_matrix.islice()
     ]
