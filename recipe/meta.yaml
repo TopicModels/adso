@@ -1,13 +1,13 @@
 package:
   name: adso
-  version: 0.1.0
+  version: 0.2.0
 
 source:
   path: ..
 
 build:
   number: 0
-  script: "poetry build"
+  script: "setup.py build"
   script_env:
     - CONDA_PREFIX
   skip: True  # [win or osx]

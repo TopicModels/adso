@@ -15,7 +15,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name="adso",
-    version="0.1.0",
+    version="0.2.0",
     description="A topic-modelling library",
     python_requires=">=3.7.0",
     url="https://github.com/TnTo/adso",
