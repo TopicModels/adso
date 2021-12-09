@@ -19,5 +19,3 @@ dependencies:
   - setuptools
   # pip
   - pip
-  - pip:
-      - flake8-bandit
