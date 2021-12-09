@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import dask
 import dask.array as da
 import nltk
 import numpy as np
@@ -29,6 +30,8 @@ DATADIR.mkdir(exist_ok=True, parents=True)
 NLTKDIR = DATADIR / "nltk"
 NLTKDIR.mkdir(exist_ok=True, parents=True)
 nltk.data.path.append(str(NLTKDIR.resolve()))
+
+dask.config.set({"temporary_directory": str(ADSODIR / "dask")})
 
 SEED: int = 0
 
@@ -72,6 +75,7 @@ def set_adso_dir(path: str) -> None:
     NLTKDIR = DATADIR / "nltk"
     NLTKDIR.mkdir(exist_ok=True, parents=True)
     nltk.data.path.append(str(NLTKDIR.resolve()))
+    dask.config.set({"temporary_directory": str(ADSODIR / "dask")})
 
 
 def set_project_name(name: str) -> None:
