@@ -20,6 +20,10 @@ dependencies:
   - requests
   - umap-learn
   - hdbscan
+  - modin-ray
+  - ray-core
+  - ray-dashboard
+  - python-igraph
   # only conda
   - graph-tool
   - topicmapping
