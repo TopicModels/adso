@@ -23,6 +23,7 @@ def install_this(session):
         "--prefix",
         f"{session.virtualenv.location}",
     )
+    session.run("git", "submodule", "update", "--init", "--recursive")
     session.install(".")
 
 
