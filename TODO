@@ -10,29 +10,17 @@
 
 ### General improvements
 [x] Update README to conda
-[x] migrate from poetry to setup.py for build and upload
 [ ] test pypy
-[ ] check order preserving for large dataset of actual implementation of vectorizer
 [x] Allow to save and load TopicModel OR create Experiment envelop
 [ ] print some messages?
-[ ] Add support for multiple label level
+[ ] Add support for multiple labels
 [ ] Reactivate github actions
 [ ] HDBSCAN uncertain labels
 [ ] Sparse to zarr? [GitHub](https://github.com/zarr-developers/zarr-python/issues/152)
-[ ] Adopt ray as backend
-[ ] Complete rework (maybe switch to Julia/Rust with python API)
+[ ] Adopt ray as backend [Dask integration](https://docs.ray.io/en/latest/data/dask-on-ray.html)
 
 ### Additional Topic Modellind algorithms
-[x] NMF
-[x] LDA (Blei03a)
-[x] Smoothed LDA (Blei03a)
-[x] Symmetric LDA (Blei03a and Blei & Lafferty)
-[x] HDP (Teh, Jordan, Beal & Blei)
-[x] Gibb's sample LDA (Griffiths & Steyvers)
-[ ] [Future] DTM Blei & Lafferty
-[x] hSBM (Gerlach, Peixoto & Altman)
-[x] TopicMapping (Lancichinetti, Amaral et al) (with InfoMap, Louvain and Leiden clustering algorithms)
-[x] Pure PLSA [GitHub](https://github.com/henryre/numba-plsa/blob/cab7f869648c223d8aa3657b0c3044e5bb788de2/numba_plsa/plsa_numba.py) [ArXiV](https://arxiv.org/pdf/1212.3900)
+[ ] DTM Blei & Lafferty
 
 ### Additional feature
 [ ] Implement stopwords method as in Gerlach, Shi, Amaral 2019
@@ -44,6 +32,4 @@
 [ ] Multilanguage Dataset like [Cross-Language](https://github.com/FerreroJeremy/Cross-Language-Dataset) or [xml-mt](https://github.com/salesforce/localization-xml-mt)
 
 ### CI
-[x] Switch CI to conda [LINK](https://github.com/marketplace/actions/setup-miniconda)
 [ ] Add docs autobuild [LINK](https://github.com/marketplace/actions/sphinx-build)
-[x] Check if python version is correct in each CI step
