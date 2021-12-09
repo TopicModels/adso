@@ -17,5 +17,6 @@ dependencies:
   - flake8-import-order
   - darglint
   - setuptools
+  - pytest
   # pip
   - pip
