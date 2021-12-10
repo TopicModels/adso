@@ -69,7 +69,7 @@ def xdoctest(session):
 @nox.session(venv_backend="conda")
 def cov(session):
     install_this(session)
-    session.conda_install("coverage", "pytest", "pytest-cov", "pytest-xdist")
+    session.conda_install("coverage", "pytest", "pytest-cov")
     session.run("rm", "-rf", ADSODIR, external=True)
     session.run("rm", "-rf", ".test", external=True)
     session.run(
@@ -91,7 +91,7 @@ def cov(session):
 @nox.session(venv_backend="conda")
 def coverage(session):
     install_this(session)
-    session.conda_install("coverage", "codecov", "pytest-cov", "pytest-xdist")
+    session.conda_install("coverage", "codecov", "pytest-cov")
     session.run("rm", "-rf", ADSODIR, external=True)
     session.run("rm", "-rf", ".test", external=True)
     session.run(
@@ -109,7 +109,7 @@ def coverage(session):
 @nox.session(python=py_version, venv_backend="conda")
 def test(session):
     install_this(session)
-    session.conda_install("pytest", "pytest-xdist")
+    session.conda_install("pytest")
     session.run("rm", "-rf", ADSODIR, external=True)
     session.run("rm", "-rf", ".test", external=True)
     session.run("pytest", env={"ADSODIR": ADSODIR})
@@ -117,7 +117,7 @@ def test(session):
 
 @nox.session(python=py_version)
 def pip_test(session):
-    session.install("pytest", "pytest-xdist")
+    session.install("pytest")
     session.install(".")
     session.run("rm", "-rf", ADSODIR, external=True)
     session.run("rm", "-rf", ".test", external=True)
