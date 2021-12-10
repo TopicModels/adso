@@ -5,6 +5,7 @@
 [ ] LDAGS
 [ ] HDPVB
 [ ] HDPGS
+[ ] Switch to single core
 
 # Future features
 
@@ -18,8 +19,11 @@
 [ ] HDBSCAN uncertain labels
 [ ] Sparse to zarr? [GitHub](https://github.com/zarr-developers/zarr-python/issues/152)
 [ ] Adopt ray as backend [Dask integration](https://docs.ray.io/en/latest/data/dask-on-ray.html)
+[ ] Rework save and load in tests
 
 ### Additional Topic Modellind algorithms
+[ ] Rework PLSA
+[ ] Implement TopicMapping from scratch
 [ ] DTM Blei & Lafferty
 
 ### Additional feature

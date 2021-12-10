@@ -21,7 +21,6 @@ dependencies:
   - umap-learn
   - hdbscan
   - modin-ray
-  - ray-default
   - python-igraph
   # only conda
   - graph-tool
@@ -32,3 +31,4 @@ dependencies:
   - pip:
       - tomotopy
       - numba-plsa>=0.0.2
+      - ray[default]
