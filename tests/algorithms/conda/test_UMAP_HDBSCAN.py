@@ -22,7 +22,7 @@ def test_UMAP_HDBSCAN():
 
     topic_model = model.fit_transform(dataset, "test_simple_UMAP_HDBSCAN")
 
-    assert round(NMI(dataset, topic_model), 5) == 0.24392
+    assert round(NMI(dataset, topic_model), 5) == 0.24739
 
     return dataset, topic_model
 

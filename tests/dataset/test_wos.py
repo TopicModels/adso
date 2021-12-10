@@ -1,5 +1,12 @@
+import shutil
+
 import adso
 from adso.corpora import get_wos
+
+try:
+    shutil.rmtree(".test/test/wos")
+except FileNotFoundError:
+    pass
 
 
 def test_wos():
@@ -12,11 +19,5 @@ def test_wos():
 
 
 if __name__ == "__main__":
-    import shutil
-
-    try:
-        shutil.rmtree(".test/test")
-    except FileNotFoundError:
-        pass
 
     test_wos()

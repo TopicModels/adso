@@ -1,5 +1,17 @@
+import shutil
+
 import adso
 import adso.data as data
+
+try:
+    shutil.rmtree(".test/test/test_from_iterator")
+except FileNotFoundError:
+    pass
+
+try:
+    shutil.rmtree(".test/test/labeled_test_from_iterator")
+except FileNotFoundError:
+    pass
 
 
 def test_from_iterator():
@@ -48,11 +60,5 @@ def test_from_iterator():
 
 
 if __name__ == "__main__":
-    import shutil
-
-    try:
-        shutil.rmtree(".test/test")
-    except FileNotFoundError:
-        pass
 
     test_from_iterator()

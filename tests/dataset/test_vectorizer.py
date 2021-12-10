@@ -1,7 +1,13 @@
-import numpy as np
+import shutil
 
 import adso
 import adso.data as data
+import numpy as np
+
+try:
+    shutil.rmtree(".test/test/test_vectorizer")
+except FileNotFoundError:
+    pass
 
 
 def test_vectorizer():
@@ -28,11 +34,5 @@ def test_vectorizer():
 
 
 if __name__ == "__main__":
-    import shutil
-
-    try:
-        shutil.rmtree(".test/test")
-    except FileNotFoundError:
-        pass
 
     test_vectorizer()
