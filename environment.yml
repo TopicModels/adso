@@ -21,8 +21,7 @@ dependencies:
   - umap-learn
   - hdbscan
   - modin-ray
-  - ray-core
-  - ray-dashboard
+  - ray-default
   - python-igraph
   # only conda
   - graph-tool

@@ -48,9 +48,8 @@ setup(
         "openpyxl>=3.0.7",
         "numba-plsa>=0.0.2",
         "umap-learn>=0.5",
-        "ray[core]>=1.8",
-        "ray[dashboard]>=1.8",
+        "ray[default]>=1.8",
         "modin[ray]>=0.12",
-        "igraph>=0.9"
+        "igraph>=0.9",
     ],
 )
